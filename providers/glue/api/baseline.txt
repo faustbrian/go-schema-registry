@@ -1,4 +1,4 @@
-package glue // import "github.com/faustbrian/golib/pkg/schema-registry/providers/glue"
+package glue // import "github.com/faustbrian/go-schema-registry/providers/glue"
 
 Package glue adapts AWS Glue Schema Registry without erasing its registry,
 schema-name, UUID-version-ID, lifecycle, or compatibility semantics.

@@ -6,10 +6,10 @@ import (
 	"os"
 	"testing"
 
-	schemaregistry "github.com/faustbrian/golib/pkg/schema-registry"
-	registryavro "github.com/faustbrian/golib/pkg/schema-registry/formats/avro"
-	registryjsonschema "github.com/faustbrian/golib/pkg/schema-registry/formats/jsonschema"
-	registryprotobuf "github.com/faustbrian/golib/pkg/schema-registry/formats/protobuf"
+	schemaregistry "github.com/faustbrian/go-schema-registry"
+	registryavro "github.com/faustbrian/go-schema-registry/formats/avro"
+	registryjsonschema "github.com/faustbrian/go-schema-registry/formats/jsonschema"
+	registryprotobuf "github.com/faustbrian/go-schema-registry/formats/protobuf"
 )
 
 func TestCanonicalFingerprintCorpus(t *testing.T) {

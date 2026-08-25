@@ -1,4 +1,4 @@
-package confluent // import "github.com/faustbrian/golib/pkg/schema-registry/providers/confluent"
+package confluent // import "github.com/faustbrian/go-schema-registry/providers/confluent"
 
 Package confluent implements the Confluent Schema Registry REST semantics
 without treating its global integer IDs as portable schema identity.

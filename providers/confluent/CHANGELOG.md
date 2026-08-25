@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 1.0.0 - 2026-08-25
+
+### Changed
+
+- Publish the module from its standalone `github.com/faustbrian/go-schema-registry/providers/confluent` identity while preserving its documented API and behavior.
+
 - Make official Java wire-reference verification portable to minimal CI
   runners without ripgrep.
 

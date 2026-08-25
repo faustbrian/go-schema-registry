@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	schemaregistry "github.com/faustbrian/golib/pkg/schema-registry"
-	"github.com/faustbrian/golib/pkg/schema-registry/providers/confluent"
+	schemaregistry "github.com/faustbrian/go-schema-registry"
+	"github.com/faustbrian/go-schema-registry/providers/confluent"
 )
 
 type canonicalizerFunc func(context.Context, schemaregistry.Definition) ([]byte, error)

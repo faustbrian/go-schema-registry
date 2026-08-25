@@ -19,9 +19,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws/retry"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	awsglue "github.com/aws/aws-sdk-go-v2/service/glue"
-	schemaregistry "github.com/faustbrian/golib/pkg/schema-registry"
-	registryavro "github.com/faustbrian/golib/pkg/schema-registry/formats/avro"
-	registryglue "github.com/faustbrian/golib/pkg/schema-registry/providers/glue"
+	schemaregistry "github.com/faustbrian/go-schema-registry"
+	registryavro "github.com/faustbrian/go-schema-registry/formats/avro"
+	registryglue "github.com/faustbrian/go-schema-registry/providers/glue"
 )
 
 const (

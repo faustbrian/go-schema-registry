@@ -1,0 +1,311 @@
+{
+  "schema_version": 1,
+  "repository": "github.com/faustbrian/go-schema-registry",
+  "go_version": "1.26.6",
+  "modules": [
+    {
+      "directory": ".",
+      "module_path": "github.com/faustbrian/go-schema-registry",
+      "go_version": "1.26.6",
+      "packages": [
+        {
+          "module_directory": ".",
+          "directory": ".",
+          "name": "schemaregistry",
+          "import_path": "github.com/faustbrian/go-schema-registry",
+          "kind": "public",
+          "production": true,
+          "executable": true,
+          "coverage_required": true,
+          "build_required": true,
+          "build_tags": []
+        },
+        {
+          "module_directory": ".",
+          "directory": "formats/avro",
+          "name": "avro",
+          "import_path": "github.com/faustbrian/go-schema-registry/formats/avro",
+          "kind": "public",
+          "production": true,
+          "executable": true,
+          "coverage_required": true,
+          "build_required": true,
+          "build_tags": []
+        },
+        {
+          "module_directory": ".",
+          "directory": "formats/jsonschema",
+          "name": "jsonschema",
+          "import_path": "github.com/faustbrian/go-schema-registry/formats/jsonschema",
+          "kind": "public",
+          "production": true,
+          "executable": true,
+          "coverage_required": true,
+          "build_required": true,
+          "build_tags": []
+        },
+        {
+          "module_directory": ".",
+          "directory": "formats/protobuf",
+          "name": "protobuf",
+          "import_path": "github.com/faustbrian/go-schema-registry/formats/protobuf",
+          "kind": "public",
+          "production": true,
+          "executable": true,
+          "coverage_required": true,
+          "build_required": true,
+          "build_tags": []
+        }
+      ],
+      "purpose": "`schema-registry` provides provider-neutral contracts for explicit schema registration, resolution, compatibility, bounded caching, offline bundles, and wire integration. It preserves provider identity and lifecycle differences: portable SHA-256 fingerprints never stand in for Confluent IDs or AWS Glue schema-version UUIDs.",
+      "lifecycle": "stable",
+      "kind": "public library",
+      "releasable": true,
+      "family": "protocols-and-descriptions",
+      "family_label": "Protocols And Descriptions",
+      "family_description": "Standards, envelopes, schemas, descriptions, signatures, and wire interoperability.",
+      "family_order": 3,
+      "version": "v1.0.0",
+      "tag_prefix": "v",
+      "owned_dependencies": [
+        "github.com/faustbrian/go-json-schema"
+      ],
+      "reverse_owned_dependencies": [
+        "github.com/faustbrian/go-cloudevents/adapters/golib",
+        "github.com/faustbrian/go-schema-registry/providers/confluent",
+        "github.com/faustbrian/go-schema-registry/providers/glue"
+      ],
+      "external_runtime_dependencies": [
+        "github.com/bufbuild/protocompile",
+        "github.com/deszhou/jcs",
+        "github.com/linkedin/goavro/v2",
+        "go.uber.org/goleak",
+        "google.golang.org/protobuf"
+      ],
+      "required_services": [],
+      "build_tags": [],
+      "test_tags": [],
+      "interoperability_tools": [],
+      "specifications": [],
+      "conformance_corpora": [],
+      "provenance": [],
+      "goal_files": [
+        ".ai/GOAL.md",
+        ".ai/GOAL_HARDEN.md"
+      ],
+      "goal_status": "implementation-evidence-inventoried",
+      "goal_evidence": [
+        {
+          "file": ".ai/GOAL.md",
+          "requirements_sha256": "ab085f55fdccf6f4e4e814b9bc14ef13f03ace3a3b9daf406e3464ab0437b82e",
+          "implementation_evidence": [
+            "CHANGELOG.md",
+            "README.md",
+            "docs/api.md",
+            "docs/architecture.md",
+            "docs/security.md"
+          ],
+          "verification_gates": [
+            "format-check",
+            "tidy-check",
+            "safety",
+            "vet",
+            "test",
+            "race",
+            "coverage",
+            "lint",
+            "staticcheck",
+            "vulnerability",
+            "secrets",
+            "licenses",
+            "sbom",
+            "fuzz",
+            "mutation",
+            "nilaway",
+            "docs",
+            "api",
+            "conformance",
+            "interoperability",
+            "benchmark"
+          ],
+          "implementation_status": "implemented-requires-fresh-verification"
+        },
+        {
+          "file": ".ai/GOAL_HARDEN.md",
+          "requirements_sha256": "86a1dc0710dafb8fc49bd95165eed445603de93ae43968915468d27a8c394080",
+          "implementation_evidence": [
+            "CHANGELOG.md",
+            "README.md",
+            "docs/api.md",
+            "docs/architecture.md",
+            "docs/security.md"
+          ],
+          "verification_gates": [
+            "format-check",
+            "tidy-check",
+            "safety",
+            "vet",
+            "test",
+            "race",
+            "coverage",
+            "lint",
+            "staticcheck",
+            "vulnerability",
+            "secrets",
+            "licenses",
+            "sbom",
+            "fuzz",
+            "mutation",
+            "nilaway",
+            "docs",
+            "api",
+            "conformance",
+            "interoperability",
+            "benchmark"
+          ],
+          "implementation_status": "implemented-requires-fresh-verification"
+        }
+      ],
+      "gates": {
+        "api_compatibility": true,
+        "benchmarks": true,
+        "conformance": false,
+        "coverage": true,
+        "documentation": true,
+        "fuzz": true,
+        "lint": true,
+        "mutation": true,
+        "race": true,
+        "security": true,
+        "tests": true
+      }
+    },
+    {
+      "directory": "providers/confluent",
+      "module_path": "github.com/faustbrian/go-schema-registry/providers/confluent",
+      "go_version": "1.26.6",
+      "packages": [
+        {
+          "module_directory": "providers/confluent",
+          "directory": ".",
+          "name": "confluent",
+          "import_path": "github.com/faustbrian/go-schema-registry/providers/confluent",
+          "kind": "public",
+          "production": true,
+          "executable": true,
+          "coverage_required": true,
+          "build_required": true,
+          "build_tags": []
+        }
+      ],
+      "purpose": "This independently releasable module preserves Confluent subject, integer ID, version, reference, compatibility, and deletion semantics. It does not claim that every Confluent-compatible service has identical extensions or quotas.",
+      "lifecycle": "stable",
+      "kind": "public library",
+      "releasable": true,
+      "family": "protocols-and-descriptions",
+      "family_label": "Protocols And Descriptions",
+      "family_description": "Standards, envelopes, schemas, descriptions, signatures, and wire interoperability.",
+      "family_order": 3,
+      "version": "v1.0.0",
+      "tag_prefix": "providers/confluent/v",
+      "owned_dependencies": [
+        "github.com/faustbrian/go-json-schema",
+        "github.com/faustbrian/go-schema-registry"
+      ],
+      "reverse_owned_dependencies": [],
+      "external_runtime_dependencies": [
+        "github.com/twmb/franz-go/pkg/sr",
+        "go.uber.org/goleak"
+      ],
+      "required_services": [],
+      "build_tags": [],
+      "test_tags": [],
+      "interoperability_tools": [],
+      "specifications": [],
+      "conformance_corpora": [],
+      "provenance": [],
+      "goal_files": [],
+      "goal_status": "not-applicable",
+      "goal_evidence": [],
+      "gates": {
+        "api_compatibility": true,
+        "benchmarks": true,
+        "conformance": false,
+        "coverage": true,
+        "documentation": true,
+        "fuzz": true,
+        "lint": true,
+        "mutation": true,
+        "race": true,
+        "security": true,
+        "tests": true
+      }
+    },
+    {
+      "directory": "providers/glue",
+      "module_path": "github.com/faustbrian/go-schema-registry/providers/glue",
+      "go_version": "1.26.6",
+      "packages": [
+        {
+          "module_directory": "providers/glue",
+          "directory": ".",
+          "name": "glue",
+          "import_path": "github.com/faustbrian/go-schema-registry/providers/glue",
+          "kind": "public",
+          "production": true,
+          "executable": true,
+          "coverage_required": true,
+          "build_required": true,
+          "build_tags": []
+        }
+      ],
+      "purpose": "This independently releasable module preserves AWS Glue registry/schema names, numeric versions, UUID schema-version IDs, lifecycle state, service errors, and wire framing. UUIDs remain scoped provider identities, never portable schema fingerprints.",
+      "lifecycle": "stable",
+      "kind": "public library",
+      "releasable": true,
+      "family": "protocols-and-descriptions",
+      "family_label": "Protocols And Descriptions",
+      "family_description": "Standards, envelopes, schemas, descriptions, signatures, and wire interoperability.",
+      "family_order": 3,
+      "version": "v1.0.0",
+      "tag_prefix": "providers/glue/v",
+      "owned_dependencies": [
+        "github.com/faustbrian/go-schema-registry"
+      ],
+      "reverse_owned_dependencies": [],
+      "external_runtime_dependencies": [
+        "github.com/aws/aws-sdk-go-v2",
+        "github.com/aws/aws-sdk-go-v2/config",
+        "github.com/aws/aws-sdk-go-v2/credentials",
+        "github.com/aws/aws-sdk-go-v2/service/glue",
+        "github.com/aws/smithy-go",
+        "go.uber.org/goleak"
+      ],
+      "required_services": [],
+      "build_tags": [],
+      "test_tags": [
+        "integration"
+      ],
+      "interoperability_tools": [],
+      "specifications": [],
+      "conformance_corpora": [],
+      "provenance": [],
+      "goal_files": [],
+      "goal_status": "not-applicable",
+      "goal_evidence": [],
+      "gates": {
+        "api_compatibility": true,
+        "benchmarks": true,
+        "conformance": false,
+        "coverage": true,
+        "documentation": true,
+        "fuzz": true,
+        "lint": true,
+        "mutation": true,
+        "race": true,
+        "security": true,
+        "tests": true
+      }
+    }
+  ]
+}

@@ -10,8 +10,8 @@ import (
 	"maps"
 
 	"github.com/deszhou/jcs"
-	jsonschema "github.com/faustbrian/golib/pkg/json-schema"
-	schemaregistry "github.com/faustbrian/golib/pkg/schema-registry"
+	jsonschema "github.com/faustbrian/go-json-schema"
+	schemaregistry "github.com/faustbrian/go-schema-registry"
 )
 
 // ErrPayloadInvalid marks a value that does not satisfy the compiled JSON Schema.

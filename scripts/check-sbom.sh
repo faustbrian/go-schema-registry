@@ -45,10 +45,10 @@ generate() {
 	}
 }
 
-generate core "$root" github.com/faustbrian/golib/pkg/schema-registry
+generate core "$root" github.com/faustbrian/go-schema-registry
 generate confluent "$root/providers/confluent" \
-	github.com/faustbrian/golib/pkg/schema-registry/providers/confluent \
-	-replace="github.com/faustbrian/golib/pkg/schema-registry=${root}"
+	github.com/faustbrian/go-schema-registry/providers/confluent \
+	-replace="github.com/faustbrian/go-schema-registry=${root}"
 generate glue "$root/providers/glue" \
-	github.com/faustbrian/golib/pkg/schema-registry/providers/glue \
-	-replace="github.com/faustbrian/golib/pkg/schema-registry=${root}"
+	github.com/faustbrian/go-schema-registry/providers/glue \
+	-replace="github.com/faustbrian/go-schema-registry=${root}"

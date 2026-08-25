@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "repository": "github.com/faustbrian/go-schema-registry",
+  "packages": [
+    {
+      "module_directory": ".",
+      "directory": ".",
+      "name": "schemaregistry",
+      "import_path": "github.com/faustbrian/go-schema-registry",
+      "kind": "public",
+      "production": true,
+      "executable": true,
+      "coverage_required": true,
+      "build_required": true,
+      "build_tags": []
+    },
+    {
+      "module_directory": ".",
+      "directory": "formats/avro",
+      "name": "avro",
+      "import_path": "github.com/faustbrian/go-schema-registry/formats/avro",
+      "kind": "public",
+      "production": true,
+      "executable": true,
+      "coverage_required": true,
+      "build_required": true,
+      "build_tags": []
+    },
+    {
+      "module_directory": ".",
+      "directory": "formats/jsonschema",
+      "name": "jsonschema",
+      "import_path": "github.com/faustbrian/go-schema-registry/formats/jsonschema",
+      "kind": "public",
+      "production": true,
+      "executable": true,
+      "coverage_required": true,
+      "build_required": true,
+      "build_tags": []
+    },
+    {
+      "module_directory": ".",
+      "directory": "formats/protobuf",
+      "name": "protobuf",
+      "import_path": "github.com/faustbrian/go-schema-registry/formats/protobuf",
+      "kind": "public",
+      "production": true,
+      "executable": true,
+      "coverage_required": true,
+      "build_required": true,
+      "build_tags": []
+    },
+    {
+      "module_directory": "providers/confluent",
+      "directory": ".",
+      "name": "confluent",
+      "import_path": "github.com/faustbrian/go-schema-registry/providers/confluent",
+      "kind": "public",
+      "production": true,
+      "executable": true,
+      "coverage_required": true,
+      "build_required": true,
+      "build_tags": []
+    },
+    {
+      "module_directory": "providers/glue",
+      "directory": ".",
+      "name": "glue",
+      "import_path": "github.com/faustbrian/go-schema-registry/providers/glue",
+      "kind": "public",
+      "production": true,
+      "executable": true,
+      "coverage_required": true,
+      "build_required": true,
+      "build_tags": []
+    }
+  ]
+}

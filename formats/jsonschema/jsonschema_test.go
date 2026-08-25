@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	schemaregistry "github.com/faustbrian/golib/pkg/schema-registry"
-	registryjsonschema "github.com/faustbrian/golib/pkg/schema-registry/formats/jsonschema"
+	schemaregistry "github.com/faustbrian/go-schema-registry"
+	registryjsonschema "github.com/faustbrian/go-schema-registry/formats/jsonschema"
 )
 
 func TestCanonicalizerValidatesWithGolibJSONSchemaAndNormalizesJSON(t *testing.T) {

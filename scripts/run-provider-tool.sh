@@ -24,7 +24,7 @@ trap cleanup EXIT
 mkdir "$temporary/module"
 cp -R "$module_root/." "$temporary/module/"
 GOWORK=off GOCACHE="$cache" go mod edit -C "$temporary/module" \
-	-replace="github.com/faustbrian/golib/pkg/schema-registry=${core_root}"
+	-replace="github.com/faustbrian/go-schema-registry=${core_root}"
 
 GOWORK=off GOCACHE="$cache" GOBIN="$temporary/bin" go install "$tool"
 (

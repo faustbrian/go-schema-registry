@@ -7,6 +7,6 @@
 3. Review provider interoperability artifacts, dependency licenses,
    vulnerabilities, SBOM, provenance, benchmarks, API baseline, and the
    Unreleased changelog.
-4. Produce a directory-prefixed semantic-version tag: `pkg/schema-registry/vX.Y.Z`.
+4. Produce a directory-prefixed semantic-version tag: `vX.Y.Z`.
 5. Release provider modules independently with their own directory-prefixed
    tags. A core release does not imply provider support.

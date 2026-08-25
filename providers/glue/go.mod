@@ -1,4 +1,4 @@
-module github.com/faustbrian/golib/pkg/schema-registry/providers/glue
+module github.com/faustbrian/go-schema-registry/providers/glue
 
 go 1.26.6
 
@@ -8,7 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.19.34
 	github.com/aws/aws-sdk-go-v2/service/glue v1.152.0
 	github.com/aws/smithy-go v1.27.7
-	github.com/faustbrian/golib/pkg/schema-registry v0.0.0
+	github.com/faustbrian/go-schema-registry v1.0.0
 	go.uber.org/goleak v1.3.0
 )
 

@@ -1,5 +1,5 @@
-PACKAGE github.com/faustbrian/golib/pkg/schema-registry
-package schemaregistry // import "github.com/faustbrian/golib/pkg/schema-registry"
+PACKAGE github.com/faustbrian/go-schema-registry
+package schemaregistry // import "github.com/faustbrian/go-schema-registry"
 
 Package schemaregistry defines provider-neutral contracts for explicit,
 versioned schema registration and resolution.
@@ -700,8 +700,8 @@ type WireMessage struct {
     WireMessage is parsed framing metadata plus an owned payload copy. Callers
     explicitly resolve ID before invoking Decode.
 
-PACKAGE github.com/faustbrian/golib/pkg/schema-registry/formats/avro
-package avro // import "github.com/faustbrian/golib/pkg/schema-registry/formats/avro"
+PACKAGE github.com/faustbrian/go-schema-registry/formats/avro
+package avro // import "github.com/faustbrian/go-schema-registry/formats/avro"
 
 Package avro provides Apache Avro parsing canonical form through goavro.
 
@@ -722,8 +722,8 @@ func (canonicalizer *Canonicalizer) Canonicalize(
 ) ([]byte, error)
     Canonicalize returns Avro parsing canonical form.
 
-PACKAGE github.com/faustbrian/golib/pkg/schema-registry/formats/jsonschema
-package jsonschema // import "github.com/faustbrian/golib/pkg/schema-registry/formats/jsonschema"
+PACKAGE github.com/faustbrian/go-schema-registry/formats/jsonschema
+package jsonschema // import "github.com/faustbrian/go-schema-registry/formats/jsonschema"
 
 Package jsonschema integrates the provider-neutral registry contracts with
 golib's bounded JSON Schema compiler and validator.
@@ -794,8 +794,8 @@ type Config struct {
 type Dialect = jsonschema.Dialect
     Dialect is the explicit JSON Schema dialect selected for compilation.
 
-PACKAGE github.com/faustbrian/golib/pkg/schema-registry/formats/protobuf
-package protobuf // import "github.com/faustbrian/golib/pkg/schema-registry/formats/protobuf"
+PACKAGE github.com/faustbrian/go-schema-registry/formats/protobuf
+package protobuf // import "github.com/faustbrian/go-schema-registry/formats/protobuf"
 
 Package protobuf validates and canonicalizes Protocol Buffers source using Buf's
 maintained native Go compiler.

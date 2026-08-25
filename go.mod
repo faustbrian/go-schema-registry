@@ -1,11 +1,11 @@
-module github.com/faustbrian/golib/pkg/schema-registry
+module github.com/faustbrian/go-schema-registry
 
 go 1.26.6
 
 require (
 	github.com/bufbuild/protocompile v0.14.1
 	github.com/deszhou/jcs v1.0.0
-	github.com/faustbrian/golib/pkg/json-schema v0.0.0
+	github.com/faustbrian/go-json-schema v1.0.0
 	github.com/linkedin/goavro/v2 v2.15.0
 	go.uber.org/goleak v1.3.0
 	google.golang.org/protobuf v1.36.11

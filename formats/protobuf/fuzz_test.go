@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	schemaregistry "github.com/faustbrian/golib/pkg/schema-registry"
-	registryprotobuf "github.com/faustbrian/golib/pkg/schema-registry/formats/protobuf"
+	schemaregistry "github.com/faustbrian/go-schema-registry"
+	registryprotobuf "github.com/faustbrian/go-schema-registry/formats/protobuf"
 )
 
 func FuzzProtobufSchemas(f *testing.F) {

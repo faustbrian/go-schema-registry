@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	schemaregistry "github.com/faustbrian/golib/pkg/schema-registry"
-	"github.com/faustbrian/golib/pkg/schema-registry/providers/confluent"
+	schemaregistry "github.com/faustbrian/go-schema-registry"
+	"github.com/faustbrian/go-schema-registry/providers/confluent"
 	"github.com/twmb/franz-go/pkg/sr"
 )
 

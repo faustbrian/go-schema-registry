@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	schemaregistry "github.com/faustbrian/golib/pkg/schema-registry"
+	schemaregistry "github.com/faustbrian/go-schema-registry"
 )
 
 func TestCanonicalizerAcceptsExactSchemaByteLimit(t *testing.T) {

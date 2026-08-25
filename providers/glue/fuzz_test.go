@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	registryglue "github.com/faustbrian/golib/pkg/schema-registry/providers/glue"
+	registryglue "github.com/faustbrian/go-schema-registry/providers/glue"
 )
 
 func FuzzWireFrames(f *testing.F) {

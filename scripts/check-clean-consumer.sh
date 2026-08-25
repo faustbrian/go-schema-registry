@@ -19,24 +19,24 @@ cd "$consumer"
 export GOWORK=off GOCACHE="$go_cache" GOMODCACHE="$module_cache" GOPATH="$go_path"
 go mod init example.com/schema-registry-consumer >/dev/null
 go mod edit -go=1.26.6 \
-	-require=github.com/faustbrian/golib/pkg/schema-registry@v0.0.0 \
-	-require=github.com/faustbrian/golib/pkg/schema-registry/providers/confluent@v0.0.0 \
-	-require=github.com/faustbrian/golib/pkg/schema-registry/providers/glue@v0.0.0 \
-	-replace="github.com/faustbrian/golib/pkg/schema-registry=${root}" \
-	-replace="github.com/faustbrian/golib/pkg/schema-registry/providers/confluent=${root}/providers/confluent" \
-	-replace="github.com/faustbrian/golib/pkg/schema-registry/providers/glue=${root}/providers/glue"
+	-require=github.com/faustbrian/go-schema-registry@v0.0.0 \
+	-require=github.com/faustbrian/go-schema-registry/providers/confluent@v0.0.0 \
+	-require=github.com/faustbrian/go-schema-registry/providers/glue@v0.0.0 \
+	-replace="github.com/faustbrian/go-schema-registry=${root}" \
+	-replace="github.com/faustbrian/go-schema-registry/providers/confluent=${root}/providers/confluent" \
+	-replace="github.com/faustbrian/go-schema-registry/providers/glue=${root}/providers/glue"
 cat > consumer_test.go <<'EOF'
 package consumer_test
 
 import (
 	"testing"
 
-	schemaregistry "github.com/faustbrian/golib/pkg/schema-registry"
-	registryavro "github.com/faustbrian/golib/pkg/schema-registry/formats/avro"
-	registryjsonschema "github.com/faustbrian/golib/pkg/schema-registry/formats/jsonschema"
-	registryprotobuf "github.com/faustbrian/golib/pkg/schema-registry/formats/protobuf"
-	registryconfluent "github.com/faustbrian/golib/pkg/schema-registry/providers/confluent"
-	registryglue "github.com/faustbrian/golib/pkg/schema-registry/providers/glue"
+	schemaregistry "github.com/faustbrian/go-schema-registry"
+	registryavro "github.com/faustbrian/go-schema-registry/formats/avro"
+	registryjsonschema "github.com/faustbrian/go-schema-registry/formats/jsonschema"
+	registryprotobuf "github.com/faustbrian/go-schema-registry/formats/protobuf"
+	registryconfluent "github.com/faustbrian/go-schema-registry/providers/confluent"
+	registryglue "github.com/faustbrian/go-schema-registry/providers/glue"
 )
 
 func TestPublicModulesCompile(t *testing.T) {

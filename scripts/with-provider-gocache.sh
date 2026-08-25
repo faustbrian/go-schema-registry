@@ -15,5 +15,5 @@ trap cleanup EXIT
 cp "$module_root/go.mod" "$temporary/provider.mod"
 test ! -e "$module_root/go.sum" || cp "$module_root/go.sum" "$temporary/provider.sum"
 GOWORK=off GOCACHE="$cache" go mod edit -modfile="$temporary/provider.mod" \
-	-replace="github.com/faustbrian/golib/pkg/schema-registry=${core_root}"
+	-replace="github.com/faustbrian/go-schema-registry=${core_root}"
 GOWORK=off GOCACHE="$cache" GOFLAGS="-modfile=$temporary/provider.mod" "$@"

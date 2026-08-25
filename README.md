@@ -1,5 +1,15 @@
 # schema-registry
 
+[![CI](https://github.com/faustbrian/go-schema-registry/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/faustbrian/go-schema-registry/actions/workflows/ci.yml)
+[![CodeQL](https://img.shields.io/badge/CodeQL-required-blue)](https://github.com/faustbrian/go-schema-registry/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/badge/coverage-100%25_required-blue)](CONTRIBUTING.md#verification)
+[![Mutation](https://img.shields.io/badge/mutation-100%25_required-blue)](CONTRIBUTING.md#verification)
+[![Documentation](https://img.shields.io/badge/docs-checked_in_CI-blue)](docs/)
+[![Go Reference](https://pkg.go.dev/badge/github.com/faustbrian/go-schema-registry.svg)](https://pkg.go.dev/github.com/faustbrian/go-schema-registry)
+[![Release](https://img.shields.io/github/v/release/faustbrian/go-schema-registry?sort=semver)](https://github.com/faustbrian/go-schema-registry/releases)
+[![Go](https://img.shields.io/badge/go-1.26.6-00ADD8?logo=go)](https://go.dev/)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 `schema-registry` provides provider-neutral contracts for explicit schema
 registration, resolution, compatibility, bounded caching, offline bundles, and
 wire integration. It preserves provider identity and lifecycle differences:
@@ -56,7 +66,7 @@ hidden network I/O.
 - [Conformance and hardening matrix](docs/conformance.md)
 - [FAQ](docs/faq.md)
 
-The minimum supported toolchain is Go 1.26.6. The module is pre-v1; see
+The minimum supported toolchain is Go 1.26.6. The module follows stable v1 compatibility; see
 [CHANGELOG.md](CHANGELOG.md) and [RELEASING.md](RELEASING.md).
 
 `make clean-consumer` compiles the core, all format adapters, and both provider

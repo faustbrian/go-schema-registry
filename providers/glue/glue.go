@@ -13,7 +13,7 @@ import (
 	awsglue "github.com/aws/aws-sdk-go-v2/service/glue"
 	"github.com/aws/aws-sdk-go-v2/service/glue/types"
 	"github.com/aws/smithy-go"
-	schemaregistry "github.com/faustbrian/golib/pkg/schema-registry"
+	schemaregistry "github.com/faustbrian/go-schema-registry"
 )
 
 const (

@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strconv"
 
-	schemaregistry "github.com/faustbrian/golib/pkg/schema-registry"
+	schemaregistry "github.com/faustbrian/go-schema-registry"
 )
 
 // ErrInvalidFrame marks malformed framing, invalid IDs, or exceeded frame bounds.
