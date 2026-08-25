@@ -65,7 +65,7 @@
       "family_label": "Protocols And Descriptions",
       "family_description": "Standards, envelopes, schemas, descriptions, signatures, and wire interoperability.",
       "family_order": 3,
-      "version": "v1.0.0",
+      "version": "1.0.0",
       "tag_prefix": "v",
       "owned_dependencies": [
         "github.com/faustbrian/go-json-schema"
@@ -206,7 +206,7 @@
       "family_label": "Protocols And Descriptions",
       "family_description": "Standards, envelopes, schemas, descriptions, signatures, and wire interoperability.",
       "family_order": 3,
-      "version": "v1.0.0",
+      "version": "1.0.0",
       "tag_prefix": "providers/confluent/v",
       "owned_dependencies": [
         "github.com/faustbrian/go-json-schema",
@@ -267,7 +267,7 @@
       "family_label": "Protocols And Descriptions",
       "family_description": "Standards, envelopes, schemas, descriptions, signatures, and wire interoperability.",
       "family_order": 3,
-      "version": "v1.0.0",
+      "version": "1.0.0",
       "tag_prefix": "providers/glue/v",
       "owned_dependencies": [
         "github.com/faustbrian/go-schema-registry"
