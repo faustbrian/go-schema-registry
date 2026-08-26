@@ -45,7 +45,6 @@ framing benchmarks for the official serializer and the Go framers. The Maven
 runtime, primary Confluent artifact checksum, Maven cache, and Go build cache
 are isolated and verified by the gate.
 
-## Ecosystem
+## Documentation
 
-Use the [Golib documentation portal](https://github.com/faustbrian/golib/blob/main/docs/index.md)
-to choose companion packages, supported stacks, recipes, and operations guidance.
+See the [root package documentation](../../README.md) for provider contracts, operations, and related packages.

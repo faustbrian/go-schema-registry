@@ -48,7 +48,6 @@ the service cannot find the latest definition. Live access is optional and is
 not part of `check`, `integration`, `conformance`, or `check-release`. Every
 target removes its disposable Go cache after execution.
 
-## Ecosystem
+## Documentation
 
-Use the [Golib documentation portal](https://github.com/faustbrian/golib/blob/main/docs/index.md)
-to choose companion packages, supported stacks, recipes, and operations guidance.
+See the [root package documentation](../../README.md) for provider contracts, operations, and related packages.
