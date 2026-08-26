@@ -14,6 +14,8 @@
 - [Evolution](evolution.md)
 - [Provenance](provenance.md)
 - [Providers](providers.md)
+- [Confluent provider](../providers/confluent/docs/README.md)
+- [AWS Glue provider](../providers/glue/docs/README.md)
 - [Wire Formats](wire-formats.md)
 
 ## Operations and security
