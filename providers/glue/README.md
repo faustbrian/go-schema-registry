@@ -13,10 +13,10 @@ The caller-provided scope should identify region, account, and registry.
 
 Glue supports Avro, JSON Schema drafts 4/6/7, and proto2/proto3 within service
 limits; configure a matching local canonicalizer. Unknown formats are rejected
-during construction. The service applies its
-configured compatibility policy during registration and does not expose an
-equivalent candidate dry-run, so `CheckCompatibility` is explicitly unsupported.
-The focused adapter does not advertise schema references, listing, or deletion.
+during construction. The service applies its configured compatibility policy
+during registration and does not expose an equivalent candidate dry-run, so
+`CheckCompatibility` is explicitly unsupported. The focused adapter does not
+advertise schema references, listing, or deletion.
 
 Registration first resolves the exact definition. After registration succeeds,
 creation outcome is unknown because duplicate/concurrent calls can return the
@@ -30,24 +30,25 @@ official [Glue Schema Registry guide](https://docs.aws.amazon.com/glue/latest/dg
 
 ## Integration verification
 
-`make interoperability` compares framing with the pinned official AWS Glue
-Schema Registry Java SerDe v1.1.27 in an isolated Maven container. `make
-integration` runs the real AWS SDK v2 client against a faithful local Smithy
-JSON service. It requires no AWS account or credentials and verifies request
-serialization, SigV4 wiring, latest/by-ID/version resolution, registration,
-duplicates, pending/available lifecycle, SDK throttling retries, quotas,
-malformed responses, cancellation, deadlines, unknown outcomes, and
+`golib check --module providers/glue` compares framing with the pinned official
+AWS Glue Schema Registry Java SerDe v1.1.27 in an isolated Maven container.
+The same provider contract runs the real AWS SDK v2 client against a faithful
+local Smithy JSON service. It requires no AWS account or credentials and
+verifies request serialization, SigV4 wiring, latest/by-ID/version resolution,
+registration, duplicates, pending/available lifecycle, SDK throttling retries,
+quotas, malformed responses, cancellation, deadlines, unknown outcomes, and
 reconciliation.
 
-`make live-integration` is a separate read-only check against a caller-selected
-existing AVRO schema using the default AWS credential chain. It requires
-`SCHEMA_REGISTRY_GLUE_INTEGRATION_REGION`,
+The live-integration test remains a separate read-only check against a
+caller-selected existing AVRO schema using the default AWS credential chain.
+It requires `SCHEMA_REGISTRY_GLUE_INTEGRATION_REGION`,
 `SCHEMA_REGISTRY_GLUE_INTEGRATION_REGISTRY`, and
 `SCHEMA_REGISTRY_GLUE_INTEGRATION_SCHEMA`; it refuses to create a version if
 the service cannot find the latest definition. Live access is optional and is
-not part of `check`, `integration`, `conformance`, or `check-release`. Every
-target removes its disposable Go cache after execution.
+not part of ordinary CI. Shared tooling owns disposable Go caches for
+configured checks.
 
 ## Documentation
 
-See the [root package documentation](../../README.md) for provider contracts, operations, and related packages.
+See the [root package documentation](../../README.md) for provider contracts,
+operations, and related packages.

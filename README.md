@@ -69,15 +69,15 @@ hidden network I/O.
 The minimum supported toolchain is Go 1.26.6. The module follows stable v1 compatibility; see
 [CHANGELOG.md](CHANGELOG.md) and [RELEASING.md](RELEASING.md).
 
-`make clean-consumer` compiles the core, all format adapters, and both provider
-modules from a fresh module with workspace resolution disabled. `make check`
-also runs provider-local verification and the official AWS Java wire
-differential; `make check-release` additionally requires both live provider
-integration suites.
+`golib repository check` validates the repository contract. `golib check --all`
+runs the standard gates for the core and both provider modules, including the
+provider-specific wire interoperability checks. The release workflow performs
+the additional release validation; the optional AWS live integration remains a
+caller-selected check and never runs with ordinary CI.
 
 The release gate also runs bounded leak, fault-injection, race-stress, and soak
-exercises for the core and both provider modules. Each Go invocation receives a
-fresh disposable build cache.
+exercises for the core and both provider modules. Each Go invocation receives
+task-owned disposable build and module caches.
 
 ## License
 

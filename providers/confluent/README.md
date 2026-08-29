@@ -30,7 +30,7 @@ and [wire format](https://docs.confluent.io/platform/current/schema-registry/fun
 
 ## Integration verification
 
-`make integration` starts pinned Confluent Platform 8.3.1 Kafka and Schema
+`golib check --module providers/confluent` starts pinned Confluent Platform 8.3.1 Kafka and Schema
 Registry images, runs the adapter against the real REST service, and compares
 registration, lookup, listing, references, all compatibility modes across Avro,
 JSON Schema, and Protobuf, and classic/Protobuf wire framing with
@@ -38,7 +38,7 @@ JSON Schema, and Protobuf, and classic/Protobuf wire framing with
 also exercises its bounded value codec through a registered schema. Containers,
 subjects, and the disposable Go build cache are removed after the run.
 
-`make interoperability` compares classic and Protobuf framing byte-for-byte
+The same command compares classic and Protobuf framing byte-for-byte
 with Confluent's official Java `PrefixSchemaIdSerializer` from
 `kafka-schema-serializer` 8.3.1. It also publishes equivalent 1,024-byte
 framing benchmarks for the official serializer and the Go framers. The Maven
@@ -47,4 +47,5 @@ are isolated and verified by the gate.
 
 ## Documentation
 
-See the [root package documentation](../../README.md) for provider contracts, operations, and related packages.
+See the [root package documentation](../../README.md) for provider contracts,
+operations, and related packages.

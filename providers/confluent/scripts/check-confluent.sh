@@ -54,5 +54,5 @@ if [[ "$ready" != true ]]; then
 	exit 1
 fi
 
-SCHEMA_REGISTRY_CONFLUENT_INTEGRATION_ENDPOINT="$endpoint" \
-	../../scripts/with-provider-gocache.sh go test -tags=confluentintegration . -count=1
+	SCHEMA_REGISTRY_CONFLUENT_INTEGRATION_ENDPOINT="$endpoint" \
+		go test -tags=confluentintegration . -count=1

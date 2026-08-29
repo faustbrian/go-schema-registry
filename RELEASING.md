@@ -1,7 +1,7 @@
 # Releasing
 
-1. Run `make check-release` with provider integration credentials and services
-   explicitly configured.
+1. Run `golib release dry-run` for the releasable modules with provider
+   integration services explicitly configured where required.
 2. Confirm exact statement coverage and viable mutation kills for the core and
    each provider module.
 3. Review provider interoperability artifacts, dependency licenses,

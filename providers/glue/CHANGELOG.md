@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Changed
+
+- Adopt the root repository's released `go-library-tools` v1.0.5 contract and
+  preserve Glue integration and wire interoperability as package-owned checks.
+- Refresh checksums for the current core and JSON Schema v1.0.0 archives.
+
 ### Documentation
 
 - Add a module documentation index for direct navigation.

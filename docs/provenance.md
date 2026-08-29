@@ -13,9 +13,10 @@ Provider evidence is pinned independently of provider identity:
 | AWS Smithy Go | 1.27.7 | Go module checksum in `providers/glue/go.sum` |
 | Maven reference runtime | 3.9.11, Temurin 21 | `sha256:6fdc855a6ed81d288ca7ca37ac6ff5e9308b612485c0801d70b25a858c83d237` |
 
-This matrix was refreshed on 2026-08-10. `make provenance` verifies remote tag
-and image identities and then confirms the integration scripts still select
-them. `make sbom` creates and validates a
+This matrix was refreshed on 2026-08-10. The provider interoperability
+verification script validates remote tag and image identities and confirms the
+integration scripts still select them. The shared release contract creates and
+validates a
 temporary CycloneDX document covering the core and both provider modules. No
 generated SBOM, dependency cache, Maven repository, or Go build cache is left
 in the source tree after either gate.

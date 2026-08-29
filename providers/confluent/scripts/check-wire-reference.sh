@@ -51,7 +51,7 @@ test "$(shasum -a 256 "$artifact" | awk '{print $1}')" = "$artifact_sha256"
 test "$(shasum -a 256 "$artifact_pom" | awk '{print $1}')" = "$artifact_pom_sha256"
 grep -F -- '<name>Apache License 2.0</name>' "$artifact_pom" >/dev/null
 
-ours=$("$root/../../scripts/with-provider-gocache.sh" go run "$root/testdata/reference/go_frame.go" "$schema_id" "$payload")
+ours=$(go run "$root/testdata/reference/go_frame.go" "$schema_id" "$payload")
 ours_classic=$(printf '%s\n' "$ours" | sed -n '1p')
 ours_protobuf=$(printf '%s\n' "$ours" | sed -n '2p')
 test "$ours_classic" = "$official_classic" || {
@@ -65,5 +65,5 @@ test "$ours_protobuf" = "$official_protobuf" || {
 printf 'Confluent Java 8.3.1 classic frame matched: %s\n' "$ours_classic"
 printf 'Confluent Java 8.3.1 Protobuf frame matched: %s\n' "$ours_protobuf"
 printf '%s\n%s\n' "$official_classic_benchmark" "$official_protobuf_benchmark"
-"$root/../../scripts/with-provider-gocache.sh" go test "$root" -run '^$' \
+go test "$root" -run '^$' \
 	-bench '^(BenchmarkClassicFrame|BenchmarkProtobufFrame)$' -benchmem -benchtime=1s
