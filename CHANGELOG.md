@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Changed
+
+- Adopt the released `go-library-tools` v1.0.5 repository contract and retain
+  provider-specific interoperability checks as package-owned operations.
+- Refresh the `go-json-schema` v1.0.0 checksum after its intentional release
+  archive replacement so clean consumers resolve the current archive.
+
+### Documentation
+
+- Replace archived monorepo links and completed execution artifacts with a
+  standalone, human-oriented documentation structure.
+
 ## 1.0.0 - 2026-08-25
 
 ### Changed
@@ -35,7 +47,7 @@
 
 ### Documentation
 
-- Link the package README to the repository-wide Golib documentation portal.
+- Link the package README to package-owned documentation.
 
 - Replace the obsolete JSON Schema pseudo-version with the canonical monorepo
   dependency version used by clean local and CI resolution.

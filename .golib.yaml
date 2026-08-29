@@ -1,0 +1,128 @@
+schema_version: 1
+tool_version: v1.0.5
+tool_checksums_sha256: 7ee6c6c9bccd76cc1071fb891073055d393701abaed047e0357370f128ba771b
+manifest:
+  modules: modules.json
+  packages: packages.json
+evidence:
+  root: .verification
+mutation:
+  root: .verification/mutation
+  imports:
+    - module: .
+      archive: .verification/mutation/bootstrap/root.zip
+      ledger: .verification/mutation/migration-ledger.json
+    - module: providers/confluent
+      archive: .verification/mutation/bootstrap/providers-confluent.zip
+      ledger: .verification/mutation/migration-ledger.json
+    - module: providers/glue
+      archive: .verification/mutation/bootstrap/providers-glue.zip
+      ledger: .verification/mutation/migration-ledger.json
+api:
+  baselines:
+    - module: .
+      mode: go-doc
+      path: api/baseline.txt
+      packages:
+        - .
+        - ./formats/avro
+        - ./formats/jsonschema
+        - ./formats/protobuf
+    - module: providers/confluent
+      mode: go-doc
+      path: providers/confluent/api/baseline.txt
+      packages:
+        - .
+    - module: providers/glue
+      mode: go-doc
+      path: providers/glue/api/baseline.txt
+      packages:
+        - .
+operations:
+  - module: .
+    gate: fuzz
+    steps:
+      - type: go-test
+        packages: [.]
+        fuzz: '^FuzzCompileDefinitions$'
+        budget: 100x
+        timeout: 2m
+      - type: go-test
+        packages: [.]
+        fuzz: '^FuzzReferenceGraphs$'
+        budget: 100x
+        timeout: 2m
+      - type: go-test
+        packages: [.]
+        fuzz: '^FuzzBundleLoading$'
+        budget: 100x
+        timeout: 2m
+      - type: go-test
+        packages: [./formats/avro]
+        fuzz: '^FuzzAvroSchemas$'
+        budget: 100x
+        timeout: 2m
+      - type: go-test
+        packages: [./formats/jsonschema]
+        fuzz: '^FuzzJSONSchemas$'
+        budget: 100x
+        timeout: 2m
+      - type: go-test
+        packages: [./formats/protobuf]
+        fuzz: '^FuzzProtobufSchemas$'
+        budget: 100x
+        timeout: 2m
+  - module: .
+    gate: benchmark
+    steps:
+      - type: go-test
+        packages: [./...]
+        benchmark: .
+        budget: 100ms
+        timeout: 20m
+  - module: providers/confluent
+    gate: fuzz
+    steps:
+      - type: go-test
+        packages: [.]
+        fuzz: '^FuzzWireFrames$'
+        budget: 100x
+        timeout: 2m
+  - module: providers/confluent
+    gate: benchmark
+    steps:
+      - type: go-test
+        packages: [.]
+        benchmark: .
+        budget: 100ms
+        timeout: 20m
+  - module: providers/confluent
+    gate: interoperability
+    steps:
+      - type: make
+        makefile: verification/package.mk
+        target: confluent-interoperability
+        timeout: 20m
+  - module: providers/glue
+    gate: fuzz
+    steps:
+      - type: go-test
+        packages: [.]
+        fuzz: '^FuzzWireFrames$'
+        budget: 100x
+        timeout: 2m
+  - module: providers/glue
+    gate: benchmark
+    steps:
+      - type: go-test
+        packages: [.]
+        benchmark: .
+        budget: 100ms
+        timeout: 20m
+  - module: providers/glue
+    gate: interoperability
+    steps:
+      - type: make
+        makefile: verification/package.mk
+        target: glue-interoperability
+        timeout: 20m

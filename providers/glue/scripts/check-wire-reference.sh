@@ -35,12 +35,12 @@ case "$official_benchmark" in
 	'official_aws_java_serde ns/op='*' iterations=100000 payload_bytes=1024') ;;
 	*) printf 'invalid AWS Java benchmark output: %s\n' "$official_benchmark" >&2; exit 1 ;;
 esac
-ours=$("$root/../../scripts/with-provider-gocache.sh" go run "$root/testdata/reference/go_frame.go" "$schema_id" "$payload")
+ours=$(go run "$root/testdata/reference/go_frame.go" "$schema_id" "$payload")
 test "$ours" = "$official" || {
 	printf 'Go frame: %s\nAWS Java frame: %s\n' "$ours" "$official" >&2
 	exit 1
 }
 printf 'AWS Glue Java SerDe v1.1.27 wire frame matched: %s\n' "$ours"
 printf '%s\n' "$official_benchmark"
-"$root/../../scripts/with-provider-gocache.sh" go test "$root" -run '^$' \
+go test "$root" -run '^$' \
 	-bench '^BenchmarkFrame$' -benchmem -benchtime=1s

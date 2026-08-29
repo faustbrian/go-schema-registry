@@ -3,7 +3,7 @@
 ## Before Editing
 
 1. Read [`AGENTS.md`](AGENTS.md) and the affected module's goals and docs.
-2. Run `make inventory` and the narrow baseline gate for the module.
+2. Run `golib inventory` and the narrow baseline gate for the module.
 3. Identify owned dependencies and reverse dependants in `modules.json`.
 4. Preserve unrelated work and generated/corpus provenance.
 
@@ -35,18 +35,20 @@ that hide a failing package.
 Run during development:
 
 ```bash
-make inventory
-make check
+golib inventory
+golib check --all
 ```
 
 Before submitting a repository-wide change:
 
 ```bash
-make ci
+golib repository check
+golib check --all
 ```
 
-The full scheduled and release gate is `make ci`. Report every unavailable or
-failing command; do not describe partial results as release-ready.
+The hosted scheduled and release workflows add the Docker-backed provider and
+release gates to this same contract. Report every unavailable or failing
+command; do not describe partial results as release-ready.
 
 ## Adding A Module
 

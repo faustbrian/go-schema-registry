@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "repository": "github.com/faustbrian/go-schema-registry",
+  "module": "providers/glue",
+  "package": ".",
+  "gate": "mutation",
+  "input_digest": "sha256:e8895e667b74367f86b306dc459eaa2549e3ab94d6bc36180f18d701c9dff844",
+  "verifier_digest": "sha256:9a9499ff68a8dfd49a0be7995590297a8ee563a1aa226bfd8b9361dc53058108",
+  "result": "passed",
+  "report_digest": "sha256:03e3c68a1ed6f5736a1e8c9f011af238d12a30040a3d3a4cb50525611cdadba0",
+  "environment": {
+    "CGO_ENABLED": "1",
+    "GOARCH": "arm64",
+    "GOOS": "darwin",
+    "GOVERSION": "go1.27.0",
+    "gremlins_binary_sha256": "sha256:6a2beddc477eb410f8a670b6c9049558563d3c4327498fe31604d31c773a959e"
+  },
+  "completed_at": "2026-08-29T07:37:12.67041Z"
+}

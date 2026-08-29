@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "repository": "github.com/faustbrian/go-schema-registry",
+  "module": ".",
+  "package": "formats/protobuf",
+  "gate": "mutation",
+  "input_digest": "sha256:df05bddd0e2a8d21d4f902287e922583de946342e913b1c3a1c77d9d840eac88",
+  "verifier_digest": "sha256:9a9499ff68a8dfd49a0be7995590297a8ee563a1aa226bfd8b9361dc53058108",
+  "result": "passed",
+  "report_digest": "sha256:6d1738ff308d6c5b842925eebb3d284dbf607febc8857553fc4a12bd50ebb127",
+  "environment": {
+    "CGO_ENABLED": "1",
+    "GOARCH": "arm64",
+    "GOOS": "darwin",
+    "GOVERSION": "go1.27.0",
+    "gremlins_binary_sha256": "sha256:6a2beddc477eb410f8a670b6c9049558563d3c4327498fe31604d31c773a959e"
+  },
+  "completed_at": "2026-08-29T07:23:06.898983Z"
+}
