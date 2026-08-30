@@ -4,7 +4,7 @@
 
 ### Changed
 
-- Adopt the released `go-library-tools` v1.0.5 repository contract and retain
+- Adopt the released `go-library-tools` v1.0.13 repository contract and retain
   provider-specific interoperability checks as package-owned operations.
 - Refresh the `go-json-schema` v1.0.0 checksum after its intentional release
   archive replacement so clean consumers resolve the current archive.
