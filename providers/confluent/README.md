@@ -4,6 +4,9 @@ This independently releasable module preserves Confluent subject, integer ID,
 version, reference, compatibility, and deletion semantics. It does not claim
 that every Confluent-compatible service has identical extensions or quotas.
 
+See the [specification decision register](docs/specification-decisions.md) for
+the exact service, compatibility, and wire policies.
+
 `Config` requires one HTTPS endpoint, provider scope, injected transport,
 request deadline, response/retry/concurrency/reference bounds, and explicit
 format canonicalizers. HTTP is available only through the test flag. URL

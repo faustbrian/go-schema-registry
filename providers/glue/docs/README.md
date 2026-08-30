@@ -1,5 +1,9 @@
 # Documentation
 
+The [specification decision register](specification-decisions.md) and
+[conformance matrix](../specification/README.md) record the exact AWS service,
+live-evidence, and wire boundaries.
+
 ## Getting started
 
 - [Package overview](../README.md)

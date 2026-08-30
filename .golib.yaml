@@ -40,6 +40,13 @@ api:
         - .
 operations:
   - module: .
+    gate: conformance
+    steps:
+      - type: go-test
+        packages: [./...]
+        run: '^(TestCanonicalFingerprintCorpus|TestCanonicalizerUsesAvroParsingCanonicalForm|TestCanonicalizerRejectsExcessiveNestingBeforeAvroParsing|TestCanonicalizerUsesOnlyExplicitLocalReferenceResourcesAndDialect|TestCodecValidatesEncodedAndDecodedPayloads|TestCanonicalizerUsesDeterministicLinkedDescriptors|TestCanonicalizerRejectsAggregateImportTextBeforeCompilation|TestCompileFingerprintIncludesPortableReferences|TestCodecIntegrationKeepsFramingResolutionAndBusinessCodecExplicit)$'
+        timeout: 5m
+  - module: .
     gate: fuzz
     steps:
       - type: go-test
@@ -81,6 +88,13 @@ operations:
         budget: 100ms
         timeout: 20m
   - module: providers/confluent
+    gate: conformance
+    steps:
+      - type: make
+        makefile: verification/package.mk
+        target: confluent-interoperability
+        timeout: 20m
+  - module: providers/confluent
     gate: fuzz
     steps:
       - type: go-test
@@ -103,6 +117,13 @@ operations:
         makefile: verification/package.mk
         target: confluent-interoperability
         timeout: 20m
+  - module: providers/glue
+    gate: conformance
+    steps:
+      - type: make
+        makefile: verification/package.mk
+        target: glue-conformance
+        timeout: 10m
   - module: providers/glue
     gate: fuzz
     steps:

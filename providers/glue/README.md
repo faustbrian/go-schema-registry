@@ -5,6 +5,9 @@ numeric versions, UUID schema-version IDs, lifecycle state, service errors, and
 wire framing. UUIDs remain scoped provider identities, never portable schema
 fingerprints.
 
+See the [specification decision register](docs/specification-decisions.md) for
+the exact API, lifecycle, unsupported-capability, and wire policies.
+
 `Config` receives a narrow AWS SDK v2 Glue client already configured with
 region, endpoint, credentials, and SDK retry policy. The adapter adds one total
 deadline and a concurrency bound without adding a second retry loop. Use

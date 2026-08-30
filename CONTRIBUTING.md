@@ -24,6 +24,11 @@ the affected stable decision entries, and complete the Specification Decisions
 section of the pull request template. An unresolved interpretation or stale
 source pin is release-blocking; peer behavior cannot silently select policy.
 
+Review the affected decision register before changing observable behavior:
+[core and formats](docs/specification-decisions.md),
+[Confluent](providers/confluent/docs/specification-decisions.md), or
+[AWS Glue](providers/glue/docs/specification-decisions.md).
+
 Required mutation gates must finish with zero surviving viable mutants.
 
 Do not add package-local workflows, permanent replacements, machine-specific

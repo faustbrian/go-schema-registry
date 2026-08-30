@@ -11,6 +11,13 @@
 
 ### Documentation
 
+- Add the [specification decision register](docs/specification-decisions.md),
+  exact source/update pins, machine conformance map, and immutable decision
+  history for the format and portable identity boundaries:
+  `SCHEMA-REG-DEC-001 sha256:10a3b137c451307eb5256004208b6693550796fb513305c6cb8022be6b835dce`,
+  `SCHEMA-REG-DEC-002 sha256:07d2ac3964542d1a9a91040a7fb53e47255d7ab5c7a054863bacbe9d22c82087`,
+  `SCHEMA-REG-DEC-003 sha256:d9353b233c7635b37f288bf42611297f19cfd2603057768bfb65b2a9e2780bfe`,
+  and `SCHEMA-REG-DEC-004 sha256:cc435540bc21878a154b9001d5391def7ddebafd09f358a0547f82d2b82fe05b`.
 - Replace archived monorepo links and completed execution artifacts with a
   standalone, human-oriented documentation structure.
 

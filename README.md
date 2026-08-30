@@ -16,6 +16,9 @@ wire integration. It preserves provider identity and lifecycle differences:
 portable SHA-256 fingerprints never stand in for Confluent IDs or AWS Glue
 schema-version UUIDs.
 
+Observable specification and provider choices are maintained in the
+[specification decision register](docs/specification-decisions.md).
+
 The core module has no implicit registry client. Provider adapters are separate
 modules under `providers/`; format adapters are explicit dependencies under
 `formats/`.
