@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-08-30",
+  "sources": [
+    {"id":"avro-1.12.0","version":"1.12.0","url":"https://codeload.github.com/apache/avro/tar.gz/refs/tags/release-1.12.0","sha256":"51832f9c2e81fa95addb74be627dac27b4883ec2c8627ec8471d99cfea787555","status":"pinned"},
+    {"id":"avro-updates","version":"tag-feed","url":"https://github.com/apache/avro/tags.atom","sha256":"59c06699aa77255384ec0d466414d1703af9fbfa0dd6d811c5ce5617fc886c92","status":"pinned"},
+    {"id":"json-schema-core-2020-12","version":"Draft 2020-12","url":"https://codeload.github.com/json-schema-org/json-schema-spec/tar.gz/refs/tags/draft-bhutton-json-schema-01","sha256":"b7c9c3a9bd5d67d9c2c36cecbffdd673b047304d459f21e074d50e79ccd065cc","status":"pinned"},
+    {"id":"json-schema-validation-2020-12","version":"Draft 2020-12","url":"https://codeload.github.com/json-schema-org/json-schema-spec/tar.gz/refs/tags/draft-bhutton-json-schema-01","sha256":"b7c9c3a9bd5d67d9c2c36cecbffdd673b047304d459f21e074d50e79ccd065cc","status":"pinned"},
+    {"id":"json-schema-updates","version":"main-commit-feed","url":"https://github.com/json-schema-org/json-schema-spec/commits/main.atom","sha256":"f6fd1990009be09093c7cae84d6781062c164f0efb003d992c1bd3ef5f4463b6","status":"pinned"},
+    {"id":"rfc8785","version":"RFC 8785","url":"https://www.rfc-editor.org/rfc/rfc8785.txt","sha256":"63d52294eb0e3f0014174288186d388b4ddbf2c67d1ce8af1d9726eb0c3ab240","status":"pinned"},
+    {"id":"rfc8785-errata","version":"RFC 8785 errata","url":"https://errata.rfc-editor.org/search/?rfc_number=8785&presentation=records","sha256":"a6b93b847a0c74ffb89760521d574150e6ec65cfa5fcd3c1551cccc91e4acbfa","status":"pinned"},
+    {"id":"protobuf-v33.4","version":"v33.4","url":"https://codeload.github.com/protocolbuffers/protobuf/tar.gz/refs/tags/v33.4","sha256":"136a07aad488cc502b11c4416fe4a7df2dfdea1d0833a7a8211000bf952728ba","status":"pinned"},
+    {"id":"protobuf-updates","version":"tag-feed","url":"https://github.com/protocolbuffers/protobuf/tags.atom","sha256":"5b3a722b4a18abd4f05e720e1007e953a995a73a0a1adf5682839421e77d1eb4","status":"pinned"},
+    {"id":"schema-registry-v1.0.0","version":"v1.0.0","url":"https://codeload.github.com/faustbrian/go-schema-registry/tar.gz/refs/tags/v1.0.0","sha256":"302be3a97c90af1e772cb5b565fd70bd46937b5780b42bbc22b31b33dedef453","status":"pinned"},
+    {"id":"schema-registry-updates","version":"tag-feed","url":"https://github.com/faustbrian/go-schema-registry/tags.atom","sha256":"1c74320cbf7b895514e8b19981d483c583aa214927554a521798e79723939efe","status":"pinned"}
+  ]
+}

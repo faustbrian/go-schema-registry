@@ -86,16 +86,30 @@
       "build_tags": [],
       "test_tags": [],
       "interoperability_tools": [],
-      "specifications": [],
-      "conformance_corpora": [],
-      "provenance": [],
+      "specifications": [
+        "Apache Avro 1.12.0",
+        "JSON Schema Draft 2020-12 Core",
+        "JSON Schema Draft 2020-12 Validation",
+        "RFC 8785 JSON Canonicalization Scheme",
+        "Protocol Buffers v33.4 language and descriptors",
+        "go-schema-registry v1.0.0 provider-neutral contract"
+      ],
+      "conformance_corpora": [
+        "Pinned canonical fingerprint corpus",
+        "Avro parsing canonical form cases",
+        "JSON Schema Draft 2020-12 local-resource cases",
+        "Deterministic Protocol Buffers descriptor cases"
+      ],
+      "provenance": [
+        "spec/sources.lock.json"
+      ],
       "goal_files": [],
       "goal_status": "not-applicable",
       "goal_evidence": [],
       "gates": {
         "api_compatibility": true,
         "benchmarks": true,
-        "conformance": false,
+        "conformance": true,
         "coverage": true,
         "documentation": true,
         "fuzz": true,
@@ -151,16 +165,23 @@
         "Confluent Java schema-ID serializer 8.3.1",
         "franz-go Schema Registry client 1.8.0"
       ],
-      "specifications": [],
-      "conformance_corpora": [],
-      "provenance": [],
+      "specifications": [
+        "Confluent Schema Registry 8.3.1 service and wire contract"
+      ],
+      "conformance_corpora": [
+        "48-case Avro, JSON Schema, and Protobuf compatibility corpus",
+        "Confluent Java and franz-go wire differentials"
+      ],
+      "provenance": [
+        "providers/confluent/spec/sources.lock.json"
+      ],
       "goal_files": [],
       "goal_status": "not-applicable",
       "goal_evidence": [],
       "gates": {
         "api_compatibility": true,
         "benchmarks": true,
-        "conformance": false,
+        "conformance": true,
         "coverage": true,
         "documentation": true,
         "fuzz": true,
@@ -219,16 +240,24 @@
       "interoperability_tools": [
         "AWS Glue Schema Registry Java SerDe 1.1.27"
       ],
-      "specifications": [],
-      "conformance_corpora": [],
-      "provenance": [],
+      "specifications": [
+        "AWS SDK Glue Schema Registry API v1.152.0",
+        "AWS Glue Schema Registry Java SerDe v1.1.27"
+      ],
+      "conformance_corpora": [
+        "Faithful AWS Smithy JSON service exchanges",
+        "AWS Glue Java SerDe wire differential"
+      ],
+      "provenance": [
+        "providers/glue/spec/sources.lock.json"
+      ],
       "goal_files": [],
       "goal_status": "not-applicable",
       "goal_evidence": [],
       "gates": {
         "api_compatibility": true,
         "benchmarks": true,
-        "conformance": false,
+        "conformance": true,
         "coverage": true,
         "documentation": true,
         "fuzz": true,

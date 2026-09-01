@@ -10,6 +10,11 @@
 
 ### Documentation
 
+- Add the [specification decision register](docs/specification-decisions.md),
+  exact AWS API/SerDe pins, machine conformance map, and immutable history:
+  `GLUE-DEC-001 sha256:1c819f4c7026b332e59bfbc8c5fafb19427231fdc693fdcabeec74f279291acb`,
+  `GLUE-DEC-002 sha256:5fbc603e2b39ba635ff321229e0eb433cfc0e4a7478a76abccffac165ee17e9f`,
+  and `GLUE-DEC-003 sha256:d90a4c914fb80ecd1c88e5cdbb33bc5e4ea18edbf3e9868a8ce65e2e4ac6d08c`.
 - Add a module documentation index for direct navigation.
 ## 1.0.0 - 2026-08-25
 

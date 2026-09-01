@@ -16,3 +16,7 @@ defaults. A compile-compatible change can still be behaviorally breaking.
 Specification-backed modules MUST NOT diverge from their declared standards.
 Ambiguities require documented decisions and stable tests. Deprecated APIs
 follow [`DEPRECATION.md`](DEPRECATION.md).
+
+The [specification decision register](docs/specification-decisions.md) is the
+compatibility authority for Avro, JSON Schema, Protobuf, provider identity, and
+wire-policy interpretations.

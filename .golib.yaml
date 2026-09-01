@@ -1,6 +1,6 @@
 schema_version: 1
-tool_version: v1.0.14
-tool_checksums_sha256: 88341d2f2904925b22ec8de084fec68c5229669f1119f066ed5fccd76aee2f82
+tool_version: v1.2.0
+tool_checksums_sha256: 7de6de3a14184eced8c0114bf802cb24a808f3e1592d358f6f6f3d02552d0e27
 manifest:
   modules: modules.json
   packages: packages.json
@@ -39,6 +39,13 @@ api:
       packages:
         - .
 operations:
+  - module: .
+    gate: conformance
+    steps:
+      - type: go-test
+        packages: [./...]
+        run: '^(TestCanonicalFingerprintCorpus|TestCanonicalizerUsesAvroParsingCanonicalForm|TestCanonicalizerRejectsExcessiveNestingBeforeAvroParsing|TestCanonicalizerUsesOnlyExplicitLocalReferenceResourcesAndDialect|TestCodecValidatesEncodedAndDecodedPayloads|TestCanonicalizerUsesDeterministicLinkedDescriptors|TestCanonicalizerRejectsAggregateImportTextBeforeCompilation|TestCompileFingerprintIncludesPortableReferences|TestCodecIntegrationKeepsFramingResolutionAndBusinessCodecExplicit)$'
+        timeout: 5m
   - module: .
     gate: fuzz
     steps:
@@ -81,6 +88,13 @@ operations:
         budget: 100ms
         timeout: 20m
   - module: providers/confluent
+    gate: conformance
+    steps:
+      - type: make
+        makefile: verification/package.mk
+        target: confluent-interoperability
+        timeout: 20m
+  - module: providers/confluent
     gate: fuzz
     steps:
       - type: go-test
@@ -103,6 +117,13 @@ operations:
         makefile: verification/package.mk
         target: confluent-interoperability
         timeout: 20m
+  - module: providers/glue
+    gate: conformance
+    steps:
+      - type: make
+        makefile: verification/package.mk
+        target: glue-conformance
+        timeout: 10m
   - module: providers/glue
     gate: fuzz
     steps:

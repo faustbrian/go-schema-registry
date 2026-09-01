@@ -11,6 +11,7 @@
 - [Authentication](authentication.md)
 - [Caching](caching.md)
 - [Conformance](conformance.md)
+- [Specification decisions](specification-decisions.md)
 - [Evolution](evolution.md)
 - [Provenance](provenance.md)
 - [Providers](providers.md)

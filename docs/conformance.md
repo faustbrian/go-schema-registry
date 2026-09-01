@@ -1,5 +1,9 @@
 # Conformance and hardening matrix
 
+The [specification decision register](specification-decisions.md) and its
+[machine conformance matrix](../specification/README.md) define the exact
+claims behind this summary.
+
 Conformance is recorded per provider and per semantic boundary. A passing core
 test never upgrades an unsupported provider capability, and a wire fixture does
 not prove service behavior.
