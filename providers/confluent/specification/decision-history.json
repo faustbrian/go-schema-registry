@@ -1,0 +1,5 @@
+{"schema_version":1,"entries":[
+  {"id":"CONFLUENT-DEC-001","digests":["67b4c1985e70a7aea45d754e14be846883a37ccd073d76e599d719004af0ea37"]},
+  {"id":"CONFLUENT-DEC-002","digests":["4c9ab0b72db6bcd6a6f90cd8e638e7f280708c9518128b5933a9a904ad072ff7"]},
+  {"id":"CONFLUENT-DEC-003","digests":["c92530ae870914748c82e238b72ff1d3c60c2ec0360150b01863750e6dad0ac1"]}
+]}

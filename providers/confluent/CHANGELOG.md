@@ -11,6 +11,11 @@
 
 ### Documentation
 
+- Add the [specification decision register](docs/specification-decisions.md),
+  exact Confluent and peer pins, machine conformance map, and immutable history:
+  `CONFLUENT-DEC-001 sha256:67b4c1985e70a7aea45d754e14be846883a37ccd073d76e599d719004af0ea37`, <!-- gitleaks:allow; immutable decision digest -->
+  `CONFLUENT-DEC-002 sha256:4c9ab0b72db6bcd6a6f90cd8e638e7f280708c9518128b5933a9a904ad072ff7`, <!-- gitleaks:allow; immutable decision digest -->
+  and `CONFLUENT-DEC-003 sha256:c92530ae870914748c82e238b72ff1d3c60c2ec0360150b01863750e6dad0ac1`. <!-- gitleaks:allow; immutable decision digest -->
 - Add a module documentation index for direct navigation.
 ## 1.0.0 - 2026-08-25
 

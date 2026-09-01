@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-08-30",
+  "review_interval_days": 30,
+  "authorities": [
+    {"id":"aws-glue-api-source","kind":"specification","version":"service/glue/v1.152.0","url":"https://proxy.golang.org/github.com/aws/aws-sdk-go-v2/service/glue/@v/v1.152.0.zip","sha256":"7509bd2c8f320f4827579ff5dc36af53e3bf8ed57d6616e24ffd24c92bbac497","specifications":["AWS SDK Glue Schema Registry API v1.152.0"]},
+    {"id":"aws-glue-api-releases","kind":"releases","url":"https://proxy.golang.org/github.com/aws/aws-sdk-go-v2/service/glue/@v/list","sha256":"e8f05555f848ca303d7c9732a1687b18226d9ceac84f4132ef49ec38e91907f9","specifications":["AWS SDK Glue Schema Registry API v1.152.0"]},
+    {"id":"aws-glue-wire-source","kind":"specification","version":"v1.1.27","url":"https://codeload.github.com/awslabs/aws-glue-schema-registry/tar.gz/refs/tags/v1.1.27","sha256":"ef0fa4944dc1abee6c470bbf66883319c0fa73784eaa91b3e0f136df77c950be","specifications":["AWS Glue Schema Registry Java SerDe v1.1.27"]},
+    {"id":"aws-glue-wire-releases","kind":"releases","url":"https://github.com/awslabs/aws-glue-schema-registry/tags.atom","sha256":"9205bf3f22536b5e416f93b1ba4dbd725f99ca8f0d3aa6cafdcf169d5583b3be","specifications":["AWS Glue Schema Registry Java SerDe v1.1.27"]}
+  ]
+}
