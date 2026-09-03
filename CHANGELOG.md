@@ -4,11 +4,17 @@
 
 ### Changed
 
+- Adopt the schema-v2 Golib cohesion catalog contract for the core and both
+  provider modules, including their family, selection, ownership, lifecycle,
+  compatibility, and documentation metadata and versioned ecosystem navigation.
 - Adopt the released `go-library-tools` v1.2.0 specification-governance
   contract and retain provider-specific interoperability checks as
   package-owned operations.
 - Refresh the `go-json-schema` v1.0.0 checksum after its intentional release
   archive replacement so clean consumers resolve the current archive.
+- Adopt the checksum-verified `go-library-tools` v1.3.0 contract and immutable
+  `6c76f5c670d193ce369a7242d4c634f1117286e9` workflow while retaining the
+  provider-specific interoperability checks.
 
 ### Documentation
 

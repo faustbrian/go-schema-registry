@@ -5,6 +5,10 @@ numeric versions, UUID schema-version IDs, lifecycle state, service errors, and
 wire framing. UUIDs remain scoped provider identities, never portable schema
 fingerprints.
 
+For shared package families, selection guidance, ownership, and lifecycle
+vocabulary, see the versioned [v1.3.0 Golib ecosystem
+index](https://github.com/faustbrian/go-library-tools/blob/v1.3.0/docs/ecosystem/README.md).
+
 See the [specification decision register](docs/specification-decisions.md) for
 the exact API, lifecycle, unsupported-capability, and wire policies.
 

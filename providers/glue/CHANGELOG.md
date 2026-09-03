@@ -4,8 +4,13 @@
 
 ### Changed
 
-- Adopt the root repository's released `go-library-tools` v1.0.5 contract and
-  preserve Glue integration and wire interoperability as package-owned checks.
+- Adopt the schema-v2 Golib cohesion catalog contract, including the provider's
+  family, selection, ownership, lifecycle, compatibility, and documentation
+  metadata and versioned ecosystem navigation.
+- Adopt the root repository's checksum-verified `go-library-tools` v1.3.0
+  contract and immutable `6c76f5c670d193ce369a7242d4c634f1117286e9`
+  workflow while preserving Glue integration and wire interoperability as
+  package-owned checks.
 - Refresh checksums for the current core and JSON Schema v1.0.0 archives.
 
 ### Documentation
