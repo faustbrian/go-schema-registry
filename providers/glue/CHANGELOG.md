@@ -11,9 +11,12 @@
   contract and immutable `6c76f5c670d193ce369a7242d4c634f1117286e9`
   workflow while preserving Glue integration and wire interoperability as
   package-owned checks.
-- Refresh checksums for the current core and JSON Schema v1.0.0 archives.
+- Refresh checksums for the public core and JSON Schema v1.0.0 archives.
 
 ### Documentation
+
+- Record the behavior-neutral AWS SDK Glue release-list review while retaining
+  the pinned v1.152.0 API and v1.1.27 Java SerDe contracts.
 
 - Add the [specification decision register](docs/specification-decisions.md),
   exact AWS API/SerDe pins, machine conformance map, and immutable history:

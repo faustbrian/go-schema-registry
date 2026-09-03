@@ -15,8 +15,15 @@
 - Adopt the checksum-verified `go-library-tools` v1.3.0 contract and immutable
   `6c76f5c670d193ce369a7242d4c634f1117286e9` workflow while retaining the
   provider-specific interoperability checks.
+- Adopt the checksum-verified `go-library-tools` v1.4.0 stable authority-fetch
+  contract and immutable `531e4db50fd81a7201257a7b488a0cf22d333aca`
+  workflow.
 
 ### Documentation
+
+- Record the behavior-neutral JSON Schema and Protobuf authority reviews while
+  retaining the Draft 2020-12 and Protobuf v33.4 portable contracts, and
+  refresh both monitored release-feed digests.
 
 - Add the [specification decision register](docs/specification-decisions.md),
   exact source/update pins, machine conformance map, and immutable decision

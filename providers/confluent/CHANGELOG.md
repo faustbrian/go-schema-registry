@@ -11,9 +11,14 @@
   contract and immutable `6c76f5c670d193ce369a7242d4c634f1117286e9`
   workflow while preserving Confluent integration and wire interoperability as
   package-owned checks.
-- Refresh checksums for the current core and JSON Schema v1.0.0 archives.
+- Refresh checksums for the public core and JSON Schema v1.0.0 archives.
 
 ### Documentation
+
+- Record the behavior-neutral Confluent build-tag feed review while retaining
+  the pinned Platform v8.3.1 service, wire, and compatibility contracts.
+- Record the subsequent same-day build-feed movement without changing the
+  selected Platform v8.3.1 source or its decision and conformance bindings.
 
 - Add the [specification decision register](docs/specification-decisions.md),
   exact Confluent and peer pins, machine conformance map, and immutable history:
