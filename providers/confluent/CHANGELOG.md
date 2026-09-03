@@ -20,7 +20,7 @@
   guidance.
 - Record the behavior-neutral Confluent build-tag feed review while retaining
   the pinned Platform v8.3.1 service, wire, and compatibility contracts.
-- Record the subsequent same-day build-feed movement without changing the
+- Record the subsequent same-day build-feed movements without changing the
   selected Platform v8.3.1 source or its decision and conformance bindings.
 
 - Add the [specification decision register](docs/specification-decisions.md),
