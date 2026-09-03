@@ -23,6 +23,10 @@ The core module has no implicit registry client. Provider adapters are separate
 modules under `providers/`; format adapters are explicit dependencies under
 `formats/`.
 
+For shared package families, selection guidance, ownership, and lifecycle
+vocabulary, see the versioned [v1.3.0 Golib ecosystem
+index](https://github.com/faustbrian/go-library-tools/blob/v1.3.0/docs/ecosystem/README.md).
+
 ## Quick start
 
 ```go

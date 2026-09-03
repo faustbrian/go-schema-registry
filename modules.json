@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "repository": "github.com/faustbrian/go-schema-registry",
   "go_version": "1.26.6",
   "modules": [
@@ -118,6 +118,86 @@
         "race": true,
         "security": true,
         "tests": true
+      },
+      "cohesion": {
+        "family": "protocols-and-descriptions",
+        "secondary_capabilities": [
+          "data-encoding",
+          "eventing-and-messaging"
+        ],
+        "responsibility": "Provide provider-neutral schema registration, resolution, compatibility, canonicalization, portable fingerprints, bounded caching, offline bundles, and explicit wire-codec composition.",
+        "non_goals": [
+          "Select a registry provider, credential source, transport, evolution policy, application codec, or retry policy implicitly.",
+          "Treat provider-scoped identifiers as portable schema identities or permit decode-time network discovery.",
+          "Own application message schemas, deployment ordering, or registry infrastructure lifecycle."
+        ],
+        "public_package_identifier": "schemaregistry",
+        "primary_entry_packages": [
+          "github.com/faustbrian/go-schema-registry"
+        ],
+        "package_selection": {
+          "github.com/faustbrian/go-schema-registry": "Use for provider-neutral schema values, compilation, compatibility, bounded cache and bundle policy, and explicit provider/wire composition."
+        },
+        "lifecycle_status": "active",
+        "maturity": "stable",
+        "construction_styles": [
+          "load",
+          "new-config",
+          "validated-value"
+        ],
+        "lifecycle_styles": [
+          "stateless"
+        ],
+        "ownership": {
+          "configuration": "caller",
+          "mutable_inputs": [
+            "borrow",
+            "copy"
+          ],
+          "runtime_resources": "caller",
+          "background_work": "none"
+        },
+        "optional_owned_dependencies": [],
+        "adapters": [],
+        "companions": [
+          "github.com/faustbrian/go-schema-registry/providers/confluent",
+          "github.com/faustbrian/go-schema-registry/providers/glue"
+        ],
+        "supported_go": {
+          "minimum": "1.26.6",
+          "tested": [
+            "1.26.6"
+          ]
+        },
+        "supported_platforms": [
+          "portable-go"
+        ],
+        "supported_backends": [],
+        "supported_protocols": [
+          "apache-avro",
+          "json-canonicalization-scheme",
+          "json-schema-draft-2020-12",
+          "protocol-buffers"
+        ],
+        "documentation": {
+          "readme": "README.md",
+          "api": "docs/api.md",
+          "adoption": "docs/examples.md",
+          "security": "docs/security.md",
+          "compatibility": "docs/evolution.md",
+          "performance": null,
+          "examples": "docs/examples.md",
+          "faq": "docs/faq.md",
+          "changelog": "CHANGELOG.md",
+          "pkg_go_dev": "https://pkg.go.dev/github.com/faustbrian/go-schema-registry",
+          "ecosystem_index": "https://github.com/faustbrian/go-library-tools/blob/v1.3.0/docs/ecosystem/README.md"
+        },
+        "known_good_compatibility_sets": [],
+        "delivery": {
+          "implementation": "not-started",
+          "hardening": "not-started",
+          "release": "not-started"
+        }
       }
     },
     {
@@ -190,6 +270,83 @@
         "race": true,
         "security": true,
         "tests": true
+      },
+      "cohesion": {
+        "family": "protocols-and-descriptions",
+        "secondary_capabilities": [
+          "data-encoding",
+          "eventing-and-messaging",
+          "transport-and-networking"
+        ],
+        "responsibility": "Adapt the provider-neutral schema-registry contract to bounded Confluent-compatible REST, subject/version, compatibility, deletion, and version-0 wire semantics.",
+        "non_goals": [
+          "Claim that provider-scoped integer IDs are portable fingerprints or that every Confluent-compatible service has identical behavior.",
+          "Discover endpoints, forward credentials implicitly, follow redirects, or own caller transport shutdown.",
+          "Support the GUID header version 1 or perform unbounded schema-reference traversal."
+        ],
+        "public_package_identifier": "confluent",
+        "primary_entry_packages": [
+          "github.com/faustbrian/go-schema-registry/providers/confluent"
+        ],
+        "package_selection": {
+          "github.com/faustbrian/go-schema-registry/providers/confluent": "Use when a caller needs Confluent-compatible registry identity, compatibility, lifecycle, REST, and version-0 framing semantics behind the core contract."
+        },
+        "lifecycle_status": "active",
+        "maturity": "stable",
+        "construction_styles": [
+          "new-config",
+          "validated-value"
+        ],
+        "lifecycle_styles": [
+          "stateless"
+        ],
+        "ownership": {
+          "configuration": "caller",
+          "mutable_inputs": [
+            "borrow",
+            "copy"
+          ],
+          "runtime_resources": "caller",
+          "background_work": "none"
+        },
+        "optional_owned_dependencies": [],
+        "adapters": [],
+        "companions": [],
+        "supported_go": {
+          "minimum": "1.26.6",
+          "tested": [
+            "1.26.6"
+          ]
+        },
+        "supported_platforms": [
+          "portable-go"
+        ],
+        "supported_backends": [
+          "confluent-schema-registry"
+        ],
+        "supported_protocols": [
+          "confluent-schema-registry-rest-api",
+          "confluent-wire-format-v0"
+        ],
+        "documentation": {
+          "readme": "providers/confluent/README.md",
+          "api": "https://pkg.go.dev/github.com/faustbrian/go-schema-registry/providers/confluent",
+          "adoption": "providers/confluent/README.md",
+          "security": "docs/security.md",
+          "compatibility": "providers/confluent/docs/compatibility.md",
+          "performance": "providers/confluent/README.md",
+          "examples": null,
+          "faq": null,
+          "changelog": "providers/confluent/CHANGELOG.md",
+          "pkg_go_dev": "https://pkg.go.dev/github.com/faustbrian/go-schema-registry/providers/confluent",
+          "ecosystem_index": "https://github.com/faustbrian/go-library-tools/blob/v1.3.0/docs/ecosystem/README.md"
+        },
+        "known_good_compatibility_sets": [],
+        "delivery": {
+          "implementation": "not-started",
+          "hardening": "not-started",
+          "release": "not-started"
+        }
       }
     },
     {
@@ -266,6 +423,83 @@
         "race": true,
         "security": true,
         "tests": true
+      },
+      "cohesion": {
+        "family": "protocols-and-descriptions",
+        "secondary_capabilities": [
+          "data-encoding",
+          "eventing-and-messaging",
+          "transport-and-networking"
+        ],
+        "responsibility": "Adapt the provider-neutral schema-registry contract to bounded AWS Glue registry identity, lifecycle, service, and uncompressed header-version-3 wire semantics.",
+        "non_goals": [
+          "Own AWS credential, region, endpoint, SDK retry, observability, or client shutdown policy.",
+          "Advertise unsupported reference, listing, deletion, candidate compatibility dry-run, or ZLIB framing behavior.",
+          "Treat provider-scoped UUIDs as portable schema fingerprints."
+        ],
+        "public_package_identifier": "glue",
+        "primary_entry_packages": [
+          "github.com/faustbrian/go-schema-registry/providers/glue"
+        ],
+        "package_selection": {
+          "github.com/faustbrian/go-schema-registry/providers/glue": "Use when a caller needs AWS Glue Schema Registry identity, lifecycle, service, and uncompressed header-version-3 framing semantics behind the core contract."
+        },
+        "lifecycle_status": "active",
+        "maturity": "stable",
+        "construction_styles": [
+          "new-config",
+          "validated-value"
+        ],
+        "lifecycle_styles": [
+          "stateless"
+        ],
+        "ownership": {
+          "configuration": "caller",
+          "mutable_inputs": [
+            "borrow",
+            "copy"
+          ],
+          "runtime_resources": "caller",
+          "background_work": "none"
+        },
+        "optional_owned_dependencies": [],
+        "adapters": [],
+        "companions": [],
+        "supported_go": {
+          "minimum": "1.26.6",
+          "tested": [
+            "1.26.6"
+          ]
+        },
+        "supported_platforms": [
+          "portable-go"
+        ],
+        "supported_backends": [
+          "aws-glue-schema-registry"
+        ],
+        "supported_protocols": [
+          "aws-glue-schema-registry-api",
+          "aws-glue-schema-registry-wire-format-v3"
+        ],
+        "documentation": {
+          "readme": "providers/glue/README.md",
+          "api": "https://pkg.go.dev/github.com/faustbrian/go-schema-registry/providers/glue",
+          "adoption": "providers/glue/README.md",
+          "security": "docs/security.md",
+          "compatibility": "providers/glue/docs/compatibility.md",
+          "performance": "providers/glue/README.md",
+          "examples": null,
+          "faq": null,
+          "changelog": "providers/glue/CHANGELOG.md",
+          "pkg_go_dev": "https://pkg.go.dev/github.com/faustbrian/go-schema-registry/providers/glue",
+          "ecosystem_index": "https://github.com/faustbrian/go-library-tools/blob/v1.3.0/docs/ecosystem/README.md"
+        },
+        "known_good_compatibility_sets": [],
+        "delivery": {
+          "implementation": "not-started",
+          "hardening": "not-started",
+          "release": "not-started"
+        }
       }
     }
   ]
