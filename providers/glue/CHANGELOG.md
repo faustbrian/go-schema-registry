@@ -15,6 +15,9 @@
 
 ### Documentation
 
+- Point the provider README and cohesion catalog navigation directly to the
+  immutable v1.4.0 ecosystem index and protocols-and-descriptions family
+  guidance.
 - Record the behavior-neutral AWS SDK Glue release-list review while retaining
   the pinned v1.152.0 API and v1.1.27 Java SerDe contracts.
 

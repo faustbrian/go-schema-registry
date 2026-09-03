@@ -21,9 +21,13 @@
 
 ### Documentation
 
-- Record the behavior-neutral JSON Schema and Protobuf authority reviews while
-  retaining the Draft 2020-12 and Protobuf v33.4 portable contracts, and
-  refresh both monitored release-feed digests.
+- Point the core README and cohesion catalog navigation directly to the
+  immutable v1.4.0 ecosystem index and protocols-and-descriptions family
+  guidance.
+- Record the behavior-neutral JSON Schema and Protobuf authority reviews,
+  including the subsequent JSON Schema example-fence correction, while
+  retaining the Draft 2020-12 and Protobuf v33.4 portable contracts and
+  refreshing both monitored release-feed digests.
 
 - Add the [specification decision register](docs/specification-decisions.md),
   exact source/update pins, machine conformance map, and immutable decision
