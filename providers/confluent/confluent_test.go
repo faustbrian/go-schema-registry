@@ -11,6 +11,7 @@ import (
 	"time"
 
 	schemaregistry "github.com/faustbrian/go-schema-registry"
+	"github.com/faustbrian/go-schema-registry/formats/avro"
 	"github.com/faustbrian/go-schema-registry/providers/confluent"
 )
 
@@ -284,6 +285,165 @@ func TestProviderDoesNotClaimCreationAfterRacyConfluentRegistration(t *testing.T
 	}
 	if result.Outcome != schemaregistry.RegistrationUnknown || result.ID.Value != "7" {
 		t.Fatalf("Register() = %+v, want unknown creation outcome", result)
+	}
+}
+
+func TestProviderRejectsMismatchedExistingSchemaIdentity(t *testing.T) {
+	t.Parallel()
+
+	for _, test := range []struct {
+		name     string
+		response string
+	}{
+		{
+			name:     "subject",
+			response: `{"subject":"other-value","version":1,"id":7,"schema":"\"string\"","schemaType":"AVRO"}`,
+		},
+		{
+			name:     "schema",
+			response: `{"subject":"orders-value","version":1,"id":7,"schema":"\"integer\"","schemaType":"AVRO"}`,
+		},
+	} {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+				if request.Method != http.MethodPost || request.URL.Path != "/subjects/orders-value" {
+					t.Fatalf("request = %s %q", request.Method, request.URL.Path)
+				}
+				_, _ = writer.Write([]byte(test.response))
+			}))
+			defer server.Close()
+
+			provider := newTestProvider(t, server.URL)
+			_, err := provider.Register(context.Background(), schemaregistry.RegisterRequest{
+				Subject: schemaregistry.Subject{Name: "orders-value"},
+				Schema:  compileAvro(t),
+			})
+			if !errors.Is(err, confluent.ErrInvalidResponse) {
+				t.Fatalf("Register() error = %v, want ErrInvalidResponse", err)
+			}
+		})
+	}
+}
+
+func TestProviderClassifiesMalformedExistingSchemaResponse(t *testing.T) {
+	t.Parallel()
+
+	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		if request.Method != http.MethodPost || request.URL.Path != "/subjects/orders-value" {
+			t.Fatalf("request = %s %q", request.Method, request.URL.Path)
+		}
+		_, _ = writer.Write([]byte(`{"subject":"orders-value","version":1,"id":7,"schema":"{\"type\":","schemaType":"AVRO"}`))
+	}))
+	defer server.Close()
+
+	provider, err := confluent.New(confluent.Config{
+		Endpoint:            server.URL,
+		Scope:               "cluster-a",
+		Transport:           http.DefaultTransport,
+		AllowHTTPForTesting: true,
+		RequestTimeout:      time.Second,
+		MaxResponseBytes:    4096,
+		MaxAttempts:         1,
+		MaxConcurrent:       1,
+		ReferenceLimits:     schemaregistry.GraphLimits{MaxSchemas: 8, MaxDepth: 8, MaxReferences: 16},
+		Canonicalizers: map[schemaregistry.Format]schemaregistry.Canonicalizer{
+			schemaregistry.FormatAvro: avro.New(4096),
+		},
+	})
+	if err != nil {
+		t.Fatalf("New() error = %v", err)
+	}
+	_, err = provider.Register(context.Background(), schemaregistry.RegisterRequest{
+		Subject: schemaregistry.Subject{Name: "orders-value"},
+		Schema:  compileAvro(t),
+	})
+	if !errors.Is(err, confluent.ErrInvalidResponse) {
+		t.Fatalf("Register() error = %v, want ErrInvalidResponse", err)
+	}
+}
+
+func TestProviderPreservesCancellationWhileCompilingExistingResponse(t *testing.T) {
+	t.Parallel()
+
+	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) {
+		_, _ = writer.Write([]byte(`{"subject":"orders-value","version":1,"id":7,"schema":"\"string\"","schemaType":"AVRO"}`))
+	}))
+	defer server.Close()
+
+	provider, err := confluent.New(confluent.Config{
+		Endpoint:            server.URL,
+		Scope:               "cluster-a",
+		Transport:           http.DefaultTransport,
+		AllowHTTPForTesting: true,
+		RequestTimeout:      time.Second,
+		MaxResponseBytes:    4096,
+		MaxAttempts:         1,
+		MaxConcurrent:       1,
+		ReferenceLimits:     schemaregistry.GraphLimits{MaxSchemas: 8, MaxDepth: 8, MaxReferences: 16},
+		Canonicalizers: map[schemaregistry.Format]schemaregistry.Canonicalizer{
+			schemaregistry.FormatAvro: canonicalizerFunc(func(context.Context, schemaregistry.Definition) ([]byte, error) {
+				return nil, context.Canceled
+			}),
+		},
+	})
+	if err != nil {
+		t.Fatalf("New() error = %v", err)
+	}
+	_, err = provider.Register(context.Background(), schemaregistry.RegisterRequest{
+		Subject: schemaregistry.Subject{Name: "orders-value"},
+		Schema:  compileAvro(t),
+	})
+	if !errors.Is(err, context.Canceled) || errors.Is(err, confluent.ErrInvalidResponse) {
+		t.Fatalf("Register() error = %v, want context cancellation only", err)
+	}
+}
+
+func TestProviderRejectsEquivalentReferenceAtWrongCoordinate(t *testing.T) {
+	t.Parallel()
+
+	dependency := compileAvro(t)
+	schema, err := schemaregistry.Compile(
+		context.Background(),
+		schemaregistry.Definition{
+			Format:  schemaregistry.FormatAvro,
+			Content: []byte(`"string"`),
+			References: []schemaregistry.Reference{{
+				Name:        "common.avsc",
+				Subject:     "expected-subject",
+				Version:     1,
+				Fingerprint: dependency.Fingerprint(),
+			}},
+		},
+		canonicalizerFunc(func(_ context.Context, definition schemaregistry.Definition) ([]byte, error) {
+			return definition.Content, nil
+		}),
+	)
+	if err != nil {
+		t.Fatalf("Compile() error = %v", err)
+	}
+
+	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		switch request.URL.Path {
+		case "/subjects/orders-value":
+			_, _ = writer.Write([]byte(`{"subject":"orders-value","version":1,"id":7,"schema":"\"string\"","schemaType":"AVRO","references":[{"name":"common.avsc","subject":"other-subject","version":2}]}`))
+		case "/subjects/other-subject/versions/2":
+			_, _ = writer.Write([]byte(`{"subject":"other-subject","version":2,"id":8,"schema":"\"string\"","schemaType":"AVRO"}`))
+		default:
+			t.Fatalf("request = %s %q", request.Method, request.URL.Path)
+		}
+	}))
+	defer server.Close()
+
+	provider := newTestProvider(t, server.URL)
+	_, err = provider.Register(context.Background(), schemaregistry.RegisterRequest{
+		Subject: schemaregistry.Subject{Name: "orders-value"},
+		Schema:  schema,
+	})
+	if !errors.Is(err, confluent.ErrInvalidResponse) {
+		t.Fatalf("Register() error = %v, want ErrInvalidResponse", err)
 	}
 }
 

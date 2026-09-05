@@ -135,8 +135,14 @@ func TestConfigurationMappingsErrorsAndFramingBoundaries(t *testing.T) {
 			t.Fatalf("lifecycle(%s) = %s", status, got)
 		}
 	}
-	if classifyError(nil) != nil || !errors.Is(classifyError(context.Canceled), context.Canceled) || !errors.Is(classifyError(context.DeadlineExceeded), context.DeadlineExceeded) {
+	if classifyError(nil) != nil {
 		t.Fatal("classifyError context mismatch")
+	}
+	for _, cause := range []error{context.Canceled, context.DeadlineExceeded} {
+		classified := classifyError(cause)
+		if classified != cause || errors.Is(classified, schemaregistry.ErrUnavailable) {
+			t.Fatalf("classifyError(%v) = %v, want unchanged context error", cause, classified)
+		}
 	}
 	for code, want := range map[string]error{
 		"EntityNotFoundException":              schemaregistry.ErrNotFound,

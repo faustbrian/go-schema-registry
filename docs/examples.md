@@ -1,5 +1,10 @@
 # Integration examples
 
+For directly executable provider construction, see the
+[Confluent `ExampleNew`](../providers/confluent/example_test.go) and
+[AWS Glue `ExampleNew`](../providers/glue/example_test.go). The snippets below
+focus on cross-package composition after provider construction.
+
 ## Kafka and outbox
 
 At write time, compile and register the schema during an explicit deployment or

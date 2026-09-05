@@ -340,10 +340,34 @@ func TestProviderOperationBoundaries(t *testing.T) {
 	if _, err := provider.Register(context.Background(), schemaregistry.RegisterRequest{Subject: schemaregistry.Subject{Name: "s"}}); !errors.Is(err, schemaregistry.ErrUnsupportedFormat) {
 		t.Fatalf("Register(invalid schema) error = %v", err)
 	}
-	provider = internalProvider(t, sequentialTransport(response(200, `{"id":7,"version":2}`)))
+	provider = internalProvider(t, sequentialTransport(response(200, `{"subject":"s","id":7,"version":2,"schema":"string","schemaType":"AVRO"}`)))
 	registered, err := provider.Register(context.Background(), schemaregistry.RegisterRequest{Subject: schemaregistry.Subject{Name: "s"}, Schema: schema})
 	if err != nil || registered.Outcome != schemaregistry.RegistrationExisting || registered.ID.Value != "7" || registered.Version.Number != 2 {
 		t.Fatalf("Register(existing) = (%+v, %v)", registered, err)
+	}
+	referencedSchema, err := schemaregistry.Compile(context.Background(), schemaregistry.Definition{
+		Format:  schemaregistry.FormatAvro,
+		Content: []byte("string"),
+		References: []schemaregistry.Reference{{
+			Name: "common.avsc", Subject: "common", Version: 1, Fingerprint: schema.Fingerprint(),
+		}},
+	}, canonicalizerFunction(func(_ context.Context, definition schemaregistry.Definition) ([]byte, error) {
+		return definition.Content, nil
+	}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	config := internalConfig(sequentialTransport(
+		response(200, `{"subject":"s","id":7,"version":2,"schema":"string","schemaType":"AVRO","references":[{"name":"common.avsc","subject":"common","version":1}]}`),
+		response(404, ""),
+	))
+	config.MaxResponseBytes = 256
+	provider, err = New(config)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := provider.Register(context.Background(), schemaregistry.RegisterRequest{Subject: schemaregistry.Subject{Name: "s"}, Schema: referencedSchema}); !errors.Is(err, schemaregistry.ErrReferenceMissing) {
+		t.Fatalf("Register(missing existing reference) error = %v", err)
 	}
 	for _, test := range []struct {
 		name      string
@@ -354,8 +378,8 @@ func TestProviderOperationBoundaries(t *testing.T) {
 		{"unknown create", []*http.Response{response(404, ""), response(500, "")}, schemaregistry.ErrUnknownOutcome},
 		{"rejected create", []*http.Response{response(404, ""), response(409, "")}, schemaregistry.ErrIncompatible},
 		{"invalid ID", []*http.Response{response(404, ""), response(200, `{"id":0}`)}, ErrInvalidResponse},
-		{"invalid existing ID", []*http.Response{response(200, `{"id":0,"version":2}`)}, ErrInvalidResponse},
-		{"invalid existing version", []*http.Response{response(200, `{"id":7,"version":0}`)}, ErrInvalidResponse},
+		{"invalid existing ID", []*http.Response{response(200, `{"subject":"s","id":0,"version":2,"schema":"string","schemaType":"AVRO"}`)}, ErrInvalidResponse},
+		{"invalid existing version", []*http.Response{response(200, `{"subject":"s","id":7,"version":0,"schema":"string","schemaType":"AVRO"}`)}, ErrInvalidResponse},
 		{"trailing JSON", []*http.Response{response(200, `{"id":7,"version":2} {}`)}, ErrInvalidResponse},
 	} {
 		t.Run(test.name, func(t *testing.T) {
@@ -915,5 +939,32 @@ func TestNewAndMappingBoundaries(t *testing.T) {
 	}
 	if interfaceIsNil(1) || !interfaceIsNil(nilCanonicalizer) {
 		t.Fatal("interfaceIsNil() mismatch")
+	}
+	requestedReferences := []schemaregistry.Reference{{
+		Name: "common.avsc", Subject: "common", Version: 1,
+	}}
+	returnedReferences := []schemaReference{{Name: "common.avsc", Subject: "common", Version: 1}}
+	if !sameReferenceCoordinates(requestedReferences, returnedReferences) {
+		t.Fatal("sameReferenceCoordinates(match) = false")
+	}
+	if sameReferenceCoordinates(requestedReferences, nil) {
+		t.Fatal("sameReferenceCoordinates(length mismatch) = true")
+	}
+	for name, returned := range map[string][]schemaReference{
+		"missing name":     {{Name: "other", Subject: "", Version: 0}},
+		"wrong subject":    {{Name: "common.avsc", Subject: "other", Version: 1}},
+		"wrong version":    {{Name: "common.avsc", Subject: "common", Version: 2}},
+		"duplicate return": {{Name: "common.avsc", Subject: "common", Version: 1}, {Name: "common.avsc", Subject: "common", Version: 1}},
+	} {
+		if sameReferenceCoordinates(requestedReferences, returned) {
+			t.Fatalf("sameReferenceCoordinates(%s) = true", name)
+		}
+	}
+	duplicateRequested := append(append([]schemaregistry.Reference(nil), requestedReferences...), requestedReferences[0])
+	if sameReferenceCoordinates(duplicateRequested, []schemaReference{
+		{Name: "other"},
+		returnedReferences[0],
+	}) {
+		t.Fatal("sameReferenceCoordinates(duplicate request with unknown return) = true")
 	}
 }

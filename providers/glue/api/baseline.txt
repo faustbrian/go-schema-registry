@@ -44,7 +44,8 @@ type Config struct {
 type Provider struct {
 	// Has unexported fields.
 }
-    Provider is safe for concurrent use when the supplied AWS SDK client is.
+    Provider is safe for concurrent use when the supplied AWS SDK client and
+    every supplied canonicalizer are safe for concurrent calls.
 
 func New(config Config) (*Provider, error)
     New validates all policy before AWS I/O.

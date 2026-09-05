@@ -25,3 +25,10 @@ format adapter, or loading a bundle. Value decoding receives a compiled schema.
 
 No. Verify product/version behavior, extensions, authentication, quotas,
 compatibility, and deletion with the provider integration suite.
+
+## Which provider integration tests run in ordinary builds?
+
+Production packages and default tests require no build tag. Glue's required
+credential-free faithful service suite uses `integration`. The optional
+Confluent real-service and read-only AWS suites are invoked separately with
+`confluentintegration` and `liveintegration`, respectively.

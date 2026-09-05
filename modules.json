@@ -194,8 +194,8 @@
         },
         "known_good_compatibility_sets": [],
         "delivery": {
-          "implementation": "not-started",
-          "hardening": "not-started",
+          "implementation": "in-progress",
+          "hardening": "in-progress",
           "release": "not-started"
         }
       }
@@ -335,16 +335,16 @@
           "security": "docs/security.md",
           "compatibility": "providers/confluent/docs/compatibility.md",
           "performance": "providers/confluent/README.md",
-          "examples": null,
-          "faq": null,
+          "examples": "providers/confluent/example_test.go",
+          "faq": "docs/faq.md",
           "changelog": "providers/confluent/CHANGELOG.md",
           "pkg_go_dev": "https://pkg.go.dev/github.com/faustbrian/go-schema-registry/providers/confluent",
           "ecosystem_index": "https://github.com/faustbrian/go-library-tools/blob/v1.4.0/docs/ecosystem/README.md"
         },
         "known_good_compatibility_sets": [],
         "delivery": {
-          "implementation": "not-started",
-          "hardening": "not-started",
+          "implementation": "in-progress",
+          "hardening": "in-progress",
           "release": "not-started"
         }
       }
@@ -488,16 +488,16 @@
           "security": "docs/security.md",
           "compatibility": "providers/glue/docs/compatibility.md",
           "performance": "providers/glue/README.md",
-          "examples": null,
-          "faq": null,
+          "examples": "providers/glue/example_test.go",
+          "faq": "docs/faq.md",
           "changelog": "providers/glue/CHANGELOG.md",
           "pkg_go_dev": "https://pkg.go.dev/github.com/faustbrian/go-schema-registry/providers/glue",
           "ecosystem_index": "https://github.com/faustbrian/go-library-tools/blob/v1.4.0/docs/ecosystem/README.md"
         },
         "known_good_compatibility_sets": [],
         "delivery": {
-          "implementation": "not-started",
-          "hardening": "not-started",
+          "implementation": "in-progress",
+          "hardening": "in-progress",
           "release": "not-started"
         }
       }
