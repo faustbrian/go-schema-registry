@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "reviewed_at": "2026-09-03",
+  "reviewed_at": "2026-09-05",
   "review_interval_days": 30,
   "authorities": [
     {"id":"confluent-source","kind":"specification","version":"8.3.1","url":"https://codeload.github.com/confluentinc/schema-registry/tar.gz/refs/tags/v8.3.1","sha256":"b3dc6c6cd70519bad1e949f7b4d1e2b1f1c0be0daf36a8818ef86019adc7fec5","specifications":["Confluent Schema Registry 8.3.1 service and wire contract"]},
-    {"id":"confluent-releases","kind":"releases","url":"https://github.com/confluentinc/schema-registry/tags.atom","sha256":"c39fbff00624c3fd3d8707e58ba960992b715b5ec50096840b0e2756b08435c0","specifications":["Confluent Schema Registry 8.3.1 service and wire contract"]}
+    {"id":"confluent-releases","kind":"releases","url":"https://github.com/confluentinc/schema-registry/tags.atom","sha256":"821625c2c02f4187b4d84d9c22222b0b3b448a636dfd235dd4ba77ff37f0469c","specifications":["Confluent Schema Registry 8.3.1 service and wire contract"]}
   ]
 }

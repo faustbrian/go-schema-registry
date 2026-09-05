@@ -340,7 +340,7 @@ func TestProviderOperationBoundaries(t *testing.T) {
 	if _, err := provider.Register(context.Background(), schemaregistry.RegisterRequest{Subject: schemaregistry.Subject{Name: "s"}}); !errors.Is(err, schemaregistry.ErrUnsupportedFormat) {
 		t.Fatalf("Register(invalid schema) error = %v", err)
 	}
-	provider = internalProvider(t, sequentialTransport(response(200, `{"id":7,"version":2}`)))
+	provider = internalProvider(t, sequentialTransport(response(200, `{"subject":"s","id":7,"version":2,"schema":"string","schemaType":"AVRO"}`)))
 	registered, err := provider.Register(context.Background(), schemaregistry.RegisterRequest{Subject: schemaregistry.Subject{Name: "s"}, Schema: schema})
 	if err != nil || registered.Outcome != schemaregistry.RegistrationExisting || registered.ID.Value != "7" || registered.Version.Number != 2 {
 		t.Fatalf("Register(existing) = (%+v, %v)", registered, err)

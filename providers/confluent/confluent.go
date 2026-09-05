@@ -181,7 +181,32 @@ func (provider *Provider) Register(ctx context.Context, request schemaregistry.R
 	var existing registeredSchema
 	err = provider.doJSON(ctx, http.MethodPost, lookupPath, body, &existing)
 	if err == nil {
-		if existing.ID <= 0 || existing.Version == 0 {
+		if existing.ID <= 0 || existing.Version == 0 || existing.Subject != request.Subject.Name ||
+			!sameReferenceCoordinates(request.Schema.Definition().References, existing.References) {
+			return schemaregistry.RegisterResult{}, ErrInvalidResponse
+		}
+		state := make(map[schemaregistry.ReferenceCoordinate]uint8, provider.referenceLimits.MaxSchemas)
+		schemaCount := 0
+		referenceCount := 0
+		existingSchema, err := provider.compileResponse(
+			ctx,
+			existing,
+			referenceCoordinate(existing.Subject, existing.Version),
+			state,
+			&schemaCount,
+			&referenceCount,
+			1,
+		)
+		if err != nil {
+			if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+				return schemaregistry.RegisterResult{}, err
+			}
+			if errors.Is(err, schemaregistry.ErrInvalidSchema) {
+				return schemaregistry.RegisterResult{}, ErrInvalidResponse
+			}
+			return schemaregistry.RegisterResult{}, err
+		}
+		if existingSchema.Fingerprint() != request.Schema.Fingerprint() {
 			return schemaregistry.RegisterResult{}, ErrInvalidResponse
 		}
 		return schemaregistry.RegisterResult{
@@ -491,6 +516,24 @@ func referenceCoordinate(subject string, version uint64) schemaregistry.Referenc
 	return schemaregistry.ReferenceCoordinate{
 		Subject: schemaregistry.Subject{Name: subject}, Version: schemaregistry.Version{Number: version},
 	}
+}
+
+func sameReferenceCoordinates(requested []schemaregistry.Reference, returned []schemaReference) bool {
+	if len(requested) != len(returned) {
+		return false
+	}
+	expected := make(map[string]schemaregistry.Reference, len(requested))
+	for _, reference := range requested {
+		expected[reference.Name] = reference
+	}
+	for _, reference := range returned {
+		wanted, ok := expected[reference.Name]
+		if !ok || wanted.Subject != reference.Subject || wanted.Version != reference.Version {
+			return false
+		}
+		delete(expected, reference.Name)
+	}
+	return len(expected) == 0
 }
 
 func (provider *Provider) requestForSchema(schema schemaregistry.Schema) ([]byte, error) {

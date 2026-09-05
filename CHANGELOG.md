@@ -28,6 +28,13 @@
   including the subsequent JSON Schema example-fence correction, while
   retaining the Draft 2020-12 and Protobuf v33.4 portable contracts and
   refreshing both monitored release-feed digests.
+- Record the subsequent behavior-neutral JSON Schema wording and
+  validation-output example corrections, Confluent build-feed movement, and
+  AWS Glue SDK retry-tracing middleware movement while retaining the immutable
+  Draft 2020-12, Platform v8.3.1, and Glue API v1.152.0 contracts and refreshing
+  their monitored feed digests.
+- Add direct executable provider examples and correct provider documentation,
+  test-tag, FAQ, and delivery metadata.
 
 - Add the [specification decision register](docs/specification-decisions.md),
   exact source/update pins, machine conformance map, and immutable decision
@@ -39,7 +46,7 @@
 - Replace archived monorepo links and completed execution artifacts with a
   standalone, human-oriented documentation structure.
 
-## 1.0.0 - 2026-08-25
+## 1.0.0 - 2026-08-26
 
 ### Changed
 

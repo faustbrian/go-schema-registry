@@ -4,6 +4,9 @@
 
 ### Changed
 
+- Preserve original AWS SDK operation and non-API cause chains, including
+  structured modeled and generic API errors, for `errors.Is`/`errors.As`
+  without exposing cause details in error strings.
 - Adopt the schema-v2 Golib cohesion catalog contract, including the provider's
   family, selection, ownership, lifecycle, compatibility, and documentation
   metadata and versioned ecosystem navigation.
@@ -18,11 +21,16 @@
 - Complete the provider entry point with exact Go, install, import, platform,
   backend, construction, ownership, lifecycle, error, security,
   troubleshooting, support, and ecosystem-navigation guidance.
+- Add a directly executable provider construction example and distinguish
+  production source from the required `integration` and separately invoked
+  optional `liveintegration` test tags.
 - Point the provider README and cohesion catalog navigation directly to the
   immutable v1.4.0 ecosystem index and protocols-and-descriptions family
   guidance.
 - Record the behavior-neutral AWS SDK Glue release-list review while retaining
   the pinned v1.152.0 API and v1.1.27 Java SerDe contracts.
+- Record the AWS SDK Glue v1.157.0 retry-tracing middleware movement while
+  retaining the unchanged pinned v1.152.0 Schema Registry API contract.
 
 - Add the [specification decision register](docs/specification-decisions.md),
   exact AWS API/SerDe pins, machine conformance map, and immutable history:
@@ -30,7 +38,7 @@
   `GLUE-DEC-002 sha256:5fbc603e2b39ba635ff321229e0eb433cfc0e4a7478a76abccffac165ee17e9f`,
   and `GLUE-DEC-003 sha256:d90a4c914fb80ecd1c88e5cdbb33bc5e4ea18edbf3e9868a8ce65e2e4ac6d08c`.
 - Add a module documentation index for direct navigation.
-## 1.0.0 - 2026-08-25
+## 1.0.0 - 2026-08-26
 
 ### Changed
 

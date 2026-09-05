@@ -116,6 +116,127 @@ func TestProviderResolvesGlueUUIDWithoutConfusingItForPortableIdentity(t *testin
 	}
 }
 
+func TestProviderPreservesClassifiedGlueAPICauses(t *testing.T) {
+	t.Parallel()
+
+	message := "sensitive service detail"
+	modeled := &smithy.OperationError{
+		ServiceID:     "Glue",
+		OperationName: "GetSchemaVersion",
+		Err:           &types.EntityNotFoundException{Message: &message},
+	}
+	generic := &smithy.OperationError{
+		ServiceID:     "Glue",
+		OperationName: "GetSchemaVersion",
+		Err:           &smithy.GenericAPIError{Code: "ThrottlingException", Message: message},
+	}
+	for _, test := range []struct {
+		name  string
+		cause error
+		want  error
+	}{
+		{name: "modeled", cause: modeled, want: schemaregistry.ErrNotFound},
+		{name: "generic", cause: generic, want: schemaregistry.ErrUnavailable},
+	} {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			api := &apiStub{
+				getVersion: func(context.Context, *awsglue.GetSchemaVersionInput) (*awsglue.GetSchemaVersionOutput, error) {
+					return nil, test.cause
+				},
+			}
+			provider := newProvider(t, api)
+			_, err := provider.Resolve(context.Background(), schemaregistry.Latest(
+				schemaregistry.Subject{Registry: "events", Name: "orders"},
+			))
+			if !errors.Is(err, test.want) || !errors.Is(err, test.cause) {
+				t.Fatalf("Resolve() error = %v, want category %v and original cause", err, test.want)
+			}
+			var operationError *smithy.OperationError
+			if !errors.As(err, &operationError) || operationError.Operation() != "GetSchemaVersion" {
+				t.Fatalf("Resolve() error = %v, want preserved smithy.OperationError", err)
+			}
+			var apiError smithy.APIError
+			if !errors.As(err, &apiError) || apiError.ErrorCode() == "" {
+				t.Fatalf("Resolve() error = %v, want preserved smithy.APIError", err)
+			}
+			if strings.Contains(err.Error(), message) {
+				t.Fatalf("Resolve() error disclosed service detail: %v", err)
+			}
+		})
+	}
+}
+
+func TestProviderPreservesGlueCauseForUnknownRegistrationOutcome(t *testing.T) {
+	t.Parallel()
+
+	missing := &smithy.GenericAPIError{Code: "EntityNotFoundException", Message: "missing"}
+	apiCause := &smithy.GenericAPIError{Code: "InternalServiceException", Message: "sensitive service detail"}
+	cause := &smithy.OperationError{
+		ServiceID:     "Glue",
+		OperationName: "RegisterSchemaVersion",
+		Err:           apiCause,
+	}
+	api := &apiStub{
+		getByDefinition: func(context.Context, *awsglue.GetSchemaByDefinitionInput) (*awsglue.GetSchemaByDefinitionOutput, error) {
+			return nil, missing
+		},
+		register: func(context.Context, *awsglue.RegisterSchemaVersionInput) (*awsglue.RegisterSchemaVersionOutput, error) {
+			return nil, cause
+		},
+	}
+	provider := newProvider(t, api)
+	result, err := provider.Register(context.Background(), schemaregistry.RegisterRequest{
+		Subject: schemaregistry.Subject{Registry: "events", Name: "orders"},
+		Schema:  compileAvro(t),
+	})
+	if result.Outcome != schemaregistry.RegistrationUnknown ||
+		!errors.Is(err, schemaregistry.ErrUnknownOutcome) ||
+		!errors.Is(err, schemaregistry.ErrUnavailable) ||
+		!errors.Is(err, cause) {
+		t.Fatalf("Register() = (%+v, %v), want unknown/unavailable with original cause", result, err)
+	}
+	var apiError smithy.APIError
+	if !errors.As(err, &apiError) || apiError.ErrorCode() != "InternalServiceException" {
+		t.Fatalf("Register() error = %v, want preserved InternalServiceException", err)
+	}
+	var operationError *smithy.OperationError
+	if !errors.As(err, &operationError) || operationError.Operation() != "RegisterSchemaVersion" {
+		t.Fatalf("Register() error = %v, want preserved smithy.OperationError", err)
+	}
+	if strings.Contains(err.Error(), apiCause.Message) {
+		t.Fatalf("Register() error disclosed service detail: %v", err)
+	}
+}
+
+func TestProviderPreservesNonAPIGlueCause(t *testing.T) {
+	t.Parallel()
+
+	detail := errors.New("sensitive transport detail")
+	cause := &smithy.SerializationError{Err: detail}
+	api := &apiStub{
+		getVersion: func(context.Context, *awsglue.GetSchemaVersionInput) (*awsglue.GetSchemaVersionOutput, error) {
+			return nil, cause
+		},
+	}
+	provider := newProvider(t, api)
+	_, err := provider.Resolve(context.Background(), schemaregistry.Latest(
+		schemaregistry.Subject{Registry: "events", Name: "orders"},
+	))
+	if !errors.Is(err, schemaregistry.ErrUnavailable) || !errors.Is(err, cause) || !errors.Is(err, detail) {
+		t.Fatalf("Resolve() error = %v, want unavailable with original cause chain", err)
+	}
+	var serializationError *smithy.SerializationError
+	if !errors.As(err, &serializationError) || serializationError != cause {
+		t.Fatalf("Resolve() error = %v, want preserved smithy.SerializationError", err)
+	}
+	if strings.Contains(err.Error(), detail.Error()) {
+		t.Fatalf("Resolve() error disclosed transport detail: %v", err)
+	}
+}
+
 func TestUncompressedFramerMatchesAWSGlueHeader(t *testing.T) {
 	t.Parallel()
 

@@ -41,7 +41,8 @@ type Config struct {
 	Canonicalizers map[schemaregistry.Format]schemaregistry.Canonicalizer
 }
 
-// Provider is safe for concurrent use when the supplied AWS SDK client is.
+// Provider is safe for concurrent use when the supplied AWS SDK client and
+// every supplied canonicalizer are safe for concurrent calls.
 type Provider struct {
 	api            API
 	scope          string
@@ -140,7 +141,7 @@ func (provider *Provider) Register(ctx context.Context, request schemaregistry.R
 	if err != nil {
 		classified := classifyError(err)
 		if errors.Is(classified, schemaregistry.ErrUnavailable) {
-			return schemaregistry.RegisterResult{Outcome: schemaregistry.RegistrationUnknown}, fmt.Errorf("%w: %v", schemaregistry.ErrUnknownOutcome, classified)
+			return schemaregistry.RegisterResult{Outcome: schemaregistry.RegistrationUnknown}, fmt.Errorf("%w: %w", schemaregistry.ErrUnknownOutcome, classified)
 		}
 		return schemaregistry.RegisterResult{}, classified
 	}
@@ -315,6 +316,19 @@ func lifecycle(status types.SchemaVersionStatus) schemaregistry.LifecycleState {
 	}
 }
 
+type classifiedError struct {
+	category error
+	cause    error
+}
+
+func (err classifiedError) Error() string {
+	return err.category.Error() + ": AWS Glue API"
+}
+
+func (err classifiedError) Unwrap() []error {
+	return []error{err.category, err.cause}
+}
+
 func classifyError(err error) error {
 	if err == nil {
 		return nil
@@ -324,18 +338,20 @@ func classifyError(err error) error {
 	}
 	var apiError smithy.APIError
 	if errors.As(err, &apiError) {
+		category := schemaregistry.ErrUnavailable
 		switch apiError.ErrorCode() {
 		case "EntityNotFoundException":
-			return schemaregistry.ErrNotFound
+			category = schemaregistry.ErrNotFound
 		case "AccessDeniedException":
-			return schemaregistry.ErrUnauthorized
+			category = schemaregistry.ErrUnauthorized
 		case "InvalidInputException", "ResourceNumberLimitExceededException":
-			return schemaregistry.ErrRejected
+			category = schemaregistry.ErrRejected
 		case "ConcurrentModificationException", "ThrottlingException", "InternalServiceException", "OperationTimeoutException":
-			return schemaregistry.ErrUnavailable
+			category = schemaregistry.ErrUnavailable
 		}
+		return classifiedError{category: category, cause: err}
 	}
-	return fmt.Errorf("%w: AWS Glue API", schemaregistry.ErrUnavailable)
+	return classifiedError{category: schemaregistry.ErrUnavailable, cause: err}
 }
 
 func interfaceIsNil(value any) bool {

@@ -11,11 +11,14 @@ forward credentials implicitly, own transport shutdown, support GUID header
 version 1, or perform unbounded reference traversal.
 
 The module is stable and active. Its minimum supported and tested toolchain is
-Go 1.26.6, matching `go.mod` and the repository manifest. It has no build tags
-or operating-system-specific source and supports portable Go platforms. The
-verified backend and protocol boundary is Confluent Platform 8.3.1, its Schema
-Registry REST API, and version-0 classic and Protobuf framing. Other
-Confluent-compatible products require their own evidence.
+Go 1.26.6, matching `go.mod` and the repository manifest. Production source
+has no build constraints or operating-system-specific files and supports
+portable Go platforms. The optional real-service suite uses the separately
+invoked `confluentintegration` test tag. The verified backend and protocol
+boundary is
+Confluent Platform 8.3.1, its Schema Registry REST API, and version-0 classic
+and Protobuf framing. Other Confluent-compatible products require their own
+evidence.
 
 For shared package families, selection guidance, ownership, and lifecycle
 vocabulary, see the versioned [v1.4.0 Golib ecosystem
@@ -91,6 +94,9 @@ func main() {
 }
 ```
 
+The same construction path is compiler-checked and executed as
+[`ExampleNew`](example_test.go).
+
 ## Construction, ownership, and lifecycle
 
 `Config` requires one HTTPS endpoint, provider scope, injected transport,
@@ -156,16 +162,17 @@ guide](../../docs/security.md) and [private reporting policy](../../SECURITY.md)
 
 ## Integration verification
 
-`golib check --module providers/confluent` starts pinned Confluent Platform 8.3.1 Kafka and Schema
-Registry images, runs the adapter against the real REST service, and compares
+The separately invoked optional `confluentintegration` suite starts pinned
+Confluent Platform 8.3.1 Kafka and Schema Registry images, runs the adapter
+against the real REST service, and compares
 registration, lookup, listing, references, all compatibility modes across Avro,
 JSON Schema, and Protobuf, and classic/Protobuf wire framing with
 `franz-go/pkg/sr` v1.8.0 as an independent client. The JSON Schema fixture
 also exercises its bounded value codec through a registered schema. Containers,
 subjects, and the disposable Go build cache are removed after the run.
 
-The same command compares classic and Protobuf framing byte-for-byte
-with Confluent's official Java `PrefixSchemaIdSerializer` from
+The package-owned interoperability gate compares classic and Protobuf framing
+byte-for-byte with Confluent's official Java `PrefixSchemaIdSerializer` from
 `kafka-schema-serializer` 8.3.1. It also publishes equivalent 1,024-byte
 framing benchmarks for the official serializer and the Go framers. The Maven
 runtime, primary Confluent artifact checksum, Maven cache, and Go build cache
@@ -177,6 +184,9 @@ Use these entry points for the rest of the module contract:
 
 - [Provider compatibility and limitations](docs/compatibility.md)
 - [Specification decisions](docs/specification-decisions.md)
+- [Provider API](https://pkg.go.dev/github.com/faustbrian/go-schema-registry/providers/confluent)
+- [Executable construction example](example_test.go)
+- [MIT license](LICENSE)
 - [Provider comparison and selection](../../docs/providers.md)
 - [API and error categories](../../docs/api.md)
 - [Operations and troubleshooting](../../docs/operations.md)
@@ -185,6 +195,10 @@ Use these entry points for the rest of the module contract:
 - [FAQ](../../docs/faq.md)
 - [Verification and performance evidence](../../docs/conformance.md)
 - [Support](../../SUPPORT.md) and [release history](CHANGELOG.md)
+
+The module intentionally exports no separate testing-helper package. Tests can
+inject an `http.RoundTripper`, `CredentialProvider`, and canonicalizers; the
+[provider tests](confluent_test.go) demonstrate those deterministic seams.
 
 For HTTP policy failures, first verify that the endpoint is HTTPS and contains
 no userinfo, query, or fragment. For admission or timeout failures, verify the

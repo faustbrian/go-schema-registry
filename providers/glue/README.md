@@ -12,11 +12,13 @@ and it does not advertise references, listing, deletion, candidate
 compatibility dry-runs, or ZLIB framing.
 
 The module is stable and active. Its minimum supported and tested toolchain is
-Go 1.26.6, matching `go.mod` and the repository manifest. It has no build tags
-or operating-system-specific source and supports portable Go platforms. The
-verified backend and protocol boundary is AWS Glue Schema Registry through AWS
-SDK for Go v2 Glue 1.152.0 and uncompressed header-version-3 framing compatible
-with AWS Glue Schema Registry Java SerDe 1.1.27.
+Go 1.26.6, matching `go.mod` and the repository manifest. Production source
+has no build constraints or operating-system-specific files and supports
+portable Go platforms. The faithful local service suite uses the `integration`
+test tag; the optional read-only AWS check uses `liveintegration`. The verified
+backend and protocol boundary is AWS Glue Schema Registry through AWS SDK for
+Go v2 Glue 1.152.0 and uncompressed header-version-3 framing compatible with
+AWS Glue Schema Registry Java SerDe 1.1.27.
 
 For shared package families, selection guidance, ownership, and lifecycle
 vocabulary, see the versioned [v1.4.0 Golib ecosystem
@@ -94,6 +96,9 @@ func main() {
 }
 ```
 
+The provider construction boundary is also compiler-checked and executed as
+[`ExampleNew`](example_test.go).
+
 ## Construction, ownership, and lifecycle
 
 `Config` receives a narrow AWS SDK v2 Glue client already configured with
@@ -111,7 +116,8 @@ for the provider's lifetime.
 `Provider` and `UncompressedFramer` start no goroutines and own no AWS client,
 connection, or shutdown sequence, so they have no `Close` or `Shutdown`
 method. A provider is safe for concurrent use when the supplied AWS SDK client
-is; `MaxConcurrent` bounds admitted service operations. Every potentially
+and every borrowed canonicalizer are safe for concurrent calls;
+`MaxConcurrent` bounds admitted service operations. Every potentially
 blocking provider operation and each framer method accepts caller context;
 service work is additionally bounded by one `RequestTimeout`. The framer checks
 cancellation and returns owned frame or payload bytes.
@@ -134,10 +140,13 @@ bytes.
 Classify shared failures with `errors.Is` against the provider-neutral
 categories, including invalid requests or schemas, unsupported operations,
 not found, unavailable, limits, cancellation, deadlines, and unknown outcomes.
-AWS modeled service failures are translated at the adapter boundary while the
-safe cause is preserved. `ErrInvalidFrame` identifies malformed, cross-scope,
-or out-of-bounds wire data; `ErrCompressionUnsupported` identifies recognized
-ZLIB framing that this module deliberately does not decode. Registration
+AWS modeled and generic service failures are translated at the adapter boundary
+while the original SDK operation wrapper and structured API cause remain
+available through `errors.Is` and `errors.As`. Non-API SDK failures likewise
+retain their original cause chain; public error strings omit cause details.
+`ErrInvalidFrame` identifies malformed, cross-scope, or out-of-bounds wire data;
+`ErrCompressionUnsupported` identifies recognized ZLIB framing that this
+module deliberately does not decode. Registration
 returns an unknown outcome when Glue cannot prove which concurrent caller
 created a version. Do not retry solely from an error string or add an adapter
 retry loop around the SDK retryer; reconcile ambiguous registration first.
@@ -160,14 +169,15 @@ guide](../../docs/security.md) and [private reporting policy](../../SECURITY.md)
 
 `golib check --module providers/glue` compares framing with the pinned official
 AWS Glue Schema Registry Java SerDe v1.1.27 in an isolated Maven container.
-The same provider contract runs the real AWS SDK v2 client against a faithful
-local Smithy JSON service. It requires no AWS account or credentials and
+Under the `integration` test tag, the same provider contract runs the real AWS
+SDK v2 client against a faithful local Smithy JSON service. It requires no AWS
+account or credentials and
 verifies request serialization, SigV4 wiring, latest/by-ID/version resolution,
 registration, duplicates, pending/available lifecycle, SDK throttling retries,
 quotas, malformed responses, cancellation, deadlines, unknown outcomes, and
 reconciliation.
 
-The live-integration test remains a separate read-only check against a
+The `liveintegration` test remains a separate read-only check against a
 caller-selected existing AVRO schema using the default AWS credential chain.
 It requires `SCHEMA_REGISTRY_GLUE_INTEGRATION_REGION`,
 `SCHEMA_REGISTRY_GLUE_INTEGRATION_REGISTRY`, and
@@ -182,6 +192,9 @@ Use these entry points for the rest of the module contract:
 
 - [Provider compatibility and limitations](docs/compatibility.md)
 - [Specification decisions](docs/specification-decisions.md)
+- [Provider API](https://pkg.go.dev/github.com/faustbrian/go-schema-registry/providers/glue)
+- [Executable construction example](example_test.go)
+- [MIT license](LICENSE)
 - [Provider comparison and selection](../../docs/providers.md)
 - [API and error categories](../../docs/api.md)
 - [Operations and troubleshooting](../../docs/operations.md)
@@ -190,6 +203,10 @@ Use these entry points for the rest of the module contract:
 - [FAQ](../../docs/faq.md)
 - [Verification and performance evidence](../../docs/conformance.md)
 - [Support](../../SUPPORT.md) and [release history](CHANGELOG.md)
+
+The module intentionally exports no separate testing-helper package. Tests can
+inject the narrow `API` interface and canonicalizers; the [provider
+tests](glue_test.go) demonstrate those deterministic seams.
 
 For construction failures, verify that the SDK client, scope, timeout,
 concurrency bound, and supported canonicalizer map are non-zero. For admission

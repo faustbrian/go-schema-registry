@@ -4,6 +4,9 @@
 
 ### Changed
 
+- Reject exact-lookup responses whose returned subject, reference coordinates,
+  or compiled schema identity differs from the registration request, and
+  classify malformed returned schemas as invalid responses.
 - Adopt the schema-v2 Golib cohesion catalog contract, including the provider's
   family, selection, ownership, lifecycle, compatibility, and documentation
   metadata and versioned ecosystem navigation.
@@ -18,6 +21,9 @@
 - Complete the provider entry point with exact Go, install, import, platform,
   backend, construction, ownership, lifecycle, error, security,
   troubleshooting, support, and ecosystem-navigation guidance.
+- Add a directly executable provider construction example and distinguish
+  production source from the separately invoked optional
+  `confluentintegration` test tag.
 - Point the provider README and cohesion catalog navigation directly to the
   immutable v1.4.0 ecosystem index and protocols-and-descriptions family
   guidance.
@@ -25,6 +31,8 @@
   the pinned Platform v8.3.1 service, wire, and compatibility contracts.
 - Record the subsequent same-day build-feed movements without changing the
   selected Platform v8.3.1 source or its decision and conformance bindings.
+- Record the 2026-09-05 Confluent 8.3.2 and 8.4.0 build-feed movement while
+  retaining the byte-identical Platform v8.3.1 source and existing decisions.
 
 - Add the [specification decision register](docs/specification-decisions.md),
   exact Confluent and peer pins, machine conformance map, and immutable history:
@@ -32,7 +40,7 @@
   `CONFLUENT-DEC-002 sha256:4c9ab0b72db6bcd6a6f90cd8e638e7f280708c9518128b5933a9a904ad072ff7`, <!-- gitleaks:allow; immutable decision digest -->
   and `CONFLUENT-DEC-003 sha256:c92530ae870914748c82e238b72ff1d3c60c2ec0360150b01863750e6dad0ac1`. <!-- gitleaks:allow; immutable decision digest -->
 - Add a module documentation index for direct navigation.
-## 1.0.0 - 2026-08-25
+## 1.0.0 - 2026-08-26
 
 ### Changed
 
