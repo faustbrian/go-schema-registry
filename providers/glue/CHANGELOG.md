@@ -15,6 +15,9 @@
 
 ### Documentation
 
+- Complete the provider entry point with exact Go, install, import, platform,
+  backend, construction, ownership, lifecycle, error, security,
+  troubleshooting, support, and ecosystem-navigation guidance.
 - Point the provider README and cohesion catalog navigation directly to the
   immutable v1.4.0 ecosystem index and protocols-and-descriptions family
   guidance.
