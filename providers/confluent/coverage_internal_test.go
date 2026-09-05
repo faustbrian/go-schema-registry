@@ -378,8 +378,8 @@ func TestProviderOperationBoundaries(t *testing.T) {
 		{"unknown create", []*http.Response{response(404, ""), response(500, "")}, schemaregistry.ErrUnknownOutcome},
 		{"rejected create", []*http.Response{response(404, ""), response(409, "")}, schemaregistry.ErrIncompatible},
 		{"invalid ID", []*http.Response{response(404, ""), response(200, `{"id":0}`)}, ErrInvalidResponse},
-		{"invalid existing ID", []*http.Response{response(200, `{"id":0,"version":2}`)}, ErrInvalidResponse},
-		{"invalid existing version", []*http.Response{response(200, `{"id":7,"version":0}`)}, ErrInvalidResponse},
+		{"invalid existing ID", []*http.Response{response(200, `{"subject":"s","id":0,"version":2,"schema":"string","schemaType":"AVRO"}`)}, ErrInvalidResponse},
+		{"invalid existing version", []*http.Response{response(200, `{"subject":"s","id":7,"version":0,"schema":"string","schemaType":"AVRO"}`)}, ErrInvalidResponse},
 		{"trailing JSON", []*http.Response{response(200, `{"id":7,"version":2} {}`)}, ErrInvalidResponse},
 	} {
 		t.Run(test.name, func(t *testing.T) {
@@ -949,5 +949,22 @@ func TestNewAndMappingBoundaries(t *testing.T) {
 	}
 	if sameReferenceCoordinates(requestedReferences, nil) {
 		t.Fatal("sameReferenceCoordinates(length mismatch) = true")
+	}
+	for name, returned := range map[string][]schemaReference{
+		"missing name":     {{Name: "other", Subject: "", Version: 0}},
+		"wrong subject":    {{Name: "common.avsc", Subject: "other", Version: 1}},
+		"wrong version":    {{Name: "common.avsc", Subject: "common", Version: 2}},
+		"duplicate return": {{Name: "common.avsc", Subject: "common", Version: 1}, {Name: "common.avsc", Subject: "common", Version: 1}},
+	} {
+		if sameReferenceCoordinates(requestedReferences, returned) {
+			t.Fatalf("sameReferenceCoordinates(%s) = true", name)
+		}
+	}
+	duplicateRequested := append(append([]schemaregistry.Reference(nil), requestedReferences...), requestedReferences[0])
+	if sameReferenceCoordinates(duplicateRequested, []schemaReference{
+		{Name: "other"},
+		returnedReferences[0],
+	}) {
+		t.Fatal("sameReferenceCoordinates(duplicate request with unknown return) = true")
 	}
 }
