@@ -345,6 +345,30 @@ func TestProviderOperationBoundaries(t *testing.T) {
 	if err != nil || registered.Outcome != schemaregistry.RegistrationExisting || registered.ID.Value != "7" || registered.Version.Number != 2 {
 		t.Fatalf("Register(existing) = (%+v, %v)", registered, err)
 	}
+	referencedSchema, err := schemaregistry.Compile(context.Background(), schemaregistry.Definition{
+		Format:  schemaregistry.FormatAvro,
+		Content: []byte("string"),
+		References: []schemaregistry.Reference{{
+			Name: "common.avsc", Subject: "common", Version: 1, Fingerprint: schema.Fingerprint(),
+		}},
+	}, canonicalizerFunction(func(_ context.Context, definition schemaregistry.Definition) ([]byte, error) {
+		return definition.Content, nil
+	}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	config := internalConfig(sequentialTransport(
+		response(200, `{"subject":"s","id":7,"version":2,"schema":"string","schemaType":"AVRO","references":[{"name":"common.avsc","subject":"common","version":1}]}`),
+		response(404, ""),
+	))
+	config.MaxResponseBytes = 256
+	provider, err = New(config)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := provider.Register(context.Background(), schemaregistry.RegisterRequest{Subject: schemaregistry.Subject{Name: "s"}, Schema: referencedSchema}); !errors.Is(err, schemaregistry.ErrReferenceMissing) {
+		t.Fatalf("Register(missing existing reference) error = %v", err)
+	}
 	for _, test := range []struct {
 		name      string
 		responses []*http.Response
@@ -915,5 +939,15 @@ func TestNewAndMappingBoundaries(t *testing.T) {
 	}
 	if interfaceIsNil(1) || !interfaceIsNil(nilCanonicalizer) {
 		t.Fatal("interfaceIsNil() mismatch")
+	}
+	requestedReferences := []schemaregistry.Reference{{
+		Name: "common.avsc", Subject: "common", Version: 1,
+	}}
+	returnedReferences := []schemaReference{{Name: "common.avsc", Subject: "common", Version: 1}}
+	if !sameReferenceCoordinates(requestedReferences, returnedReferences) {
+		t.Fatal("sameReferenceCoordinates(match) = false")
+	}
+	if sameReferenceCoordinates(requestedReferences, nil) {
+		t.Fatal("sameReferenceCoordinates(length mismatch) = true")
 	}
 }
