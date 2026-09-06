@@ -21,6 +21,12 @@
 
 ### Documentation
 
+- Complete stable-v1 installation, package selection, lifecycle, executable
+  example, performance, compatibility, support, security, and project
+  navigation for the root and provider modules.
+- Bind root metadata to the compiler-checked example and conformance-based
+  performance guide, and clarify root and provider tag formats.
+
 - Point the core README and cohesion catalog navigation directly to the
   immutable v1.4.0 ecosystem index and protocols-and-descriptions family
   guidance.

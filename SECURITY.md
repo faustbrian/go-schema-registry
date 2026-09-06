@@ -1,6 +1,8 @@
 # Security policy
 
-Report vulnerabilities privately to the repository maintainers. Do not place
+Report vulnerabilities through the repository's
+[private vulnerability reporting form](https://github.com/faustbrian/go-schema-registry/security/advisories/new).
+Do not place
 schema contents, credentials, endpoints containing secrets, or captured payloads
 in public reports.
 

@@ -23,6 +23,21 @@ The core module has no implicit registry client. Provider adapters are separate
 modules under `providers/`; format adapters are explicit dependencies under
 `formats/`.
 
+The root module is stable at v1, requires Go 1.26.6 or newer, and follows
+Semantic Versioning.
+
+## Install
+
+```sh
+go get github.com/faustbrian/go-schema-registry@v1
+```
+
+Import the canonical provider-neutral package directly:
+
+```go
+import schemaregistry "github.com/faustbrian/go-schema-registry"
+```
+
 For shared package families, selection guidance, ownership, and lifecycle
 vocabulary, see the versioned [v1.4.0 Golib ecosystem
 index](https://github.com/faustbrian/go-library-tools/blob/v1.4.0/docs/ecosystem/README.md)
@@ -52,10 +67,27 @@ if err != nil {
 fmt.Println(schema.Fingerprint())
 ```
 
+The complete compiler-checked form is [`ExampleCompile`](example_test.go).
+
 Construct a `Client` with explicit byte, listing, and concurrency limits. Use a
 provider adapter only when network operations are intended. Decoding is split
 into parse, resolve, and decode phases, so ordinary value access cannot trigger
 hidden network I/O.
+
+## Package map
+
+| Package | Use |
+| --- | --- |
+| `github.com/faustbrian/go-schema-registry` | Define provider-neutral schema identities, registration, resolution, caching, bundles, and wire composition. |
+| `github.com/faustbrian/go-schema-registry/formats/avro` | Canonicalize bounded Avro schemas. |
+| `github.com/faustbrian/go-schema-registry/formats/jsonschema` | Compile and canonicalize bounded JSON Schema definitions. |
+| `github.com/faustbrian/go-schema-registry/formats/protobuf` | Canonicalize bounded Protobuf schemas and imports. |
+| `github.com/faustbrian/go-schema-registry/providers/confluent` | Integrate Confluent-compatible REST identity and version-0 wire formats. |
+| `github.com/faustbrian/go-schema-registry/providers/glue` | Integrate AWS Glue Schema Registry identity, lifecycle, and uncompressed header-version-3 framing. |
+
+The root compiler, client, cache, bundles, and codecs start no background work
+and own no resource that requires shutdown. Applications own injected
+providers, transports, credentials, and their lifecycle.
 
 ## Contracts
 
@@ -73,6 +105,12 @@ hidden network I/O.
 - [Verification provenance](docs/provenance.md)
 - [Conformance and hardening matrix](docs/conformance.md)
 - [FAQ](docs/faq.md)
+- [Documentation index](docs/README.md)
+- [Compatibility policy](COMPATIBILITY.md)
+- [Support](SUPPORT.md)
+- [Private security reporting](SECURITY.md)
+- [Changelog](CHANGELOG.md)
+- [Contributing](CONTRIBUTING.md)
 
 The minimum supported toolchain is Go 1.26.6. The module follows stable v1 compatibility; see
 [CHANGELOG.md](CHANGELOG.md) and [RELEASING.md](RELEASING.md).

@@ -51,3 +51,18 @@ Glue `integration`, `conformance`, and `check-release` require no AWS account or
 credentials and do not skip any faithful exchange. The separate live target
 requires caller-selected non-production identifiers and an AWS credential
 source; it is additional evidence, not a prerequisite for local conformance.
+
+## Performance evidence
+
+The root `BenchmarkCompilePortableIdentity` benchmark measures canonicalization
+and portable fingerprint construction. The provider modules own
+`BenchmarkClassicFrame`, `BenchmarkProtobufFrame`, and `BenchmarkFrame` for
+their exact wire identities. Run the relevant module benchmark with a fixed Go
+toolchain, corpus, duration, and sample count, record the CPU and operating
+system, and compare equivalent runs with `benchstat`.
+
+Provider benchmarks do not include remote service latency, credential refresh,
+or caller transport policy. The Confluent interoperability gate separately
+compares equivalent 1,024-byte framing with the official Java serializer. Glue
+framing is compared byte-for-byte with the pinned official Java SerDe. Do not
+use either framing result as a registry request-latency or throughput claim.
