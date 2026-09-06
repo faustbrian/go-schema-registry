@@ -4,6 +4,7 @@
 
 - [API](api.md)
 - [Examples](examples.md)
+- [Compiler-checked `ExampleCompile`](../example_test.go)
 
 ## Concepts and design
 
@@ -21,6 +22,7 @@
 
 ## Operations and security
 
+- [Conformance and performance](conformance.md)
 - [Operations](operations.md)
 - [Security](security.md)
 
@@ -32,4 +34,9 @@
 ## Contributing
 
 - [Contribution guide](../CONTRIBUTING.md)
+- [Compatibility policy](../COMPATIBILITY.md)
+- [Support](../SUPPORT.md)
+- [Private security reporting](../SECURITY.md)
 - [Release history](../CHANGELOG.md)
+- [License](../LICENSE)
+- [Protocols and descriptions family](https://github.com/faustbrian/go-library-tools/blob/v1.4.0/docs/ecosystem/design-language.md#package-families-and-selection)
