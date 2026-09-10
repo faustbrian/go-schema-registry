@@ -12,7 +12,7 @@ and it does not advertise references, listing, deletion, candidate
 compatibility dry-runs, or ZLIB framing.
 
 The module is stable and active. Its minimum supported and tested toolchain is
-Go 1.26.6, matching `go.mod` and the repository manifest. Production source
+Go 1.27.0, matching `go.mod` and the repository manifest. Production source
 has no build constraints or operating-system-specific files and supports
 portable Go platforms. The faithful local service suite uses the `integration`
 test tag; the optional read-only AWS check uses `liveintegration`. The verified

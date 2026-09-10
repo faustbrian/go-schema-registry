@@ -11,7 +11,7 @@ forward credentials implicitly, own transport shutdown, support GUID header
 version 1, or perform unbounded reference traversal.
 
 The module is stable and active. Its minimum supported and tested toolchain is
-Go 1.26.6, matching `go.mod` and the repository manifest. Production source
+Go 1.27.0, matching `go.mod` and the repository manifest. Production source
 has no build constraints or operating-system-specific files and supports
 portable Go platforms. The optional real-service suite uses the separately
 invoked `confluentintegration` test tag. The verified backend and protocol

@@ -1,6 +1,6 @@
 module github.com/faustbrian/go-schema-registry
 
-go 1.26.6
+go 1.27.0
 
 require (
 	github.com/bufbuild/protocompile v0.14.1
