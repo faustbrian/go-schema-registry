@@ -25,4 +25,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sts v1.45.4 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/linkedin/goavro/v2 v2.15.0 // indirect
+	github.com/stretchr/testify v1.9.0 // indirect
+	google.golang.org/protobuf v1.36.12 // indirect
 )
