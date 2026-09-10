@@ -7,7 +7,7 @@
 [![Documentation](https://img.shields.io/badge/docs-checked_in_CI-blue)](docs/)
 [![Go Reference](https://pkg.go.dev/badge/github.com/faustbrian/go-schema-registry.svg)](https://pkg.go.dev/github.com/faustbrian/go-schema-registry)
 [![Release](https://img.shields.io/github/v/release/faustbrian/go-schema-registry?sort=semver)](https://github.com/faustbrian/go-schema-registry/releases)
-[![Go](https://img.shields.io/badge/go-1.26.6-00ADD8?logo=go)](https://go.dev/)
+[![Go](https://img.shields.io/badge/go-1.27.0-00ADD8?logo=go)](https://go.dev/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 `schema-registry` provides provider-neutral contracts for explicit schema
@@ -23,7 +23,7 @@ The core module has no implicit registry client. Provider adapters are separate
 modules under `providers/`; format adapters are explicit dependencies under
 `formats/`.
 
-The root module is stable at v1, requires Go 1.26.6 or newer, and follows
+The root module is stable at v1, requires Go 1.27.0 or newer, and follows
 Semantic Versioning.
 
 ## Install
@@ -112,7 +112,7 @@ providers, transports, credentials, and their lifecycle.
 - [Changelog](CHANGELOG.md)
 - [Contributing](CONTRIBUTING.md)
 
-The minimum supported toolchain is Go 1.26.6. The module follows stable v1 compatibility; see
+The minimum supported toolchain is Go 1.27.0. The module follows stable v1 compatibility; see
 [CHANGELOG.md](CHANGELOG.md) and [RELEASING.md](RELEASING.md).
 
 `golib repository check` validates the repository contract. `golib check --all`

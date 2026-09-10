@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
   "repository": "github.com/faustbrian/go-schema-registry",
-  "go_version": "1.26.6",
+  "go_version": "1.27.0",
   "modules": [
     {
       "directory": ".",
       "module_path": "github.com/faustbrian/go-schema-registry",
-      "go_version": "1.26.6",
+      "go_version": "1.27.0",
       "packages": [
         {
           "module_directory": ".",
@@ -164,9 +164,9 @@
           "github.com/faustbrian/go-schema-registry/providers/glue"
         ],
         "supported_go": {
-          "minimum": "1.26.6",
+          "minimum": "1.27.0",
           "tested": [
-            "1.26.6"
+            "1.27.0"
           ]
         },
         "supported_platforms": [
@@ -203,7 +203,7 @@
     {
       "directory": "providers/confluent",
       "module_path": "github.com/faustbrian/go-schema-registry/providers/confluent",
-      "go_version": "1.26.6",
+      "go_version": "1.27.0",
       "packages": [
         {
           "module_directory": "providers/confluent",
@@ -313,9 +313,9 @@
         "adapters": [],
         "companions": [],
         "supported_go": {
-          "minimum": "1.26.6",
+          "minimum": "1.27.0",
           "tested": [
-            "1.26.6"
+            "1.27.0"
           ]
         },
         "supported_platforms": [
@@ -352,7 +352,7 @@
     {
       "directory": "providers/glue",
       "module_path": "github.com/faustbrian/go-schema-registry/providers/glue",
-      "go_version": "1.26.6",
+      "go_version": "1.27.0",
       "packages": [
         {
           "module_directory": "providers/glue",
@@ -466,9 +466,9 @@
         "adapters": [],
         "companions": [],
         "supported_go": {
-          "minimum": "1.26.6",
+          "minimum": "1.27.0",
           "tested": [
-            "1.26.6"
+            "1.27.0"
           ]
         },
         "supported_platforms": [
