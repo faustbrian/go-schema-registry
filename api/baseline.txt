@@ -394,7 +394,9 @@ const (
 type Limits struct {
 	MaxSchemaBytes int
 	MaxListResults int
-	MaxConcurrent  int
+	// MaxConcurrent bounds executing provider calls and retained registration
+	// leaders. Same-key registration waiters share an existing leader.
+	MaxConcurrent int
 }
     Limits are caller-selected operation bounds.
 
@@ -596,7 +598,9 @@ func (cache *ResolveCache) Resolve(
     Resolve applies one explicit availability policy.
 
 type ResolveCacheConfig struct {
-	MaxEntries    int
+	MaxEntries int
+	// MaxConcurrent bounds upstream calls and retained load leaders, including
+	// leaders detached by Invalidate or Prime. Same-key waiters share a leader.
 	MaxConcurrent int
 	FreshFor      time.Duration
 	StaleFor      time.Duration
