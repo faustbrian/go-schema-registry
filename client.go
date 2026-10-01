@@ -183,7 +183,9 @@ type Capabilities struct {
 type Limits struct {
 	MaxSchemaBytes int
 	MaxListResults int
-	MaxConcurrent  int
+	// MaxConcurrent bounds executing provider calls and retained registration
+	// leaders. Same-key registration waiters share an existing leader.
+	MaxConcurrent int
 }
 
 // RegisterRequest registers one compiled schema under an explicit subject.
@@ -365,6 +367,9 @@ func (client *Client) Register(ctx context.Context, request RegisterRequest) (Re
 	}
 	key := registrationKey{subject: request.Subject, fingerprint: request.Schema.Fingerprint()}
 	flight, leader := client.registration(key)
+	if flight == nil {
+		return RegisterResult{}, ErrLimitExceeded
+	}
 	if !leader {
 		select {
 		case <-ctx.Done():
@@ -572,6 +577,9 @@ func (client *Client) registration(key registrationKey) (*registrationFlight, bo
 	defer client.mu.Unlock()
 	if flight, found := client.registrations[key]; found {
 		return flight, false
+	}
+	if len(client.registrations) >= client.limits.MaxConcurrent {
+		return nil, false
 	}
 	flight := &registrationFlight{done: make(chan struct{})}
 	client.registrations[key] = flight

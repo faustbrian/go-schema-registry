@@ -252,12 +252,14 @@ func TestResolveCacheLoadCancellationAndAllSelectorValidation(t *testing.T) {
 func TestResolveCacheDetachedFlightBookkeeping(t *testing.T) {
 	t.Parallel()
 
+	config := validCacheConfig(&manualClock{now: time.Unix(100, 0)})
+	config.MaxConcurrent = 2
 	cache, err := NewResolveCache(
 		resolverFunction(func(context.Context, Lookup) (ResolveResult, error) {
 			t.Fatal("resolver called")
 			return ResolveResult{}, nil
 		}),
-		validCacheConfig(&manualClock{now: time.Unix(100, 0)}),
+		config,
 	)
 	if err != nil {
 		t.Fatal(err)

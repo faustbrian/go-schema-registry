@@ -4,6 +4,9 @@
 
 ### Security
 
+- Bound retained registration and cache-load leaders by `MaxConcurrent` before
+  allocating new flight state. Excess distinct work returns `ErrLimitExceeded`;
+  same-key waiters still coalesce, and detached cache loads count until completion.
 - Keep collaborator diagnostics and schema/reference identities out of default
   error text while preserving cause inspection, unwrap topology, and bare
   standard cancellation errors at existing passthrough boundaries.
