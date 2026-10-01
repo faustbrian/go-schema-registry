@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	schemaregistry "github.com/faustbrian/go-schema-registry"
+	schemaregistry "github.com/faustbrian/go-schema-registry/v2"
 )
 
 type providerStub struct {

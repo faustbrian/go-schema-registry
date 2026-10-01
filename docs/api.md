@@ -25,3 +25,9 @@ accepted only from providers that advertise a reliable creation distinction.
 Provider-specific semantics use an explicit mode and diagnostic rather than a
 portable label. Candidate format and size use the same client bounds as
 registration, and provider-specific mode names cannot accompany portable modes.
+## Module identity
+
+The root API on main uses `github.com/faustbrian/go-schema-registry/v2`.
+Its format packages share that module. Provider v1 modules retain distinct
+v1 core types and must not be mixed with v2 clients. See
+[migration guidance](migration-v2.md) for coordinated adoption and errors.

@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	schemaregistry "github.com/faustbrian/go-schema-registry"
-	registryjsonschema "github.com/faustbrian/go-schema-registry/formats/jsonschema"
+	schemaregistry "github.com/faustbrian/go-schema-registry/v2"
+	registryjsonschema "github.com/faustbrian/go-schema-registry/v2/formats/jsonschema"
 )
 
 func ExampleCompile() {

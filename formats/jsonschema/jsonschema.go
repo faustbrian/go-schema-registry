@@ -11,7 +11,7 @@ import (
 
 	"github.com/deszhou/jcs"
 	jsonschema "github.com/faustbrian/go-json-schema"
-	schemaregistry "github.com/faustbrian/go-schema-registry"
+	schemaregistry "github.com/faustbrian/go-schema-registry/v2"
 )
 
 // ErrPayloadInvalid marks a value that does not satisfy the compiled JSON Schema.

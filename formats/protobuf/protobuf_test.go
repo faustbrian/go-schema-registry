@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	schemaregistry "github.com/faustbrian/go-schema-registry"
-	registryprotobuf "github.com/faustbrian/go-schema-registry/formats/protobuf"
+	schemaregistry "github.com/faustbrian/go-schema-registry/v2"
+	registryprotobuf "github.com/faustbrian/go-schema-registry/v2/formats/protobuf"
 )
 
 func TestCanonicalizerUsesDeterministicLinkedDescriptors(t *testing.T) {

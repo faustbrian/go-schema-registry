@@ -5,7 +5,7 @@
 [![Coverage](https://img.shields.io/badge/coverage-100%25_required-blue)](CONTRIBUTING.md#verification)
 [![Mutation](https://img.shields.io/badge/mutation-100%25_required-blue)](CONTRIBUTING.md#verification)
 [![Documentation](https://img.shields.io/badge/docs-checked_in_CI-blue)](docs/)
-[![Go Reference](https://pkg.go.dev/badge/github.com/faustbrian/go-schema-registry.svg)](https://pkg.go.dev/github.com/faustbrian/go-schema-registry)
+[![Go Reference](https://pkg.go.dev/badge/github.com/faustbrian/go-schema-registry/v2.svg)](https://pkg.go.dev/github.com/faustbrian/go-schema-registry/v2)
 [![Release](https://img.shields.io/github/v/release/faustbrian/go-schema-registry?sort=semver)](https://github.com/faustbrian/go-schema-registry/releases)
 [![Go](https://img.shields.io/badge/go-1.27.0-00ADD8?logo=go)](https://go.dev/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -23,19 +23,22 @@ The core module has no implicit registry client. Provider adapters are separate
 modules under `providers/`; format adapters are explicit dependencies under
 `formats/`.
 
-The root module is stable at v1, requires Go 1.27.0 or newer, and follows
-Semantic Versioning.
+The root source targets the v2 module identity, requires Go 1.27.0 or newer,
+and follows Semantic Versioning. Release availability is established by the
+repository's immutable tags and releases. See the [v2 migration guide](docs/migration-v2.md).
 
 ## Install
 
+For a published v2 release:
+
 ```sh
-go get github.com/faustbrian/go-schema-registry@v1
+go get github.com/faustbrian/go-schema-registry/v2@v2
 ```
 
 Import the canonical provider-neutral package directly:
 
 ```go
-import schemaregistry "github.com/faustbrian/go-schema-registry"
+import schemaregistry "github.com/faustbrian/go-schema-registry/v2"
 ```
 
 For shared package families, selection guidance, ownership, and lifecycle
@@ -78,12 +81,17 @@ hidden network I/O.
 
 | Package | Use |
 | --- | --- |
-| `github.com/faustbrian/go-schema-registry` | Define provider-neutral schema identities, registration, resolution, caching, bundles, and wire composition. |
-| `github.com/faustbrian/go-schema-registry/formats/avro` | Canonicalize bounded Avro schemas. |
-| `github.com/faustbrian/go-schema-registry/formats/jsonschema` | Compile and canonicalize bounded JSON Schema definitions. |
-| `github.com/faustbrian/go-schema-registry/formats/protobuf` | Canonicalize bounded Protobuf schemas and imports. |
+| `github.com/faustbrian/go-schema-registry/v2` | Define provider-neutral schema identities, registration, resolution, caching, bundles, and wire composition. |
+| `github.com/faustbrian/go-schema-registry/v2/formats/avro` | Canonicalize bounded Avro schemas. |
+| `github.com/faustbrian/go-schema-registry/v2/formats/jsonschema` | Compile and canonicalize bounded JSON Schema definitions. |
+| `github.com/faustbrian/go-schema-registry/v2/formats/protobuf` | Canonicalize bounded Protobuf schemas and imports. |
 | `github.com/faustbrian/go-schema-registry/providers/confluent` | Integrate Confluent-compatible REST identity and version-0 wire formats. |
 | `github.com/faustbrian/go-schema-registry/providers/glue` | Integrate AWS Glue Schema Registry identity, lifecycle, and uncompressed header-version-3 framing. |
+
+The provider entries above retain their v1 module identities and use the v1
+core. They cannot be supplied to a v2 core client. Coordinated provider v2
+modules must be released against the public v2 core before that composition
+is supported; see the [migration guide](docs/migration-v2.md).
 
 The root compiler, client, cache, bundles, and codecs start no background work
 and own no resource that requires shutdown. Applications own injected

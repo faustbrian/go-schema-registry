@@ -1,4 +1,4 @@
-module github.com/faustbrian/go-schema-registry
+module github.com/faustbrian/go-schema-registry/v2
 
 go 1.27.0
 
