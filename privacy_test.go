@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	registry "github.com/faustbrian/go-schema-registry"
+	registry "github.com/faustbrian/go-schema-registry/v2"
 )
 
 const privacyMarker = "application-private-detail"

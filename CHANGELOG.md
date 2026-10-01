@@ -13,6 +13,13 @@
 
 ### Changed
 
+- Move the root and its format packages to the `/v2` module identity with
+  Go 1.27.0. Applications must migrate the complete root type and sentinel
+  graph together; existing provider v1 modules continue using the v1 core.
+- Select a separate v2 API projection while preserving the v1 API baseline
+  and specification decisions. Literal fingerprint and framing contracts
+  are unchanged by the module-path migration.
+
 - Adopt the schema-v2 Golib cohesion catalog contract for the core and both
   provider modules, including their family, selection, ownership, lifecycle,
   compatibility, and documentation metadata and versioned ecosystem navigation.

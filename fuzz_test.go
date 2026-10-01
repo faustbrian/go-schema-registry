@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	schemaregistry "github.com/faustbrian/go-schema-registry"
+	schemaregistry "github.com/faustbrian/go-schema-registry/v2"
 )
 
 func FuzzCompileDefinitions(f *testing.F) {

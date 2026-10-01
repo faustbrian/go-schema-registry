@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"io"
 
-	schemaregistry "github.com/faustbrian/go-schema-registry"
+	schemaregistry "github.com/faustbrian/go-schema-registry/v2"
 	"github.com/linkedin/goavro/v2"
 )
 

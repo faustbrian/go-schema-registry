@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	schemaregistry "github.com/faustbrian/go-schema-registry"
-	registryavro "github.com/faustbrian/go-schema-registry/formats/avro"
+	schemaregistry "github.com/faustbrian/go-schema-registry/v2"
+	registryavro "github.com/faustbrian/go-schema-registry/v2/formats/avro"
 )
 
 func TestExplicitDualRegistrationCutoverFailoverAndRollback(t *testing.T) {

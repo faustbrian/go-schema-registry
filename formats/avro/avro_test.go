@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	schemaregistry "github.com/faustbrian/go-schema-registry"
-	registryavro "github.com/faustbrian/go-schema-registry/formats/avro"
+	schemaregistry "github.com/faustbrian/go-schema-registry/v2"
+	registryavro "github.com/faustbrian/go-schema-registry/v2/formats/avro"
 )
 
 func TestCanonicalizerUsesAvroParsingCanonicalForm(t *testing.T) {

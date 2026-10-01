@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	registry "github.com/faustbrian/go-schema-registry"
-	adapterjson "github.com/faustbrian/go-schema-registry/formats/jsonschema"
+	registry "github.com/faustbrian/go-schema-registry/v2"
+	adapterjson "github.com/faustbrian/go-schema-registry/v2/formats/jsonschema"
 )
 
 type privateMarshaler struct{ cause error }
