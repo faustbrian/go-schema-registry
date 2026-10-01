@@ -2,6 +2,7 @@ package jsonschema_test
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"strings"
 	"testing"
@@ -30,5 +31,9 @@ func TestPrivacyPayloadDiagnostic(t *testing.T) {
 	}
 	if !errors.Is(err, cause) {
 		t.Fatal("original marshal cause lost")
+	}
+	var marshal *json.MarshalerError
+	if !errors.As(err, &marshal) || errors.Unwrap(err) != marshal || errors.Unwrap(marshal) != cause {
+		t.Fatal("marshal failure lost its direct structured cause topology")
 	}
 }
