@@ -33,7 +33,7 @@ func TestBundleConstructionBoundaries(t *testing.T) {
 	}
 	missing := Fingerprint{sum: [32]byte{9}}
 	rootMissing := internalSchema(t, FormatAvro, `"string"`, []Reference{{Name: "missing", Fingerprint: missing}})
-	if _, err := NewBundle(rootMissing, nil, valid, provenance); !errors.Is(err, ErrReferenceMissing) {
+	if _, err := NewBundle(rootMissing, nil, valid, provenance); !errors.Is(err, ErrReferenceMissing) || errors.Unwrap(err) != ErrReferenceMissing {
 		t.Fatalf("NewBundle(missing) error = %v", err)
 	}
 	leaf := internalSchema(t, FormatAvro, `"long"`, nil)
@@ -55,14 +55,14 @@ func TestBundleConstructionBoundaries(t *testing.T) {
 	}
 	manualLeft := Schema{definition: Definition{Format: FormatAvro}, canonical: []byte("left"), fingerprint: Fingerprint{sum: [32]byte{1}}}
 	manualRight := Schema{definition: Definition{Format: FormatAvro}, canonical: []byte("right"), fingerprint: manualLeft.fingerprint}
-	if _, err := NewBundle(manualLeft, []Schema{manualRight}, valid, provenance); !errors.Is(err, ErrFingerprintCollision) {
+	if _, err := NewBundle(manualLeft, []Schema{manualRight}, valid, provenance); !errors.Is(err, ErrFingerprintCollision) || errors.Unwrap(err) != ErrFingerprintCollision {
 		t.Fatalf("NewBundle(collision) error = %v", err)
 	}
 	aFingerprint := Fingerprint{sum: [32]byte{3}}
 	bFingerprint := Fingerprint{sum: [32]byte{4}}
 	a := Schema{definition: Definition{Format: FormatAvro, References: []Reference{{Name: "b", Fingerprint: bFingerprint}}}, canonical: []byte("a"), fingerprint: aFingerprint}
 	b := Schema{definition: Definition{Format: FormatAvro, References: []Reference{{Name: "a", Fingerprint: aFingerprint}}}, canonical: []byte("b"), fingerprint: bFingerprint}
-	if _, err := NewBundle(a, []Schema{b}, valid, provenance); !errors.Is(err, ErrReferenceCycle) {
+	if _, err := NewBundle(a, []Schema{b}, valid, provenance); !errors.Is(err, ErrReferenceCycle) || errors.Unwrap(err) != ErrReferenceCycle {
 		t.Fatalf("NewBundle(cycle) error = %v", err)
 	}
 	if !sameSchema(root, root) || sameSchema(root, leaf) {

@@ -630,7 +630,7 @@ func TestDeletionAndReferenceCompilationBoundaries(t *testing.T) {
 		t.Fatalf("compileResponse(exact schema and depth limits) error = %v", err)
 	}
 	coordinate := referenceCoordinate("s", 1)
-	if err := compile(provider, base, coordinate, map[schemaregistry.ReferenceCoordinate]uint8{coordinate: 1}, 0, 0, 1); !errors.Is(err, schemaregistry.ErrReferenceCycle) {
+	if err := compile(provider, base, coordinate, map[schemaregistry.ReferenceCoordinate]uint8{coordinate: 1}, 0, 0, 1); !errors.Is(err, schemaregistry.ErrReferenceCycle) || errors.Unwrap(err) != schemaregistry.ErrReferenceCycle {
 		t.Fatalf("compileResponse(cycle) error = %v", err)
 	}
 	partialCoordinate := schemaregistry.ReferenceCoordinate{Subject: schemaregistry.Subject{Name: "s"}}
@@ -682,6 +682,8 @@ func TestDeletionAndReferenceCompilationBoundaries(t *testing.T) {
 		provider := internalProvider(t, sequentialTransport(test.response))
 		if err := compile(provider, value, schemaregistry.ReferenceCoordinate{}, map[schemaregistry.ReferenceCoordinate]uint8{}, 0, 0, 1); !errors.Is(err, test.want) {
 			t.Fatalf("compileResponse(%s) error = %v", test.name, err)
+		} else if test.name == "missing" && errors.Unwrap(err) != schemaregistry.ErrReferenceMissing {
+			t.Fatal("missing reference lost direct sentinel wrapper")
 		}
 	}
 	for _, dependency := range []string{

@@ -1,5 +1,33 @@
 # Security
 
+## Source applicability and diagnostic boundary
+
+This model covers the maintained root, format packages, and Confluent and Glue
+provider modules on main. Published versions retain the behavior of their
+immutable tags; these source changes do not establish a new published release.
+
+Default returned-error formatting uses fixed operation/category messages rather
+than schema, subject, reference, payload, credential, or collaborator diagnostic
+text. Existing sentinel and retained-cause classification remains available through
+`errors.Is`, `errors.As`, and explicit unwrapping. Those inspection mechanisms
+are trusted application interfaces, not safe diagnostic rendering interfaces.
+Boundaries that deliberately discarded underlying causes retain that policy;
+privacy does not introduce new transport or validation-cause disclosure.
+
+## Conditional residual ownership
+
+| Boundary | Owner and rationale | Mitigation | Review trigger |
+| --- | --- | --- | --- |
+| Explicit cause inspection and structured provider results | Application logging owner; trusted introspection intentionally retains original errors and provider data. | Log fixed categories by default; redact and bound any deliberately inspected cause or provider field. | A new automatic formatter or telemetry integration renders retained data. |
+| Synchronous canonicalizers, codecs, credentials and SDK/transport callbacks | Application collaborator owner; Go cannot forcibly preempt arbitrary callback work with context cancellation. | Supply bounded, context-cooperative collaborators, local-only compilers, and transport/SDK deadlines. | New collaborators, retry behavior, or evidence of work continuing beyond the application's budget. |
+| Filesystem/network access and credential scope | Application deployment owner; injected transports and SDK clients remain externally managed resources. | Use approved HTTPS endpoints, endpoint-scoped credentials, refused redirects, and explicit client cleanup and quotas. | Endpoint, authentication, transport, or SDK ownership changes. |
+| Trusted configuration and aggregate service load | Application resource owner; per-call byte/graph/cache limits do not establish deployment-wide admission. | Set finite supported limits and separately bound ingress, tenants and total concurrent demand. | Raised limits, new tenants, or changed service-level admission. |
+
+Queued registration and cache-flight state admission is a separately identified
+open source-review boundary. Downstream concurrency limits alone are not evidence
+that distinct queued ownership state is bounded; this diagnostic change does not
+resolve that boundary.
+
 Threats include SSRF, redirect credential forwarding, schema bombs, reference
 cycles and explosion, oversized responses and payloads, cache poisoning,
 compatibility downgrade, concurrent-registration ambiguity, destructive version

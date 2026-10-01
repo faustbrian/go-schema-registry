@@ -101,13 +101,13 @@ func NewBundle(
 		}
 		switch state[fingerprint] {
 		case 1:
-			return fmt.Errorf("%w: %s", ErrReferenceCycle, fingerprint)
+			return fmt.Errorf("%w: bundle dependency", ErrReferenceCycle)
 		case 2:
 			return nil
 		}
 		schema, exists := schemas[fingerprint]
 		if !exists {
-			return fmt.Errorf("%w: %s", ErrReferenceMissing, fingerprint)
+			return fmt.Errorf("%w: bundle dependency", ErrReferenceMissing)
 		}
 		state[fingerprint] = 1
 		for _, reference := range schema.definition.References {
@@ -233,7 +233,7 @@ func LoadBundle(
 		}
 		canonicalizer := canonicalizers[entry.Format]
 		if interfaceIsNil(canonicalizer) {
-			return Bundle{}, fmt.Errorf("%w: %s", ErrUnsupportedFormat, entry.Format)
+			return Bundle{}, fmt.Errorf("%w: schema format", ErrUnsupportedFormat)
 		}
 		compileLimits := DefaultCompileLimits()
 		compileLimits.MaxSchemaBytes = maxBundleBytes
@@ -246,7 +246,7 @@ func LoadBundle(
 			return Bundle{}, err
 		}
 		if schema.Fingerprint() != claimed {
-			return Bundle{}, fmt.Errorf("%w: claimed %s", ErrFingerprintCollision, claimed)
+			return Bundle{}, fmt.Errorf("%w: bundle schema", ErrFingerprintCollision)
 		}
 		if claimed == rootFingerprint {
 			root = schema
@@ -275,7 +275,7 @@ func insertBundleSchema(schemas map[Fingerprint]Schema, schema Schema) error {
 	}
 	existing, found := schemas[fingerprint]
 	if found && !sameSchema(existing, schema) {
-		return fmt.Errorf("%w: %s", ErrFingerprintCollision, fingerprint)
+		return fmt.Errorf("%w: bundle schema", ErrFingerprintCollision)
 	}
 	schemas[fingerprint] = schema
 	return nil

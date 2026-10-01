@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Security
+
+- Omit credential callback details and private schema/reference identifiers
+  from default errors while preserving existing cause and sentinel wrappers.
+
 ### Changed
 
 - Reject exact-lookup responses whose returned subject, reference coordinates,

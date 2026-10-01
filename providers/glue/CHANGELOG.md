@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Security
+
+- Hide private SDK cancellation diagnostics and unknown schema-format values
+  in default errors while preserving standard cancellation identity and the
+  original immediate cause topology for explicit inspection.
+
 ### Changed
 
 - Preserve original AWS SDK operation and non-API cause chains, including

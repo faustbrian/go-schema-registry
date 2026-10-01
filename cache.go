@@ -155,7 +155,7 @@ func (cache *ResolveCache) Resolve(
 		return CacheResolution{}, err
 	}
 	if !validAvailabilityPolicy(policy) {
-		return CacheResolution{}, fmt.Errorf("%w: availability policy %q", ErrInvalidRequest, policy)
+		return CacheResolution{}, fmt.Errorf("%w: availability policy", ErrInvalidRequest)
 	}
 	if lookup.kind == "" {
 		return CacheResolution{}, fmt.Errorf("%w: empty lookup", ErrInvalidRequest)
@@ -251,7 +251,7 @@ func (cache *ResolveCache) load(
 			}, generation)
 			return CacheResolution{State: CacheNegative}, ErrNotFound
 		}
-		return CacheResolution{}, err
+		return CacheResolution{}, privatePassthroughDiagnostic("schema registry: upstream resolution failed", err)
 	}
 	if err := validateResolution(lookup, result); err != nil {
 		return CacheResolution{}, err

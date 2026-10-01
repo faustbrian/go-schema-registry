@@ -70,7 +70,7 @@ func BuildReferenceGraph(
 		}
 		switch state[coordinate] {
 		case 1:
-			return fmt.Errorf("%w: %s", ErrReferenceCycle, coordinate.Subject.Name)
+			return fmt.Errorf("%w: graph dependency", ErrReferenceCycle)
 		case 2:
 			return nil
 		}
@@ -81,9 +81,9 @@ func BuildReferenceGraph(
 		document, err := resolver.ResolveReference(ctx, coordinate)
 		if err != nil {
 			if errors.Is(err, ErrNotFound) || errors.Is(err, ErrReferenceMissing) {
-				return fmt.Errorf("%w: %s: %w", ErrReferenceMissing, coordinate.Subject.Name, err)
+				return privateDiagnostic("schema registry: missing reference", ErrReferenceMissing, err)
 			}
-			return fmt.Errorf("resolve reference %s: %w", coordinate.Subject.Name, err)
+			return privateDiagnostic("schema registry: resolve reference failed", err)
 		}
 		if document.Coordinate != coordinate {
 			return fmt.Errorf("%w: resolver coordinate mismatch", ErrInvalidSchema)

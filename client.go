@@ -381,6 +381,7 @@ func (client *Client) Register(ctx context.Context, request RegisterRequest) (Re
 	client.release()
 	if err != nil {
 		result.Outcome = registrationOutcome(err)
+		err = privatePassthroughDiagnostic("schema registry: provider registration failed", err)
 	}
 	if err == nil {
 		err = client.validateRegistrationResult(result)
@@ -426,7 +427,7 @@ func (client *Client) Resolve(ctx context.Context, lookup Lookup) (ResolveResult
 	defer client.release()
 	result, err := client.provider.Resolve(ctx, lookup)
 	if err != nil {
-		return result, err
+		return result, privatePassthroughDiagnostic("schema registry: provider resolution failed", err)
 	}
 	if err := validateResolution(lookup, result); err != nil {
 		return ResolveResult{}, err
@@ -470,6 +471,9 @@ func (client *Client) CheckCompatibility(
 	if err == nil && !result.Supported && result.Compatible {
 		return CompatibilityResult{}, fmt.Errorf("%w: contradictory compatibility result", ErrInvalidRequest)
 	}
+	if err != nil {
+		return result, privatePassthroughDiagnostic("schema registry: provider compatibility failed", err)
+	}
 	return result, err
 }
 
@@ -498,7 +502,7 @@ func (client *Client) List(ctx context.Context, request ListRequest) (ListPage, 
 	page, err := provider.List(ctx, request)
 	client.release()
 	if err != nil {
-		return ListPage{}, err
+		return ListPage{}, privatePassthroughDiagnostic("schema registry: provider listing failed", err)
 	}
 	if len(page.Schemas) > request.Limit {
 		return ListPage{}, fmt.Errorf("%w: provider list response", ErrLimitExceeded)
@@ -545,6 +549,9 @@ func (client *Client) Delete(ctx context.Context, request DeleteRequest) (Delete
 	result, err := provider.Delete(ctx, request)
 	if err == nil && !result.Lifecycle.valid() {
 		return DeleteResult{}, fmt.Errorf("%w: deletion lifecycle", ErrInvalidRequest)
+	}
+	if err != nil {
+		return result, privatePassthroughDiagnostic("schema registry: provider deletion failed", err)
 	}
 	return result, err
 }

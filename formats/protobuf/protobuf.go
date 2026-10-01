@@ -23,6 +23,14 @@ type Config struct {
 	MaxImports     int
 }
 
+type diagnosticError struct {
+	message string
+	cause   error
+}
+
+func (err diagnosticError) Error() string { return err.message }
+func (err diagnosticError) Unwrap() error { return err.cause }
+
 // Canonicalizer owns a copied local source set and performs no network access.
 type Canonicalizer struct {
 	filename       string
@@ -45,7 +53,7 @@ func New(config Config) (*Canonicalizer, error) {
 	importBytes := uint64(0)
 	for filename, source := range imports {
 		if filename == "" || filename == config.Filename {
-			return nil, fmt.Errorf("invalid Protobuf import %q", filename)
+			return nil, fmt.Errorf("invalid Protobuf import")
 		}
 		var withinLimit bool
 		importBytes, withinLimit = boundedTextBytes(importBytes, len(filename), config.MaxSchemaBytes)
@@ -75,7 +83,7 @@ func (canonicalizer *Canonicalizer) Canonicalize(
 		return nil, err
 	}
 	if definition.Format != schemaregistry.FormatProtobuf {
-		return nil, fmt.Errorf("unsupported format %q", definition.Format)
+		return nil, fmt.Errorf("unsupported schema format")
 	}
 	if len(definition.Content) > canonicalizer.maxSchemaBytes {
 		return nil, fmt.Errorf("schema exceeds %d bytes", canonicalizer.maxSchemaBytes)
@@ -88,7 +96,7 @@ func (canonicalizer *Canonicalizer) Canonicalize(
 	}
 	files, err := compiler.Compile(ctx, canonicalizer.filename)
 	if err != nil {
-		return nil, fmt.Errorf("compile Protobuf schema: %w", err)
+		return nil, diagnosticError{"compile Protobuf schema failed", err}
 	}
 	set := &descriptorpb.FileDescriptorSet{File: make([]*descriptorpb.FileDescriptorProto, 0, len(files))}
 	for _, file := range files {
