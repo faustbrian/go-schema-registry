@@ -29,6 +29,14 @@ const (
 // ErrInvalidResponse marks a malformed or identity-inconsistent registry response.
 var ErrInvalidResponse = errors.New("confluent schema registry: invalid response")
 
+type diagnosticError struct {
+	message string
+	cause   error
+}
+
+func (err diagnosticError) Error() string { return err.message }
+func (err diagnosticError) Unwrap() error { return err.cause }
+
 // CredentialProvider returns an Authorization header value for the configured
 // endpoint only. It must not include schema contents in errors.
 type CredentialProvider interface {
@@ -87,7 +95,7 @@ func New(config Config) (*Provider, error) {
 	formats := make([]schemaregistry.Format, 0, len(config.Canonicalizers))
 	for format, canonicalizer := range config.Canonicalizers {
 		if _, err := schemaType(format); err != nil {
-			return nil, fmt.Errorf("invalid Confluent canonicalizer format: %w", err)
+			return nil, diagnosticError{"invalid Confluent canonicalizer format", err}
 		}
 		if interfaceIsNil(canonicalizer) {
 			return nil, fmt.Errorf("nil %s canonicalizer", format)
@@ -223,7 +231,7 @@ func (provider *Provider) Register(ctx context.Context, request schemaregistry.R
 	}
 	if err := provider.doJSON(ctx, http.MethodPost, lookupPath+"/versions", body, &response); err != nil {
 		if errors.Is(err, schemaregistry.ErrUnavailable) {
-			return schemaregistry.RegisterResult{Outcome: schemaregistry.RegistrationUnknown}, fmt.Errorf("%w: %v", schemaregistry.ErrUnknownOutcome, err)
+			return schemaregistry.RegisterResult{Outcome: schemaregistry.RegistrationUnknown}, diagnosticError{"schema registry: unknown outcome: Confluent registration", schemaregistry.ErrUnknownOutcome}
 		}
 		return schemaregistry.RegisterResult{}, err
 	}
@@ -459,7 +467,7 @@ func (provider *Provider) compileResponse(
 	if coordinate.Subject.Name != "" && coordinate.Version.Number != 0 {
 		switch state[coordinate] {
 		case 1:
-			return schemaregistry.Schema{}, fmt.Errorf("%w: %s", schemaregistry.ErrReferenceCycle, coordinate.Subject.Name)
+			return schemaregistry.Schema{}, fmt.Errorf("%w: Confluent dependency", schemaregistry.ErrReferenceCycle)
 		case 2:
 			// A shared dependency is a valid DAG edge. It is recompiled here so
 			// each reference retains an independently verified fingerprint.
@@ -482,7 +490,7 @@ func (provider *Provider) compileResponse(
 		path := "/subjects/" + url.PathEscape(reference.Subject) + "/versions/" + strconv.FormatUint(reference.Version, 10)
 		if err := provider.doJSON(ctx, http.MethodGet, path, nil, &dependency); err != nil {
 			if errors.Is(err, schemaregistry.ErrNotFound) {
-				return schemaregistry.Schema{}, fmt.Errorf("%w: %s", schemaregistry.ErrReferenceMissing, reference.Name)
+				return schemaregistry.Schema{}, fmt.Errorf("%w: Confluent dependency", schemaregistry.ErrReferenceMissing)
 			}
 			return schemaregistry.Schema{}, err
 		}
@@ -567,7 +575,7 @@ func (provider *Provider) doJSON(ctx context.Context, method, requestPath string
 		escapedPath := strings.TrimRight(provider.endpoint.EscapedPath(), "/") + pathPart
 		decodedPath, err := url.PathUnescape(escapedPath)
 		if err != nil {
-			return fmt.Errorf("construct Confluent request path: %w", err)
+			return diagnosticError{"construct Confluent request path failed", err}
 		}
 		requestURL.Path = decodedPath
 		requestURL.RawPath = escapedPath
@@ -576,7 +584,7 @@ func (provider *Provider) doJSON(ctx context.Context, method, requestPath string
 		}
 		request, err := http.NewRequestWithContext(ctx, method, requestURL.String(), bytes.NewReader(body))
 		if err != nil {
-			return fmt.Errorf("construct Confluent request: %w", err)
+			return diagnosticError{"construct Confluent request failed", err}
 		}
 		request.Header.Set("Accept", mediaType)
 		request.Header.Set("Confluent-Accept-Unknown-Properties", "true")
@@ -586,7 +594,7 @@ func (provider *Provider) doJSON(ctx context.Context, method, requestPath string
 		if !interfaceIsNil(provider.credentials) {
 			authorization, err := provider.credentials.Authorization(ctx)
 			if err != nil {
-				return fmt.Errorf("load Confluent credentials: %w", err)
+				return diagnosticError{"load Confluent credentials failed", err}
 			}
 			request.Header.Set("Authorization", authorization)
 		}
@@ -673,7 +681,7 @@ func schemaType(format schemaregistry.Format) (string, error) {
 	case schemaregistry.FormatProtobuf:
 		return "PROTOBUF", nil
 	default:
-		return "", fmt.Errorf("%w: %s", schemaregistry.ErrUnsupportedFormat, format)
+		return "", fmt.Errorf("%w: schema format", schemaregistry.ErrUnsupportedFormat)
 	}
 }
 
@@ -686,7 +694,7 @@ func confluentFormat(value string) (schemaregistry.Format, error) {
 	case "PROTOBUF":
 		return schemaregistry.FormatProtobuf, nil
 	default:
-		return "", fmt.Errorf("%w: Confluent schema type %q", ErrInvalidResponse, value)
+		return "", fmt.Errorf("%w: Confluent schema type", ErrInvalidResponse)
 	}
 }
 
@@ -707,7 +715,7 @@ func compatibilityMode(value string) (schemaregistry.CompatibilityMode, error) {
 	case "NONE":
 		return schemaregistry.CompatibilityNone, nil
 	default:
-		return "", fmt.Errorf("%w: Confluent compatibility level %q", ErrInvalidResponse, value)
+		return "", fmt.Errorf("%w: Confluent compatibility level", ErrInvalidResponse)
 	}
 }
 

@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Security
+
+- Keep collaborator diagnostics and schema/reference identities out of default
+  error text while preserving cause inspection, unwrap topology, and bare
+  standard cancellation errors at existing passthrough boundaries.
+
 ### Changed
 
 - Adopt the schema-v2 Golib cohesion catalog contract for the core and both

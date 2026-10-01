@@ -17,6 +17,14 @@ import (
 // ErrPayloadInvalid marks a value that does not satisfy the compiled JSON Schema.
 var ErrPayloadInvalid = errors.New("schema registry json schema: invalid payload")
 
+type diagnosticError struct {
+	message string
+	cause   error
+}
+
+func (err diagnosticError) Error() string { return err.message }
+func (err diagnosticError) Unwrap() error { return err.cause }
+
 // Dialect is the explicit JSON Schema dialect selected for compilation.
 type Dialect = jsonschema.Dialect
 
@@ -95,7 +103,7 @@ func New(config Config) (*Adapter, error) {
 	}
 	compiler, err := jsonschema.NewCompiler(options...)
 	if err != nil {
-		return nil, fmt.Errorf("construct JSON Schema compiler: %w", err)
+		return nil, diagnosticError{"construct JSON Schema compiler failed", err}
 	}
 	return &Adapter{
 		compiler:        compiler,
@@ -114,17 +122,17 @@ func (adapter *Adapter) Canonicalize(
 		return nil, err
 	}
 	if definition.Format != schemaregistry.FormatJSONSchema {
-		return nil, fmt.Errorf("unsupported format %q", definition.Format)
+		return nil, fmt.Errorf("unsupported schema format")
 	}
 	if len(definition.Content) > adapter.maxSchemaBytes {
 		return nil, fmt.Errorf("schema exceeds %d bytes", adapter.maxSchemaBytes)
 	}
 	if _, err := adapter.compiler.Compile(ctx, definition.Content); err != nil {
-		return nil, fmt.Errorf("compile JSON Schema: %w", err)
+		return nil, diagnosticError{"compile JSON Schema failed", err}
 	}
 	canonical, err := jcs.Transform(definition.Content)
 	if err != nil {
-		return nil, fmt.Errorf("canonicalize JSON Schema: %w", err)
+		return nil, diagnosticError{"canonicalize JSON Schema failed", err}
 	}
 	return canonical, nil
 }
@@ -136,7 +144,7 @@ func (adapter *Adapter) Encode(ctx context.Context, schema schemaregistry.Schema
 	}
 	payload, err := json.Marshal(value)
 	if err != nil {
-		return nil, fmt.Errorf("marshal JSON payload: %w", err)
+		return nil, diagnosticError{"marshal JSON payload failed", err}
 	}
 	if len(payload) > adapter.maxPayloadBytes {
 		return nil, fmt.Errorf("%w: payload exceeds %d bytes", schemaregistry.ErrLimitExceeded, adapter.maxPayloadBytes)
@@ -164,7 +172,7 @@ func (adapter *Adapter) Decode(
 		return err
 	}
 	if err := json.Unmarshal(payload, target); err != nil {
-		return fmt.Errorf("unmarshal JSON payload: %w", err)
+		return diagnosticError{"unmarshal JSON payload failed", err}
 	}
 	return nil
 }
@@ -176,11 +184,11 @@ func (adapter *Adapter) validate(ctx context.Context, schema schemaregistry.Sche
 	}
 	compiled, err := adapter.compiler.Compile(ctx, definition.Content)
 	if err != nil {
-		return fmt.Errorf("%w: compile schema: %v", schemaregistry.ErrInvalidSchema, err)
+		return diagnosticError{"schema registry: invalid schema: compilation failed", schemaregistry.ErrInvalidSchema}
 	}
 	result, err := compiled.Validate(ctx, payload)
 	if err != nil {
-		return fmt.Errorf("%w: validate payload: %v", ErrPayloadInvalid, err)
+		return diagnosticError{"schema registry json schema: invalid payload", ErrPayloadInvalid}
 	}
 	if !result.Valid {
 		return ErrPayloadInvalid

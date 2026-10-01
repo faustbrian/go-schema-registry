@@ -61,7 +61,7 @@ func New(config Config) (*Provider, error) {
 	formats := make([]schemaregistry.Format, 0, len(config.Canonicalizers))
 	for format, canonicalizer := range config.Canonicalizers {
 		if !supportedFormat(format) {
-			return nil, fmt.Errorf("invalid AWS Glue canonicalizer format %q", format)
+			return nil, fmt.Errorf("invalid AWS Glue canonicalizer format")
 		}
 		if interfaceIsNil(canonicalizer) {
 			return nil, fmt.Errorf("nil %s canonicalizer", format)
@@ -288,7 +288,7 @@ func schemaFormat(format types.DataFormat) (schemaregistry.Format, error) {
 	case types.DataFormatProtobuf:
 		return schemaregistry.FormatProtobuf, nil
 	default:
-		return "", fmt.Errorf("%w: AWS Glue data format %q", schemaregistry.ErrInvalidSchema, format)
+		return "", fmt.Errorf("%w: AWS Glue data format", schemaregistry.ErrInvalidSchema)
 	}
 }
 
@@ -329,12 +329,40 @@ func (err classifiedError) Unwrap() []error {
 	return []error{err.category, err.cause}
 }
 
+// Context passthroughs retain their existing immediate cause topology, rather
+// than adding the category/cause pair used for SDK classification.
+type privateContextDiagnostic struct{ original error }
+
+func (err privateContextDiagnostic) Error() string        { return "AWS Glue operation canceled or timed out" }
+func (err privateContextDiagnostic) Is(target error) bool { return errors.Is(err.original, target) }
+func (err privateContextDiagnostic) As(target any) bool   { return errors.As(err.original, target) }
+
+type singleContextDiagnostic struct{ privateContextDiagnostic }
+
+func (err singleContextDiagnostic) Unwrap() error { return errors.Unwrap(err.original) }
+
+type multiContextDiagnostic struct{ privateContextDiagnostic }
+
+func (err multiContextDiagnostic) Unwrap() []error {
+	return err.original.(interface{ Unwrap() []error }).Unwrap()
+}
+
 func classifyError(err error) error {
+	if err == context.Canceled || err == context.DeadlineExceeded {
+		return err
+	}
 	if err == nil {
 		return nil
 	}
 	if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
-		return err
+		private := privateContextDiagnostic{original: err}
+		if _, ok := err.(interface{ Unwrap() []error }); ok {
+			return multiContextDiagnostic{private}
+		}
+		if _, ok := err.(interface{ Unwrap() error }); ok {
+			return singleContextDiagnostic{private}
+		}
+		return private
 	}
 	var apiError smithy.APIError
 	if errors.As(err, &apiError) {

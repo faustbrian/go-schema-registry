@@ -14,6 +14,14 @@ import (
 
 const maxNestingDepth = 256
 
+type diagnosticError struct {
+	message string
+	cause   error
+}
+
+func (err diagnosticError) Error() string { return err.message }
+func (err diagnosticError) Unwrap() error { return err.cause }
+
 // Canonicalizer validates and canonicalizes bounded standalone Avro schemas.
 type Canonicalizer struct{ maxSchemaBytes int }
 
@@ -35,7 +43,7 @@ func (canonicalizer *Canonicalizer) Canonicalize(
 		return nil, fmt.Errorf("invalid Avro canonicalizer")
 	}
 	if definition.Format != schemaregistry.FormatAvro {
-		return nil, fmt.Errorf("unsupported format %q", definition.Format)
+		return nil, fmt.Errorf("unsupported schema format")
 	}
 	if len(definition.Content) > canonicalizer.maxSchemaBytes {
 		return nil, fmt.Errorf("schema exceeds %d bytes", canonicalizer.maxSchemaBytes)
@@ -45,7 +53,7 @@ func (canonicalizer *Canonicalizer) Canonicalize(
 	}
 	codec, err := goavro.NewCodec(string(definition.Content))
 	if err != nil {
-		return nil, fmt.Errorf("parse Avro schema: %w", err)
+		return nil, diagnosticError{"parse Avro schema failed", err}
 	}
 	if err := ctx.Err(); err != nil {
 		return nil, err
@@ -65,7 +73,7 @@ func checkNesting(ctx context.Context, content []byte) error {
 			return nil
 		}
 		if err != nil {
-			return fmt.Errorf("parse Avro schema JSON: %w", err)
+			return diagnosticError{"parse Avro schema JSON failed", err}
 		}
 		delimiter, ok := token.(json.Delim)
 		if !ok {

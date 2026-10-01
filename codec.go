@@ -71,14 +71,14 @@ func (integration *CodecIntegration) Encode(
 	}
 	payload, err := integration.codec.Encode(ctx, schema, value)
 	if err != nil {
-		return nil, fmt.Errorf("encode value: %w", err)
+		return nil, privateDiagnostic("schema registry: encode value failed", err)
 	}
 	if len(payload) > integration.limits.MaxPayloadBytes {
 		return nil, fmt.Errorf("%w: payload bytes", ErrLimitExceeded)
 	}
 	framed, err := integration.framer.Frame(ctx, id, payload)
 	if err != nil {
-		return nil, fmt.Errorf("frame payload: %w", err)
+		return nil, privateDiagnostic("schema registry: frame payload failed", err)
 	}
 	if len(framed) > integration.limits.MaxFrameBytes {
 		return nil, fmt.Errorf("%w: frame bytes", ErrLimitExceeded)
@@ -100,7 +100,7 @@ func (integration *CodecIntegration) Parse(
 	}
 	id, payload, err := integration.framer.Unframe(ctx, framed)
 	if err != nil {
-		return WireMessage{}, fmt.Errorf("unframe payload: %w", err)
+		return WireMessage{}, privateDiagnostic("schema registry: unframe payload failed", err)
 	}
 	if id.Provider == "" || id.Value == "" {
 		return WireMessage{}, fmt.Errorf("%w: provider ID", ErrInvalidSchema)
@@ -129,7 +129,7 @@ func (integration *CodecIntegration) Decode(
 		return fmt.Errorf("%w: payload bytes", ErrLimitExceeded)
 	}
 	if err := integration.codec.Decode(ctx, schema, append([]byte(nil), message.Payload...), target); err != nil {
-		return fmt.Errorf("decode value: %w", err)
+		return privateDiagnostic("schema registry: decode value failed", err)
 	}
 	return nil
 }

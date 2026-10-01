@@ -133,7 +133,7 @@ func CompileWithLimits(
 		return Schema{}, fmt.Errorf("%w: compile limits", ErrInvalidRequest)
 	}
 	if !definition.Format.valid() {
-		return Schema{}, fmt.Errorf("%w: %q", ErrUnsupportedFormat, definition.Format)
+		return Schema{}, fmt.Errorf("%w: schema format", ErrUnsupportedFormat)
 	}
 	if len(definition.Content) == 0 {
 		return Schema{}, fmt.Errorf("%w: empty content", ErrInvalidSchema)
@@ -176,7 +176,7 @@ func CompileWithLimits(
 			return Schema{}, fmt.Errorf("%w: unresolved reference", ErrInvalidSchema)
 		}
 		if _, exists := seenReferences[reference.Name]; exists {
-			return Schema{}, fmt.Errorf("%w: duplicate reference %q", ErrInvalidSchema, reference.Name)
+			return Schema{}, fmt.Errorf("%w: duplicate reference", ErrInvalidSchema)
 		}
 		seenReferences[reference.Name] = struct{}{}
 	}
@@ -185,7 +185,7 @@ func CompileWithLimits(
 	slices.SortFunc(owned.References, compareReferenceNames)
 	canonical, err := canonicalizer.Canonicalize(ctx, cloneDefinition(owned))
 	if err != nil {
-		return Schema{}, fmt.Errorf("%w: canonicalize %s: %w", ErrInvalidSchema, definition.Format, err)
+		return Schema{}, privateDiagnostic("schema registry: invalid schema: canonicalization failed", ErrInvalidSchema, err)
 	}
 	if len(canonical) == 0 {
 		return Schema{}, fmt.Errorf("%w: empty canonical form", ErrInvalidSchema)
