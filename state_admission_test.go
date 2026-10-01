@@ -108,7 +108,9 @@ func TestResolveCacheBoundsActiveOwnersIncludingDetachedGenerations(t *testing.T
 			}
 			second := schemaregistry.ByProviderID(schemaregistry.ProviderID{Provider: "test", Value: "2"})
 			if detached {
-				cache.Invalidate(lookup)
+				if err := cache.Invalidate(lookup); err != nil {
+					t.Fatal(err)
+				}
 				second = lookup
 			}
 			ctx, cancel := context.WithTimeout(context.Background(), 250*time.Millisecond)
