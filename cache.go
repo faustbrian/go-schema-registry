@@ -81,7 +81,9 @@ type ResolveCacheEvent struct {
 
 // ResolveCacheConfig makes cache bounds and freshness policy explicit.
 type ResolveCacheConfig struct {
-	MaxEntries    int
+	MaxEntries int
+	// MaxConcurrent bounds upstream calls and retained load leaders, including
+	// leaders detached by Invalidate or Prime. Same-key waiters share a leader.
 	MaxConcurrent int
 	FreshFor      time.Duration
 	StaleFor      time.Duration
@@ -121,6 +123,7 @@ type ResolveCache struct {
 	flights       map[Lookup]*resolveFlight
 	generations   map[Lookup]*resolveGeneration
 	activeFlights map[Lookup]map[*resolveFlight]struct{}
+	activeCount   int
 	sequence      uint64
 }
 
@@ -180,6 +183,9 @@ func (cache *ResolveCache) Resolve(
 	}
 
 	flight, leader := cache.flight(lookup)
+	if flight == nil {
+		return CacheResolution{}, ErrLimitExceeded
+	}
 	if !leader {
 		select {
 		case <-ctx.Done():
@@ -359,6 +365,11 @@ func (cache *ResolveCache) flight(lookup Lookup) (*resolveFlight, bool) {
 	if flight, found := cache.flights[lookup]; found {
 		return flight, false
 	}
+	// Current-flight entries may be detached while their owners still run.
+	// Count all active owners before allocating any new flight state.
+	if cache.activeCount >= cache.config.MaxConcurrent {
+		return nil, false
+	}
 	flight := &resolveFlight{done: make(chan struct{}), generation: cache.generations[lookup]}
 	cache.flights[lookup] = flight
 	active := cache.activeFlights[lookup]
@@ -367,6 +378,7 @@ func (cache *ResolveCache) flight(lookup Lookup) (*resolveFlight, bool) {
 		cache.activeFlights[lookup] = active
 	}
 	active[flight] = struct{}{}
+	cache.activeCount++
 	return flight, true
 }
 
@@ -384,6 +396,7 @@ func (cache *ResolveCache) finishFlight(
 	}
 	active := cache.activeFlights[lookup]
 	delete(active, flight)
+	cache.activeCount--
 	if len(active) == 0 {
 		delete(cache.activeFlights, lookup)
 		delete(cache.generations, lookup)

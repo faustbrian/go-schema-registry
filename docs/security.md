@@ -23,10 +23,18 @@ privacy does not introduce new transport or validation-cause disclosure.
 | Filesystem/network access and credential scope | Application deployment owner; injected transports and SDK clients remain externally managed resources. | Use approved HTTPS endpoints, endpoint-scoped credentials, refused redirects, and explicit client cleanup and quotas. | Endpoint, authentication, transport, or SDK ownership changes. |
 | Trusted configuration and aggregate service load | Application resource owner; per-call byte/graph/cache limits do not establish deployment-wide admission. | Set finite supported limits and separately bound ingress, tenants and total concurrent demand. | Raised limits, new tenants, or changed service-level admission. |
 
-Queued registration and cache-flight state admission is a separately identified
-open source-review boundary. Downstream concurrency limits alone are not evidence
-that distinct queued ownership state is bounded; this diagnostic change does not
-resolve that boundary.
+`Limits.MaxConcurrent` bounds both executing provider calls and retained
+registration leaders. `ResolveCacheConfig.MaxConcurrent` similarly bounds
+upstream calls and all retained load leaders, including older generations
+detached by invalidation or priming. Existing same-key flights are joined before
+admission is checked; new leaders at capacity return fixed `ErrLimitExceeded`
+with an empty result before allocating flight state or calling a provider.
+Completion releases admission; canceled waiters do not allocate another owner.
+Fresh, negative, cache-only and unavailable-policy fast paths retain their
+existing behavior. Overload is not provider unavailability and does not permit
+stale fallback. These are per-client/cache owner-count bounds, not aggregate
+retained-byte, waiter, tenant or deployment-wide admission limits; applications
+own those ingress budgets as described above.
 
 Threats include SSRF, redirect credential forwarding, schema bombs, reference
 cycles and explosion, oversized responses and payloads, cache poisoning,
