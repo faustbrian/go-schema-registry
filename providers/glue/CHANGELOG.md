@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Breaking changes
+
+- Move this provider to
+  `github.com/faustbrian/go-schema-registry/providers/glue/v2` and the actual
+  public root `github.com/faustbrian/go-schema-registry/v2` v2.0.0. Migrate
+  provider, core and format imports together; v1 and v2 nominal types and
+  sentinels are not interchangeable. SDK, UUID and uncompressed header-3
+  framing contracts and pinned authorities are unchanged by this migration.
+
 ### Security
 
 - Hide private SDK cancellation diagnostics and unknown schema-format values

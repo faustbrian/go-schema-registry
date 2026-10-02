@@ -12,9 +12,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	awsglue "github.com/aws/aws-sdk-go-v2/service/glue"
 	"github.com/aws/aws-sdk-go-v2/service/glue/types"
-	schemaregistry "github.com/faustbrian/go-schema-registry"
-	registryavro "github.com/faustbrian/go-schema-registry/formats/avro"
-	registryglue "github.com/faustbrian/go-schema-registry/providers/glue"
+	schemaregistry "github.com/faustbrian/go-schema-registry/v2"
+	registryavro "github.com/faustbrian/go-schema-registry/v2/formats/avro"
+	registryglue "github.com/faustbrian/go-schema-registry/providers/glue/v2"
 )
 
 var errLiveIntegrationWouldRegister = errors.New("live integration test refused to register a new schema version")

@@ -6,9 +6,9 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsglue "github.com/aws/aws-sdk-go-v2/service/glue"
-	schemaregistry "github.com/faustbrian/go-schema-registry"
-	"github.com/faustbrian/go-schema-registry/formats/avro"
-	registryglue "github.com/faustbrian/go-schema-registry/providers/glue"
+	schemaregistry "github.com/faustbrian/go-schema-registry/v2"
+	"github.com/faustbrian/go-schema-registry/v2/formats/avro"
+	registryglue "github.com/faustbrian/go-schema-registry/providers/glue/v2"
 )
 
 func ExampleNew() {

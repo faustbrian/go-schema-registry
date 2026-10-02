@@ -9,7 +9,7 @@ import (
 
 	awsglue "github.com/aws/aws-sdk-go-v2/service/glue"
 	"github.com/aws/aws-sdk-go-v2/service/glue/types"
-	schemaregistry "github.com/faustbrian/go-schema-registry"
+	schemaregistry "github.com/faustbrian/go-schema-registry/v2"
 )
 
 func TestProviderConcurrencyBudgetCancelsQueuedRequest(t *testing.T) {

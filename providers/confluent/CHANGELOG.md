@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Breaking changes
+
+- Move this provider to
+  `github.com/faustbrian/go-schema-registry/providers/confluent/v2` and the
+  actual public root `github.com/faustbrian/go-schema-registry/v2` v2.0.0.
+  Migrate provider, core and format imports together; v1 and v2 nominal types
+  and sentinels are not interchangeable. Service, provider-ID and version-0
+  framing contracts and pinned authorities are unchanged by this migration.
+
 ### Security
 
 - Omit credential callback details and private schema/reference identifiers

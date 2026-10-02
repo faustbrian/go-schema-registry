@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	schemaregistry "github.com/faustbrian/go-schema-registry"
-	registryglue "github.com/faustbrian/go-schema-registry/providers/glue"
+	schemaregistry "github.com/faustbrian/go-schema-registry/v2"
+	registryglue "github.com/faustbrian/go-schema-registry/providers/glue/v2"
 )
 
 func BenchmarkFrame(b *testing.B) {

@@ -25,10 +25,12 @@ Historical specification decisions and the v1 API baseline remain unchanged.
 ## Provider and consumer sequence
 
 The independently versioned `providers/confluent` and `providers/glue` modules
-currently retain the v1 core dependency in this source. Their `Config`, provider
-operations and framers expose v1 core types and cannot implement the v2 client
-contract. Application-owned v2 providers can be supplied explicitly, but do not
-convert a v1 provider by a cast or alias.
+now target their own `/v2` module identities and the actual published root
+v2.0.0 dependency in this source. Their `Config`, provider operations and
+framers expose v2 core types. Provider v2 publication and clean consumption
+remain separate release steps. Published provider v1 modules still expose v1
+types and cannot implement the v2 client contract; do not bridge them by a
+cast or alias.
 
 Publish and verify the root v2 release first. Migrate each provider's imports,
 module identity and dependency to the actual public root v2 release, then

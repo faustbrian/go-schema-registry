@@ -7,7 +7,7 @@ live-evidence, and wire boundaries.
 ## Getting started
 
 - [Package overview](../README.md)
-- [Go package documentation](https://pkg.go.dev/github.com/faustbrian/go-schema-registry/providers/glue)
+- [Go package documentation](https://pkg.go.dev/github.com/faustbrian/go-schema-registry/providers/glue/v2)
 - [Executable construction example](../example_test.go)
 
 ## Testing

@@ -85,13 +85,13 @@ hidden network I/O.
 | `github.com/faustbrian/go-schema-registry/v2/formats/avro` | Canonicalize bounded Avro schemas. |
 | `github.com/faustbrian/go-schema-registry/v2/formats/jsonschema` | Compile and canonicalize bounded JSON Schema definitions. |
 | `github.com/faustbrian/go-schema-registry/v2/formats/protobuf` | Canonicalize bounded Protobuf schemas and imports. |
-| `github.com/faustbrian/go-schema-registry/providers/confluent` | Integrate Confluent-compatible REST identity and version-0 wire formats. |
-| `github.com/faustbrian/go-schema-registry/providers/glue` | Integrate AWS Glue Schema Registry identity, lifecycle, and uncompressed header-version-3 framing. |
+| `github.com/faustbrian/go-schema-registry/providers/confluent/v2` | Integrate Confluent-compatible REST identity and version-0 wire formats with root v2 types. |
+| `github.com/faustbrian/go-schema-registry/providers/glue/v2` | Integrate AWS Glue Schema Registry identity, lifecycle, and uncompressed header-version-3 framing with root v2 types. |
 
-The provider entries above retain their v1 module identities and use the v1
-core. They cannot be supplied to a v2 core client. Coordinated provider v2
-modules must be released against the public v2 core before that composition
-is supported; see the [migration guide](docs/migration-v2.md).
+The provider entries above describe v2 source targeting the actual public
+v2.0.0 core. Their public v2 tags and releases must be verified before adopting
+that composition. Published provider v1 modules still use the v1 core and
+cannot be supplied to a v2 client; see the [migration guide](docs/migration-v2.md).
 
 The root compiler, client, cache, bundles, and codecs start no background work
 and own no resource that requires shutdown. Applications own injected
