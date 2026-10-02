@@ -5,8 +5,10 @@ Semantic Versioning. The root module uses `vX.Y.Z` tags. Provider modules use
 their directory-prefixed `providers/confluent/vX.Y.Z` and
 `providers/glue/vX.Y.Z` tags.
 
-All currently released modules are at v1. Incompatible exported API or
-documented behavior changes require a new major version; minor and patch
+The root v2.0.0 module is published; provider v2 source preparation does not
+establish provider publication. Published provider v1 modules retain the v1
+core identity. Incompatible exported API or documented behavior changes
+require a new major version; minor and patch
 releases remain backward compatible within the documented contract.
 
 Compatibility includes exported Go APIs, error classification, serialization,

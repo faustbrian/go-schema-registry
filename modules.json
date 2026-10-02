@@ -72,8 +72,8 @@
       ],
       "reverse_owned_dependencies": [
         "github.com/faustbrian/go-cloudevents/adapters/golib",
-        "github.com/faustbrian/go-schema-registry/providers/confluent",
-        "github.com/faustbrian/go-schema-registry/providers/glue"
+        "github.com/faustbrian/go-schema-registry/providers/confluent/v2",
+        "github.com/faustbrian/go-schema-registry/providers/glue/v2"
       ],
       "external_runtime_dependencies": [
         "github.com/bufbuild/protocompile",
@@ -160,8 +160,8 @@
         "optional_owned_dependencies": [],
         "adapters": [],
         "companions": [
-          "github.com/faustbrian/go-schema-registry/providers/confluent",
-          "github.com/faustbrian/go-schema-registry/providers/glue"
+          "github.com/faustbrian/go-schema-registry/providers/confluent/v2",
+          "github.com/faustbrian/go-schema-registry/providers/glue/v2"
         ],
         "supported_go": {
           "minimum": "1.27.0",
@@ -202,14 +202,14 @@
     },
     {
       "directory": "providers/confluent",
-      "module_path": "github.com/faustbrian/go-schema-registry/providers/confluent",
+      "module_path": "github.com/faustbrian/go-schema-registry/providers/confluent/v2",
       "go_version": "1.27.0",
       "packages": [
         {
           "module_directory": "providers/confluent",
           "directory": ".",
           "name": "confluent",
-          "import_path": "github.com/faustbrian/go-schema-registry/providers/confluent",
+          "import_path": "github.com/faustbrian/go-schema-registry/providers/confluent/v2",
           "kind": "public",
           "production": true,
           "executable": true,
@@ -226,11 +226,11 @@
       "family_label": "Protocols And Descriptions",
       "family_description": "Standards, envelopes, schemas, descriptions, signatures, and wire interoperability.",
       "family_order": 3,
-      "version": "1.0.0",
+      "version": "2.0.0",
       "tag_prefix": "providers/confluent/v",
       "owned_dependencies": [
         "github.com/faustbrian/go-json-schema",
-        "github.com/faustbrian/go-schema-registry"
+        "github.com/faustbrian/go-schema-registry/v2"
       ],
       "reverse_owned_dependencies": [],
       "external_runtime_dependencies": [
@@ -286,10 +286,10 @@
         ],
         "public_package_identifier": "confluent",
         "primary_entry_packages": [
-          "github.com/faustbrian/go-schema-registry/providers/confluent"
+          "github.com/faustbrian/go-schema-registry/providers/confluent/v2"
         ],
         "package_selection": {
-          "github.com/faustbrian/go-schema-registry/providers/confluent": "Use when a caller needs Confluent-compatible registry identity, compatibility, lifecycle, REST, and version-0 framing semantics behind the core contract."
+          "github.com/faustbrian/go-schema-registry/providers/confluent/v2": "Use when a caller needs Confluent-compatible registry identity, compatibility, lifecycle, REST, and version-0 framing semantics behind the core contract."
         },
         "lifecycle_status": "active",
         "maturity": "stable",
@@ -330,7 +330,7 @@
         ],
         "documentation": {
           "readme": "providers/confluent/README.md",
-          "api": "https://pkg.go.dev/github.com/faustbrian/go-schema-registry/providers/confluent",
+          "api": "https://pkg.go.dev/github.com/faustbrian/go-schema-registry/providers/confluent/v2",
           "adoption": "providers/confluent/README.md",
           "security": "docs/security.md",
           "compatibility": "providers/confluent/docs/compatibility.md",
@@ -338,7 +338,7 @@
           "examples": "providers/confluent/example_test.go",
           "faq": "docs/faq.md",
           "changelog": "providers/confluent/CHANGELOG.md",
-          "pkg_go_dev": "https://pkg.go.dev/github.com/faustbrian/go-schema-registry/providers/confluent",
+          "pkg_go_dev": "https://pkg.go.dev/github.com/faustbrian/go-schema-registry/providers/confluent/v2",
           "ecosystem_index": "https://github.com/faustbrian/go-library-tools/blob/v1.4.0/docs/ecosystem/README.md"
         },
         "known_good_compatibility_sets": [],
@@ -351,14 +351,14 @@
     },
     {
       "directory": "providers/glue",
-      "module_path": "github.com/faustbrian/go-schema-registry/providers/glue",
+      "module_path": "github.com/faustbrian/go-schema-registry/providers/glue/v2",
       "go_version": "1.27.0",
       "packages": [
         {
           "module_directory": "providers/glue",
           "directory": ".",
           "name": "glue",
-          "import_path": "github.com/faustbrian/go-schema-registry/providers/glue",
+          "import_path": "github.com/faustbrian/go-schema-registry/providers/glue/v2",
           "kind": "public",
           "production": true,
           "executable": true,
@@ -375,10 +375,10 @@
       "family_label": "Protocols And Descriptions",
       "family_description": "Standards, envelopes, schemas, descriptions, signatures, and wire interoperability.",
       "family_order": 3,
-      "version": "1.0.0",
+      "version": "2.0.0",
       "tag_prefix": "providers/glue/v",
       "owned_dependencies": [
-        "github.com/faustbrian/go-schema-registry"
+        "github.com/faustbrian/go-schema-registry/v2"
       ],
       "reverse_owned_dependencies": [],
       "external_runtime_dependencies": [
@@ -439,10 +439,10 @@
         ],
         "public_package_identifier": "glue",
         "primary_entry_packages": [
-          "github.com/faustbrian/go-schema-registry/providers/glue"
+          "github.com/faustbrian/go-schema-registry/providers/glue/v2"
         ],
         "package_selection": {
-          "github.com/faustbrian/go-schema-registry/providers/glue": "Use when a caller needs AWS Glue Schema Registry identity, lifecycle, service, and uncompressed header-version-3 framing semantics behind the core contract."
+          "github.com/faustbrian/go-schema-registry/providers/glue/v2": "Use when a caller needs AWS Glue Schema Registry identity, lifecycle, service, and uncompressed header-version-3 framing semantics behind the core contract."
         },
         "lifecycle_status": "active",
         "maturity": "stable",
@@ -483,7 +483,7 @@
         ],
         "documentation": {
           "readme": "providers/glue/README.md",
-          "api": "https://pkg.go.dev/github.com/faustbrian/go-schema-registry/providers/glue",
+          "api": "https://pkg.go.dev/github.com/faustbrian/go-schema-registry/providers/glue/v2",
           "adoption": "providers/glue/README.md",
           "security": "docs/security.md",
           "compatibility": "providers/glue/docs/compatibility.md",
@@ -491,7 +491,7 @@
           "examples": "providers/glue/example_test.go",
           "faq": "docs/faq.md",
           "changelog": "providers/glue/CHANGELOG.md",
-          "pkg_go_dev": "https://pkg.go.dev/github.com/faustbrian/go-schema-registry/providers/glue",
+          "pkg_go_dev": "https://pkg.go.dev/github.com/faustbrian/go-schema-registry/providers/glue/v2",
           "ecosystem_index": "https://github.com/faustbrian/go-library-tools/blob/v1.4.0/docs/ecosystem/README.md"
         },
         "known_good_compatibility_sets": [],

@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strings"
 
-	schemaregistry "github.com/faustbrian/go-schema-registry"
+	schemaregistry "github.com/faustbrian/go-schema-registry/v2"
 )
 
 var (

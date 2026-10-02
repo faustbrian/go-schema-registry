@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	awsglue "github.com/aws/aws-sdk-go-v2/service/glue"
-	registry "github.com/faustbrian/go-schema-registry"
+	registry "github.com/faustbrian/go-schema-registry/v2"
 )
 
 func TestPrivacySDKDiagnostic(t *testing.T) {

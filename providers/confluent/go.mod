@@ -1,9 +1,9 @@
-module github.com/faustbrian/go-schema-registry/providers/confluent
+module github.com/faustbrian/go-schema-registry/providers/confluent/v2
 
 go 1.27.0
 
 require (
-	github.com/faustbrian/go-schema-registry v1.0.0
+	github.com/faustbrian/go-schema-registry/v2 v2.0.0
 	github.com/twmb/franz-go/pkg/sr v1.8.0
 	go.uber.org/goleak v1.3.0
 )

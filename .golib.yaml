@@ -30,12 +30,12 @@ api:
         - ./formats/protobuf
     - module: providers/confluent
       mode: go-doc
-      path: providers/confluent/api/baseline.txt
+      path: providers/confluent/api/v2.txt
       packages:
         - .
     - module: providers/glue
       mode: go-doc
-      path: providers/glue/api/baseline.txt
+      path: providers/glue/api/v2.txt
       packages:
         - .
 operations:

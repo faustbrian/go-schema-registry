@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"os"
 
-	schemaregistry "github.com/faustbrian/go-schema-registry"
-	registryglue "github.com/faustbrian/go-schema-registry/providers/glue"
+	registryglue "github.com/faustbrian/go-schema-registry/providers/glue/v2"
+	schemaregistry "github.com/faustbrian/go-schema-registry/v2"
 )
 
 func main() {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/faustbrian/go-schema-registry/providers/confluent"
+	"github.com/faustbrian/go-schema-registry/providers/confluent/v2"
 )
 
 func FuzzWireFrames(f *testing.F) {
