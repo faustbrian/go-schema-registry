@@ -10,8 +10,8 @@ import (
 	awsglue "github.com/aws/aws-sdk-go-v2/service/glue"
 	"github.com/aws/aws-sdk-go-v2/service/glue/types"
 	"github.com/aws/smithy-go"
-	schemaregistry "github.com/faustbrian/go-schema-registry/v2"
 	registryglue "github.com/faustbrian/go-schema-registry/providers/glue/v2"
+	schemaregistry "github.com/faustbrian/go-schema-registry/v2"
 )
 
 const schemaVersionID = "123e4567-e89b-12d3-a456-426614174000"

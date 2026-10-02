@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/faustbrian/go-schema-registry/providers/confluent/v2"
 	schemaregistry "github.com/faustbrian/go-schema-registry/v2"
 	"github.com/faustbrian/go-schema-registry/v2/formats/avro"
-	"github.com/faustbrian/go-schema-registry/providers/confluent/v2"
 )
 
 type canonicalizerFunc func(context.Context, schemaregistry.Definition) ([]byte, error)
