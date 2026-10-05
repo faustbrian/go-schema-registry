@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	registry "github.com/faustbrian/go-schema-registry"
+	registry "github.com/faustbrian/go-schema-registry/v2"
 )
 
 func TestPrivacyCredentialFailure(t *testing.T) {

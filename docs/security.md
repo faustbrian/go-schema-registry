@@ -6,10 +6,11 @@ This model covers the maintained root, format packages, and Confluent and Glue
 provider modules on main. Published versions retain the behavior of their
 immutable tags; these source changes do not establish a new published release.
 
-The root and format source uses the `/v2` identity. The independently versioned
-provider directories still use their v1 core dependency until coordinated
-provider migration follows public root v2 publication. Their documented private
-diagnostic source changes do not imply those changes exist in published v1 tags.
+The root and format source uses the published `/v2` identity. The independently
+versioned provider directories now use their own `/v2` identities and depend on
+the published root `/v2 v2.0.0`. These provider source changes do not establish
+published provider v2 releases or change the behavior of immutable provider v1
+tags, including their diagnostic behavior.
 Cross-major types and error sentinels are distinct; see
 [the migration guide](migration-v2.md).
 

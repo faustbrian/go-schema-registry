@@ -13,11 +13,11 @@ import (
 	"testing"
 	"time"
 
-	schemaregistry "github.com/faustbrian/go-schema-registry"
-	registryavro "github.com/faustbrian/go-schema-registry/formats/avro"
-	registryjsonschema "github.com/faustbrian/go-schema-registry/formats/jsonschema"
-	registryprotobuf "github.com/faustbrian/go-schema-registry/formats/protobuf"
-	"github.com/faustbrian/go-schema-registry/providers/confluent"
+	"github.com/faustbrian/go-schema-registry/providers/confluent/v2"
+	schemaregistry "github.com/faustbrian/go-schema-registry/v2"
+	registryavro "github.com/faustbrian/go-schema-registry/v2/formats/avro"
+	registryjsonschema "github.com/faustbrian/go-schema-registry/v2/formats/jsonschema"
+	registryprotobuf "github.com/faustbrian/go-schema-registry/v2/formats/protobuf"
 	"github.com/twmb/franz-go/pkg/sr"
 )
 
