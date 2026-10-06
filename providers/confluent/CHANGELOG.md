@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Changed
+
+- Select Protocol Buffers 1.36.12 consistently with the v2 core while
+  preserving provider resolution and Protobuf framing contracts.
+
 ## 2.0.0 - 2026-10-02
 
 ### Breaking changes
