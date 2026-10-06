@@ -27,7 +27,7 @@ Confluent-compatible products remain separate compatibility targets.
 | Confluent service | Platform 8.3.1 container integration | [Schema Registry REST API](https://docs.confluent.io/platform/current/schema-registry/develop/api.html) |
 | Confluent official wire client | `kafka-schema-serializer` 8.3.1 | [Confluent schema-ID serializer source](https://github.com/confluentinc/schema-registry/tree/v8.3.1/schema-serializer) |
 | Confluent independent client | `franz-go/pkg/sr` 1.8.0 | [franz-go Schema Registry package](https://pkg.go.dev/github.com/twmb/franz-go/pkg/sr) |
-| AWS Glue API | AWS SDK for Go v2 Glue 1.152.0; Smithy Go 1.27.7 | [AWS Glue Schema Registry operations](https://docs.aws.amazon.com/glue/latest/webapi/API_Operations_AWS_Glue_Schema_Registry.html) |
+| AWS Glue API | AWS SDK for Go v2 Glue 1.152.0; Smithy Go 1.28.1 | [AWS Glue Schema Registry operations](https://docs.aws.amazon.com/glue/latest/webapi/API_Operations_AWS_Glue_Schema_Registry.html) |
 | AWS Glue formats | Avro 1.11.4; JSON Schema drafts 4/6/7; Protobuf 2/3 without extensions or groups | [AWS Glue schema format documentation](https://docs.aws.amazon.com/glue/latest/dg/schema-registry.html) |
 | AWS wire reference | AWS Glue Schema Registry Java SerDe 1.1.27 | [official SerDe repository](https://github.com/awslabs/aws-glue-schema-registry) |
 | Avro | Apache Avro 1.12.0; `goavro/v2` 2.15.0 | [Avro 1.12.0 specification](https://avro.apache.org/docs/1.12.0/specification/) |

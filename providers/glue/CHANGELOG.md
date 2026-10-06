@@ -4,6 +4,8 @@
 
 ### Changed
 
+- Update AWS SDK core to 1.47.1 and Smithy Go to 1.28.1 while retaining
+  Glue 1.152.0 response cleanup and private, inspectable interceptor errors.
 - Select Protocol Buffers 1.36.12 consistently with the v2 core while
   preserving schema resolution and UUID framing contracts.
 
