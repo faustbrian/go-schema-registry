@@ -12,6 +12,6 @@
     {"id":"protobuf-v33.4","version":"v33.4","url":"https://codeload.github.com/protocolbuffers/protobuf/tar.gz/refs/tags/v33.4","sha256":"136a07aad488cc502b11c4416fe4a7df2dfdea1d0833a7a8211000bf952728ba","status":"pinned"},
     {"id":"protobuf-updates","version":"tag-feed","url":"https://github.com/protocolbuffers/protobuf/tags.atom","sha256":"894c048c26bf9511be20a7a5e07ef89c277f04d775ccc98f60c2f304e4d226f8","status":"pinned"},
     {"id":"schema-registry-v1.0.0","version":"v1.0.0","url":"https://codeload.github.com/faustbrian/go-schema-registry/tar.gz/refs/tags/v1.0.0","sha256":"302be3a97c90af1e772cb5b565fd70bd46937b5780b42bbc22b31b33dedef453","status":"pinned"},
-    {"id":"schema-registry-updates","version":"tag-feed","url":"https://github.com/faustbrian/go-schema-registry/tags.atom","sha256":"1c74320cbf7b895514e8b19981d483c583aa214927554a521798e79723939efe","status":"pinned"}
+    {"id":"schema-registry-updates","version":"tag-feed","url":"https://github.com/faustbrian/go-schema-registry/tags.atom","sha256":"0b5514de392cee3e9969d5249196b45dc16cd22ab5274150eb59b1f1a067b05c","status":"pinned"}
   ]
 }

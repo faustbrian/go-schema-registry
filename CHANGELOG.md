@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Update Protocol Buffers to 1.36.12 while preserving deterministic descriptor
+  bytes, portable fingerprints, and existing bundle identities.
+- Refresh the current Protobuf peer description and retain its prior-runtime
+  identity evidence without changing the pinned v33.4 authority.
+  SCHEMA-REG-DEC-003 sha256:39202e608558788047e5f9da70faf4cc7d1b53814c5fe844698e5e4245fc1bf0
+
 ## 2.0.0 - 2026-10-02
 
 ### Security

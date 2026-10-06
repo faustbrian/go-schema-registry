@@ -8,7 +8,7 @@ require (
 	github.com/faustbrian/go-json-schema v1.0.0
 	github.com/linkedin/goavro/v2 v2.15.0
 	go.uber.org/goleak v1.3.0
-	google.golang.org/protobuf v1.36.11
+	google.golang.org/protobuf v1.36.12
 )
 
 require (
