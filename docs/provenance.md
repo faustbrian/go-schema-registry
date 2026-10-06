@@ -10,11 +10,12 @@ Provider evidence is pinned independently of provider identity:
 | franz-go Schema Registry client | 1.8.0 | Git commit `f9ccda5bd05883e50d9885ecff0c45f509efb045` |
 | AWS Glue Schema Registry Java SerDe | 1.1.27 | Git commit `b280404e615b4e63e2fb33b1aedc228e039fbf31` |
 | AWS SDK for Go v2 Glue | 1.152.0 | Go module checksum in `providers/glue/go.sum` |
-| AWS Smithy Go | 1.27.7 | Go module checksum in `providers/glue/go.sum` |
+| AWS Smithy Go | 1.28.1 | Go module checksum in `providers/glue/go.sum` |
 | Maven reference runtime | 3.9.11, Temurin 21 | `sha256:6fdc855a6ed81d288ca7ca37ac6ff5e9308b612485c0801d70b25a858c83d237` |
 
-This matrix was refreshed on 2026-08-10. The provider interoperability
-verification script validates remote tag and image identities and confirms the
+The original matrix was refreshed on 2026-08-10. Go module rows track the
+current provider module versions. The provider interoperability verification
+script validates remote tag and image identities and confirms the
 integration scripts still select them. The shared release contract creates and
 validates a
 temporary CycloneDX document covering the core and both provider modules. No
