@@ -54,7 +54,7 @@
       "module_directory": "providers/confluent",
       "directory": ".",
       "name": "confluent",
-      "import_path": "github.com/faustbrian/go-schema-registry/providers/confluent/v2",
+      "import_path": "github.com/faustbrian/go-schema-registry/providers/confluent/v3",
       "kind": "public",
       "production": true,
       "executable": true,

@@ -29,7 +29,7 @@ repository's immutable tags and releases. See the [v3 migration guide](docs/migr
 
 ## Install
 
-Once the v3 release is published:
+Install the published root v3 release:
 
 ```sh
 go get github.com/faustbrian/go-schema-registry/v3@v3
@@ -85,13 +85,12 @@ hidden network I/O.
 | `github.com/faustbrian/go-schema-registry/v3/formats/avro` | Canonicalize bounded Avro schemas. |
 | `github.com/faustbrian/go-schema-registry/v3/formats/jsonschema` | Compile and canonicalize bounded JSON Schema definitions. |
 | `github.com/faustbrian/go-schema-registry/v3/formats/protobuf` | Canonicalize bounded Protobuf schemas and imports. |
-| `github.com/faustbrian/go-schema-registry/providers/confluent/v2` | Integrate Confluent-compatible REST identity and version-0 wire formats with root v2 types. |
+| `github.com/faustbrian/go-schema-registry/providers/confluent/v3` | Integrate Confluent-compatible REST identity and version-0 wire formats with root v3 types. |
 | `github.com/faustbrian/go-schema-registry/providers/glue/v2` | Integrate AWS Glue Schema Registry identity, lifecycle, and uncompressed header-version-3 framing with root v2 types. |
 
-The root entry describes a planned v3 release; verify its public tag before
-adopting those imports. Both providers retain the published root v2.0.0
-cohort and cannot be supplied to a v3 client. Confluent v3 adoption follows
-root v3 publication. See the
+Root v3.0.0 is published. Confluent's maintained source targets provider v3;
+verify its public tag before adoption. Glue retains the published root v2.0.0
+cohort and cannot be supplied to a v3 client. See the
 [migration guide](docs/migration-v3.md).
 
 The root compiler, client, cache, bundles, and codecs start no background work

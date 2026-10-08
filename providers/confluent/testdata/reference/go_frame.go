@@ -9,8 +9,8 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/faustbrian/go-schema-registry/providers/confluent/v2"
-	schemaregistry "github.com/faustbrian/go-schema-registry/v2"
+	"github.com/faustbrian/go-schema-registry/providers/confluent/v3"
+	schemaregistry "github.com/faustbrian/go-schema-registry/v3"
 )
 
 func main() {

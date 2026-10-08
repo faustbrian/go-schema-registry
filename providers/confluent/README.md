@@ -30,24 +30,24 @@ the exact service, compatibility, and wire policies.
 
 ## Install and import
 
-The source now targets provider v2 with the published root v2.0.0 contract.
-The following v2 installation requires the provider v2 tag and release to be
-published; source preparation alone does not establish availability.
-Existing v1 installations retain their published type identity and behavior.
+The source targets provider v3 and the published root v3.0.0 contract.
+The following installation requires the provider v3 tag and release to be
+published; source preparation alone does not establish provider availability.
+Existing v1 and v2 installations retain their published type identity and behavior.
 
 Install this independently versioned provider module directly:
 
 ```sh
-go get github.com/faustbrian/go-schema-registry/providers/confluent/v2@v2.0.0
+go get github.com/faustbrian/go-schema-registry/providers/confluent/v3@v3.0.0
 ```
 
 The canonical import paths and package identifiers are:
 
 ```go
 import (
-	schemaregistry "github.com/faustbrian/go-schema-registry/v2"
-	"github.com/faustbrian/go-schema-registry/v2/formats/avro"
-	"github.com/faustbrian/go-schema-registry/providers/confluent/v2"
+	schemaregistry "github.com/faustbrian/go-schema-registry/v3"
+	"github.com/faustbrian/go-schema-registry/v3/formats/avro"
+	"github.com/faustbrian/go-schema-registry/providers/confluent/v3"
 )
 ```
 
@@ -69,9 +69,9 @@ import (
 	"net/http"
 	"time"
 
-	schemaregistry "github.com/faustbrian/go-schema-registry/v2"
-	"github.com/faustbrian/go-schema-registry/v2/formats/avro"
-	"github.com/faustbrian/go-schema-registry/providers/confluent/v2"
+	schemaregistry "github.com/faustbrian/go-schema-registry/v3"
+	"github.com/faustbrian/go-schema-registry/v3/formats/avro"
+	"github.com/faustbrian/go-schema-registry/providers/confluent/v3"
 )
 
 func main() {
@@ -189,7 +189,7 @@ Use these entry points for the rest of the module contract:
 
 - [Provider compatibility and limitations](docs/compatibility.md)
 - [Specification decisions](docs/specification-decisions.md)
-- [Provider API](https://pkg.go.dev/github.com/faustbrian/go-schema-registry/providers/confluent/v2)
+- [Provider API](https://pkg.go.dev/github.com/faustbrian/go-schema-registry/providers/confluent/v3)
 - [Executable construction example](example_test.go)
 - [MIT license](LICENSE)
 - [Provider comparison and selection](../../docs/providers.md)

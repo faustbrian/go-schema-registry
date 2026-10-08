@@ -70,7 +70,9 @@
       "owned_dependencies": [
         "github.com/faustbrian/go-json-schema/v2"
       ],
-      "reverse_owned_dependencies": [],
+      "reverse_owned_dependencies": [
+        "github.com/faustbrian/go-schema-registry/providers/confluent/v3"
+      ],
       "external_runtime_dependencies": [
         "github.com/bufbuild/protocompile",
         "github.com/deszhou/jcs",
@@ -155,7 +157,9 @@
         },
         "optional_owned_dependencies": [],
         "adapters": [],
-        "companions": [],
+        "companions": [
+          "github.com/faustbrian/go-schema-registry/providers/confluent/v3"
+        ],
         "supported_go": {
           "minimum": "1.27.0",
           "tested": [
@@ -195,14 +199,14 @@
     },
     {
       "directory": "providers/confluent",
-      "module_path": "github.com/faustbrian/go-schema-registry/providers/confluent/v2",
+      "module_path": "github.com/faustbrian/go-schema-registry/providers/confluent/v3",
       "go_version": "1.27.0",
       "packages": [
         {
           "module_directory": "providers/confluent",
           "directory": ".",
           "name": "confluent",
-          "import_path": "github.com/faustbrian/go-schema-registry/providers/confluent/v2",
+          "import_path": "github.com/faustbrian/go-schema-registry/providers/confluent/v3",
           "kind": "public",
           "production": true,
           "executable": true,
@@ -219,11 +223,11 @@
       "family_label": "Protocols And Descriptions",
       "family_description": "Standards, envelopes, schemas, descriptions, signatures, and wire interoperability.",
       "family_order": 3,
-      "version": "2.0.0",
+      "version": "3.0.0",
       "tag_prefix": "providers/confluent/v",
       "owned_dependencies": [
-        "github.com/faustbrian/go-json-schema",
-        "github.com/faustbrian/go-schema-registry/v2"
+        "github.com/faustbrian/go-json-schema/v2",
+        "github.com/faustbrian/go-schema-registry/v3"
       ],
       "reverse_owned_dependencies": [],
       "external_runtime_dependencies": [
@@ -279,10 +283,10 @@
         ],
         "public_package_identifier": "confluent",
         "primary_entry_packages": [
-          "github.com/faustbrian/go-schema-registry/providers/confluent/v2"
+          "github.com/faustbrian/go-schema-registry/providers/confluent/v3"
         ],
         "package_selection": {
-          "github.com/faustbrian/go-schema-registry/providers/confluent/v2": "Use when a caller needs Confluent-compatible registry identity, compatibility, lifecycle, REST, and version-0 framing semantics behind the core contract."
+          "github.com/faustbrian/go-schema-registry/providers/confluent/v3": "Use when a caller needs Confluent-compatible registry identity, compatibility, lifecycle, REST, and version-0 framing semantics behind the core contract."
         },
         "lifecycle_status": "active",
         "maturity": "stable",
@@ -323,7 +327,7 @@
         ],
         "documentation": {
           "readme": "providers/confluent/README.md",
-          "api": "https://pkg.go.dev/github.com/faustbrian/go-schema-registry/providers/confluent/v2",
+          "api": "https://pkg.go.dev/github.com/faustbrian/go-schema-registry/providers/confluent/v3",
           "adoption": "providers/confluent/README.md",
           "security": "docs/security.md",
           "compatibility": "providers/confluent/docs/compatibility.md",
@@ -331,7 +335,7 @@
           "examples": "providers/confluent/example_test.go",
           "faq": "docs/faq.md",
           "changelog": "providers/confluent/CHANGELOG.md",
-          "pkg_go_dev": "https://pkg.go.dev/github.com/faustbrian/go-schema-registry/providers/confluent/v2",
+          "pkg_go_dev": "https://pkg.go.dev/github.com/faustbrian/go-schema-registry/providers/confluent/v3",
           "ecosystem_index": "https://github.com/faustbrian/go-library-tools/blob/v1.4.0/docs/ecosystem/README.md"
         },
         "known_good_compatibility_sets": [],

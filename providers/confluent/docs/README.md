@@ -7,7 +7,7 @@ Confluent service and wire boundaries.
 ## Getting started
 
 - [Package overview](../README.md)
-- [Go package documentation](https://pkg.go.dev/github.com/faustbrian/go-schema-registry/providers/confluent/v2)
+- [Go package documentation](https://pkg.go.dev/github.com/faustbrian/go-schema-registry/providers/confluent/v3)
 - [Executable construction example](../example_test.go)
 
 ## Testing

@@ -30,7 +30,7 @@ api:
         - ./formats/protobuf
     - module: providers/confluent
       mode: go-doc
-      path: providers/confluent/api/v2.txt
+      path: providers/confluent/api/v3.txt
       packages:
         - .
     - module: providers/glue

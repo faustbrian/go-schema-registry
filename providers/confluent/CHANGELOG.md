@@ -2,9 +2,17 @@
 
 ## Unreleased
 
+### Breaking changes
+
+- Move provider imports to
+  `github.com/faustbrian/go-schema-registry/providers/confluent/v3` and compose
+  with root v3 types and JSON Schema v2. Migrate provider, core and format
+  imports together. Provider IDs, version-0 framing, ownership and diagnostic
+  classification contracts remain unchanged.
+
 ### Changed
 
-- Select Protocol Buffers 1.36.12 consistently with the v2 core while
+- Select Protocol Buffers 1.36.12 consistently with the v3 core while
   preserving provider resolution and Protobuf framing contracts.
 
 ## 2.0.0 - 2026-10-02

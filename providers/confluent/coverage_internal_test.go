@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	schemaregistry "github.com/faustbrian/go-schema-registry/v2"
+	schemaregistry "github.com/faustbrian/go-schema-registry/v3"
 )
 
 type canonicalizerFunction func(context.Context, schemaregistry.Definition) ([]byte, error)
