@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	schemaregistry "github.com/faustbrian/go-schema-registry/v2"
+	schemaregistry "github.com/faustbrian/go-schema-registry/v3"
 )
 
 type resolverFunc func(context.Context, schemaregistry.Lookup) (schemaregistry.ResolveResult, error)

@@ -6,13 +6,13 @@ This model covers the maintained root, format packages, and Confluent and Glue
 provider modules on main. Published versions retain the behavior of their
 immutable tags; these source changes do not establish a new published release.
 
-The root and format source uses the published `/v2` identity. The independently
-versioned provider directories now use their own `/v2` identities and depend on
-the published root `/v2 v2.0.0`. These provider source changes do not establish
-published provider v2 releases or change the behavior of immutable provider v1
-tags, including their diagnostic behavior.
+The root and format source targets `/v3` and consumes public JSON Schema v2.0.0.
+Both providers retain their published `/v2` identities and root v2.0.0 dependency.
+Confluent v3 adoption follows root v3 publication. Source
+preparation does not establish root or provider v3 publication or change the
+behavior of immutable earlier tags, including their diagnostic behavior.
 Cross-major types and error sentinels are distinct; see
-[the migration guide](migration-v2.md).
+[the migration guide](migration-v3.md).
 
 Default returned-error formatting uses fixed operation/category messages rather
 than schema, subject, reference, payload, credential, or collaborator diagnostic

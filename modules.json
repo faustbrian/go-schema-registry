@@ -5,14 +5,14 @@
   "modules": [
     {
       "directory": ".",
-      "module_path": "github.com/faustbrian/go-schema-registry/v2",
+      "module_path": "github.com/faustbrian/go-schema-registry/v3",
       "go_version": "1.27.0",
       "packages": [
         {
           "module_directory": ".",
           "directory": ".",
           "name": "schemaregistry",
-          "import_path": "github.com/faustbrian/go-schema-registry/v2",
+          "import_path": "github.com/faustbrian/go-schema-registry/v3",
           "kind": "public",
           "production": true,
           "executable": true,
@@ -24,7 +24,7 @@
           "module_directory": ".",
           "directory": "formats/avro",
           "name": "avro",
-          "import_path": "github.com/faustbrian/go-schema-registry/v2/formats/avro",
+          "import_path": "github.com/faustbrian/go-schema-registry/v3/formats/avro",
           "kind": "public",
           "production": true,
           "executable": true,
@@ -36,7 +36,7 @@
           "module_directory": ".",
           "directory": "formats/jsonschema",
           "name": "jsonschema",
-          "import_path": "github.com/faustbrian/go-schema-registry/v2/formats/jsonschema",
+          "import_path": "github.com/faustbrian/go-schema-registry/v3/formats/jsonschema",
           "kind": "public",
           "production": true,
           "executable": true,
@@ -48,7 +48,7 @@
           "module_directory": ".",
           "directory": "formats/protobuf",
           "name": "protobuf",
-          "import_path": "github.com/faustbrian/go-schema-registry/v2/formats/protobuf",
+          "import_path": "github.com/faustbrian/go-schema-registry/v3/formats/protobuf",
           "kind": "public",
           "production": true,
           "executable": true,
@@ -65,16 +65,12 @@
       "family_label": "Protocols And Descriptions",
       "family_description": "Standards, envelopes, schemas, descriptions, signatures, and wire interoperability.",
       "family_order": 3,
-      "version": "2.0.0",
+      "version": "3.0.0",
       "tag_prefix": "v",
       "owned_dependencies": [
-        "github.com/faustbrian/go-json-schema"
+        "github.com/faustbrian/go-json-schema/v2"
       ],
-      "reverse_owned_dependencies": [
-        "github.com/faustbrian/go-cloudevents/adapters/golib",
-        "github.com/faustbrian/go-schema-registry/providers/confluent/v2",
-        "github.com/faustbrian/go-schema-registry/providers/glue/v2"
-      ],
+      "reverse_owned_dependencies": [],
       "external_runtime_dependencies": [
         "github.com/bufbuild/protocompile",
         "github.com/deszhou/jcs",
@@ -133,10 +129,10 @@
         ],
         "public_package_identifier": "schemaregistry",
         "primary_entry_packages": [
-          "github.com/faustbrian/go-schema-registry/v2"
+          "github.com/faustbrian/go-schema-registry/v3"
         ],
         "package_selection": {
-          "github.com/faustbrian/go-schema-registry/v2": "Use for provider-neutral schema values, compilation, compatibility, bounded cache and bundle policy, and explicit provider/wire composition."
+          "github.com/faustbrian/go-schema-registry/v3": "Use for provider-neutral schema values, compilation, compatibility, bounded cache and bundle policy, and explicit provider/wire composition."
         },
         "lifecycle_status": "active",
         "maturity": "stable",
@@ -159,10 +155,7 @@
         },
         "optional_owned_dependencies": [],
         "adapters": [],
-        "companions": [
-          "github.com/faustbrian/go-schema-registry/providers/confluent/v2",
-          "github.com/faustbrian/go-schema-registry/providers/glue/v2"
-        ],
+        "companions": [],
         "supported_go": {
           "minimum": "1.27.0",
           "tested": [
@@ -189,7 +182,7 @@
           "examples": "example_test.go",
           "faq": "docs/faq.md",
           "changelog": "CHANGELOG.md",
-          "pkg_go_dev": "https://pkg.go.dev/github.com/faustbrian/go-schema-registry/v2",
+          "pkg_go_dev": "https://pkg.go.dev/github.com/faustbrian/go-schema-registry/v3",
           "ecosystem_index": "https://github.com/faustbrian/go-library-tools/blob/v1.4.0/docs/ecosystem/README.md"
         },
         "known_good_compatibility_sets": [],

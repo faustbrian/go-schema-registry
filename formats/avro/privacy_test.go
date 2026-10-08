@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	registry "github.com/faustbrian/go-schema-registry/v2"
-	"github.com/faustbrian/go-schema-registry/v2/formats/avro"
+	registry "github.com/faustbrian/go-schema-registry/v3"
+	"github.com/faustbrian/go-schema-registry/v3/formats/avro"
 )
 
 func TestPrivacyCanonicalizerDiagnostic(t *testing.T) {

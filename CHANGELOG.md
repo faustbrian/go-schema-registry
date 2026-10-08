@@ -2,7 +2,19 @@
 
 ## Unreleased
 
+### Breaking changes
+
+- Move the root and format imports to `github.com/faustbrian/go-schema-registry/v3`
+  and adopt JSON Schema v2.0.0. Reconstruct JSON Schema dialect configuration,
+  schemas and clients using the same major's types and sentinels. Both existing
+  providers remain on their published v2 core cohort; Confluent v3 adoption
+  follows root v3 publication.
+
 ### Changed
+
+- Accept standard ECMAScript Unicode property patterns. Explicitly asserted
+  URI-template formats reject combined prefix/explode modifiers and invalid
+  prefix lengths; the default format-annotation policy remains unchanged.
 
 - Update Protocol Buffers to 1.36.12 while preserving deterministic descriptor
   bytes, portable fingerprints, and existing bundle identities.

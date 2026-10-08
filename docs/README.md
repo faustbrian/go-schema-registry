@@ -3,6 +3,7 @@
 ## Getting started
 
 - [API](api.md)
+- [Root v3 migration](migration-v3.md)
 - [Examples](examples.md)
 - [Compiler-checked `ExampleCompile`](../example_test.go)
 

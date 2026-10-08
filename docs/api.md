@@ -27,7 +27,8 @@ portable label. Candidate format and size use the same client bounds as
 registration, and provider-specific mode names cannot accompany portable modes.
 ## Module identity
 
-The root API on main uses `github.com/faustbrian/go-schema-registry/v2`.
-Its format packages share that module. Provider v1 modules retain distinct
-v1 core types and must not be mixed with v2 clients. See
-[migration guidance](migration-v2.md) for coordinated adoption and errors.
+The root API on main uses `github.com/faustbrian/go-schema-registry/v3`.
+Its format packages share that module. Both providers retain the published v2
+cohort and must not be mixed with v3 clients. Confluent v3 adoption follows
+root v3 publication. See
+[migration guidance](migration-v3.md) for coordinated adoption and errors.

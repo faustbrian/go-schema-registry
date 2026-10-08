@@ -7,8 +7,8 @@ import (
 	"os"
 	"testing"
 
-	registry "github.com/faustbrian/go-schema-registry/v2"
-	pb "github.com/faustbrian/go-schema-registry/v2/formats/protobuf"
+	registry "github.com/faustbrian/go-schema-registry/v3"
+	pb "github.com/faustbrian/go-schema-registry/v3/formats/protobuf"
 )
 
 // Prior runtime output is a literal compatibility oracle, not a second

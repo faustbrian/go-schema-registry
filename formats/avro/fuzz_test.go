@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	schemaregistry "github.com/faustbrian/go-schema-registry/v2"
-	registryavro "github.com/faustbrian/go-schema-registry/v2/formats/avro"
+	schemaregistry "github.com/faustbrian/go-schema-registry/v3"
+	registryavro "github.com/faustbrian/go-schema-registry/v3/formats/avro"
 )
 
 func FuzzAvroSchemas(f *testing.F) {

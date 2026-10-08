@@ -5,7 +5,7 @@
 [![Coverage](https://img.shields.io/badge/coverage-100%25_required-blue)](CONTRIBUTING.md#verification)
 [![Mutation](https://img.shields.io/badge/mutation-100%25_required-blue)](CONTRIBUTING.md#verification)
 [![Documentation](https://img.shields.io/badge/docs-checked_in_CI-blue)](docs/)
-[![Go Reference](https://pkg.go.dev/badge/github.com/faustbrian/go-schema-registry/v2.svg)](https://pkg.go.dev/github.com/faustbrian/go-schema-registry/v2)
+[![Go Reference](https://pkg.go.dev/badge/github.com/faustbrian/go-schema-registry/v3.svg)](https://pkg.go.dev/github.com/faustbrian/go-schema-registry/v3)
 [![Release](https://img.shields.io/github/v/release/faustbrian/go-schema-registry?sort=semver)](https://github.com/faustbrian/go-schema-registry/releases)
 [![Go](https://img.shields.io/badge/go-1.27.0-00ADD8?logo=go)](https://go.dev/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -23,22 +23,22 @@ The core module has no implicit registry client. Provider adapters are separate
 modules under `providers/`; format adapters are explicit dependencies under
 `formats/`.
 
-The root source targets the v2 module identity, requires Go 1.27.0 or newer,
+The root source targets the v3 module identity, requires Go 1.27.0 or newer,
 and follows Semantic Versioning. Release availability is established by the
-repository's immutable tags and releases. See the [v2 migration guide](docs/migration-v2.md).
+repository's immutable tags and releases. See the [v3 migration guide](docs/migration-v3.md).
 
 ## Install
 
-For a published v2 release:
+Once the v3 release is published:
 
 ```sh
-go get github.com/faustbrian/go-schema-registry/v2@v2
+go get github.com/faustbrian/go-schema-registry/v3@v3
 ```
 
 Import the canonical provider-neutral package directly:
 
 ```go
-import schemaregistry "github.com/faustbrian/go-schema-registry/v2"
+import schemaregistry "github.com/faustbrian/go-schema-registry/v3"
 ```
 
 For shared package families, selection guidance, ownership, and lifecycle
@@ -81,17 +81,18 @@ hidden network I/O.
 
 | Package | Use |
 | --- | --- |
-| `github.com/faustbrian/go-schema-registry/v2` | Define provider-neutral schema identities, registration, resolution, caching, bundles, and wire composition. |
-| `github.com/faustbrian/go-schema-registry/v2/formats/avro` | Canonicalize bounded Avro schemas. |
-| `github.com/faustbrian/go-schema-registry/v2/formats/jsonschema` | Compile and canonicalize bounded JSON Schema definitions. |
-| `github.com/faustbrian/go-schema-registry/v2/formats/protobuf` | Canonicalize bounded Protobuf schemas and imports. |
+| `github.com/faustbrian/go-schema-registry/v3` | Define provider-neutral schema identities, registration, resolution, caching, bundles, and wire composition. |
+| `github.com/faustbrian/go-schema-registry/v3/formats/avro` | Canonicalize bounded Avro schemas. |
+| `github.com/faustbrian/go-schema-registry/v3/formats/jsonschema` | Compile and canonicalize bounded JSON Schema definitions. |
+| `github.com/faustbrian/go-schema-registry/v3/formats/protobuf` | Canonicalize bounded Protobuf schemas and imports. |
 | `github.com/faustbrian/go-schema-registry/providers/confluent/v2` | Integrate Confluent-compatible REST identity and version-0 wire formats with root v2 types. |
 | `github.com/faustbrian/go-schema-registry/providers/glue/v2` | Integrate AWS Glue Schema Registry identity, lifecycle, and uncompressed header-version-3 framing with root v2 types. |
 
-The provider entries above describe v2 source targeting the actual public
-v2.0.0 core. Their public v2 tags and releases must be verified before adopting
-that composition. Published provider v1 modules still use the v1 core and
-cannot be supplied to a v2 client; see the [migration guide](docs/migration-v2.md).
+The root entry describes a planned v3 release; verify its public tag before
+adopting those imports. Both providers retain the published root v2.0.0
+cohort and cannot be supplied to a v3 client. Confluent v3 adoption follows
+root v3 publication. See the
+[migration guide](docs/migration-v3.md).
 
 The root compiler, client, cache, bundles, and codecs start no background work
 and own no resource that requires shutdown. Applications own injected
