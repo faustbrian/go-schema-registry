@@ -170,6 +170,7 @@ func (framer *ProtobufFramer) UnframeMessage(
 
 func appendSignedVarint(destination []byte, value int) []byte {
 	var encoded [binary.MaxVarintLen64]byte
+	// #nosec G115 -- FrameMessage supplies a positive slice length or an index already checked nonnegative.
 	count := binary.PutUvarint(encoded[:], uint64(value)<<1)
 	return append(destination, encoded[:count]...)
 }
