@@ -7,7 +7,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.32.35
 	github.com/aws/aws-sdk-go-v2/credentials v1.19.34
 	github.com/aws/aws-sdk-go-v2/service/glue v1.152.0
-	github.com/aws/smithy-go v1.28.1
+	github.com/aws/smithy-go v1.28.4
 	github.com/faustbrian/go-schema-registry/v2 v2.0.0
 	go.uber.org/goleak v1.3.0
 )
@@ -23,8 +23,11 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sso v1.33.4 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.38.4 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.45.4 // indirect
+	github.com/dlclark/regexp2/v2 v2.8.2 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/linkedin/goavro/v2 v2.15.0 // indirect
 	github.com/stretchr/testify v1.9.0 // indirect
+	golang.org/x/net v0.59.0 // indirect
+	golang.org/x/sync v0.23.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
 )
