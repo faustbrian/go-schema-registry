@@ -216,7 +216,9 @@ func CompileWithLimits(
 }
 
 func boundedDefinitionText(current uint64, additional, limit int) (uint64, bool) {
+	// #nosec G115 -- All production callers pass nonnegative string lengths; positive limits are validated before this sum.
 	total, carry := bits.Add64(current, uint64(additional), 0)
+	// #nosec G115 -- All production callers supply a validated positive MaxSchemaBytes limit; carry rejects overflow.
 	return total, carry == 0 && total <= uint64(limit)
 }
 

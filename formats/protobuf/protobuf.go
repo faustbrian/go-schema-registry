@@ -69,7 +69,9 @@ func New(config Config) (*Canonicalizer, error) {
 }
 
 func boundedTextBytes(current uint64, additional, limit int) (uint64, bool) {
+	// #nosec G115 -- New supplies nonnegative string lengths after validating its positive MaxSchemaBytes limit.
 	total, carry := bits.Add64(current, uint64(additional), 0)
+	// #nosec G115 -- New rejects nonpositive MaxSchemaBytes before these sums; carry rejects overflow.
 	return total, carry == 0 && total <= uint64(limit)
 }
 
