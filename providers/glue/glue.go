@@ -223,6 +223,7 @@ func (provider *Provider) Resolve(ctx context.Context, lookup schemaregistry.Loo
 	}
 	if requiresVersion {
 		if response.VersionNumber == nil ||
+			// #nosec G115 -- The preceding VersionNumber validation rejects every value below one.
 			(lookup.Kind() == schemaregistry.LookupByVersion && uint64(*response.VersionNumber) != lookup.Version().Number) {
 			return schemaregistry.ResolveResult{}, fmt.Errorf("%w: AWS Glue version identity", schemaregistry.ErrInvalidSchema)
 		}
@@ -246,6 +247,7 @@ func (provider *Provider) Resolve(ctx context.Context, lookup schemaregistry.Loo
 	result.ID = provider.id(*response.SchemaVersionId)
 	result.Lifecycle = lifecycle(response.Status)
 	if response.VersionNumber != nil {
+		// #nosec G115 -- The preceding VersionNumber validation rejects every value below one.
 		result.Version = schemaregistry.Version{Number: uint64(*response.VersionNumber)}
 	}
 	return result, nil
