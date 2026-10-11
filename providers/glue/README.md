@@ -17,7 +17,7 @@ has no build constraints or operating-system-specific files and supports
 portable Go platforms. The faithful local service suite uses the `integration`
 test tag; the optional read-only AWS check uses `liveintegration`. The verified
 backend and protocol boundary is AWS Glue Schema Registry through AWS SDK for
-Go v2 Glue 1.152.0 and uncompressed header-version-3 framing compatible with
+Go v2 Glue 1.169.1 and uncompressed header-version-3 framing compatible with
 AWS Glue Schema Registry Java SerDe 1.1.27.
 
 For shared package families, selection guidance, ownership, and lifecycle
