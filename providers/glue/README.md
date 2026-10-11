@@ -172,8 +172,9 @@ guide](../../docs/security.md) and [private reporting policy](../../SECURITY.md)
 
 ## Integration verification
 
-`golib check --module providers/glue` compares framing with the pinned official
-AWS Glue Schema Registry Java SerDe v1.1.27 in an isolated Maven container.
+The explicit full `golib check --module providers/glue` route compares framing
+with the pinned official AWS Glue Schema Registry Java SerDe v1.1.27 in an
+isolated Maven container.
 Under the `integration` test tag, the same provider contract runs the real AWS
 SDK v2 client against a faithful local Smithy JSON service. It requires no AWS
 account or credentials and
@@ -181,6 +182,11 @@ verifies request serialization, SigV4 wiring, latest/by-ID/version resolution,
 registration, duplicates, pending/available lifecycle, SDK throttling retries,
 quotas, malformed responses, cancellation, deadlines, unknown outcomes, and
 reconciliation.
+
+`golib check --local --module providers/glue` is the bounded ordinary route:
+it retains the manifest's integration tag and local SDK contract, but not the
+full Java comparison. Direct untagged Go tests are a separate boundary. Neither
+route establishes live AWS certification.
 
 The `liveintegration` test remains a separate read-only check against a
 caller-selected existing AVRO schema using the default AWS credential chain.

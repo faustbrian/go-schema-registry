@@ -2,8 +2,8 @@
 
 [![CI](https://github.com/faustbrian/go-schema-registry/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/faustbrian/go-schema-registry/actions/workflows/ci.yml)
 [![CodeQL](https://img.shields.io/badge/CodeQL-required-blue)](https://github.com/faustbrian/go-schema-registry/actions/workflows/ci.yml)
-[![Coverage](https://img.shields.io/badge/coverage-100%25_required-blue)](CONTRIBUTING.md#verification)
-[![Mutation](https://img.shields.io/badge/mutation-100%25_required-blue)](CONTRIBUTING.md#verification)
+[![Coverage](https://img.shields.io/badge/coverage-full_qualification-blue)](CONTRIBUTING.md#verification)
+[![Mutation](https://img.shields.io/badge/mutation-full_qualification-blue)](CONTRIBUTING.md#verification)
 [![Documentation](https://img.shields.io/badge/docs-checked_in_CI-blue)](docs/)
 [![Go Reference](https://pkg.go.dev/badge/github.com/faustbrian/go-schema-registry/v3.svg)](https://pkg.go.dev/github.com/faustbrian/go-schema-registry/v3)
 [![Release](https://img.shields.io/github/v/release/faustbrian/go-schema-registry?sort=semver)](https://github.com/faustbrian/go-schema-registry/releases)
@@ -120,18 +120,19 @@ providers, transports, credentials, and their lifecycle.
 - [Changelog](CHANGELOG.md)
 - [Contributing](CONTRIBUTING.md)
 
-The minimum supported toolchain is Go 1.27.0. The module follows stable v1 compatibility; see
+The minimum supported toolchain is Go 1.27.0. Compatibility follows each
+module's declared major; see
 [CHANGELOG.md](CHANGELOG.md) and [RELEASING.md](RELEASING.md).
 
-`golib repository check` validates the repository contract. `golib check --all`
-runs the standard gates for the core and both provider modules, including the
-provider-specific wire interoperability checks. The release workflow performs
-the additional release validation; the optional AWS live integration remains a
-caller-selected check and never runs with ordinary CI.
-
-The release gate also runs bounded leak, fault-injection, race-stress, and soak
-exercises for the core and both provider modules. Each Go invocation receives
-task-owned disposable build and module caches.
+For standalone untagged tests, run `GOWORK=off go test ./... -count=1 -timeout=3m`
+from the affected module. `make check` and `make ci` use bounded public
+verification; Glue retains its integration-tagged faithful local SDK service.
+Explicit `make check-full` retains full conformance and provider wire/service
+qualification, including Docker-backed Java interoperability. Optional live AWS
+access remains caller-selected, not cloud certification from ordinary CI. See
+[CONTRIBUTING.md](CONTRIBUTING.md) and [RELEASING.md](RELEASING.md) for targeted
+cache races, active fuzzing and explicit release qualifications; CI rehearses
+selected releases but does not publish them.
 
 ## License
 
