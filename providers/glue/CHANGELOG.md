@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 2.0.1 - 2026-10-11
+
 ### Changed
 
 - Update Glue to 1.169.1, config to 1.33.9, credentials to 1.20.9, and
