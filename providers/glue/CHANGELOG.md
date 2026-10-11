@@ -4,6 +4,11 @@
 
 ### Changed
 
+- Update Glue to 1.169.1, config to 1.33.9, credentials to 1.20.9, and
+  matching SDK/Smithy modules to retain response cleanup on interceptor
+  rejection without duplicate retry-loop spans. Preserve scoped UUIDs,
+  registration outcomes, private causes, and offline credential composition.
+
 - Update AWS SDK core to 1.47.1 and Smithy Go to 1.28.1 while retaining
   Glue 1.152.0 response cleanup and private, inspectable interceptor errors.
 - Select Protocol Buffers 1.36.12 consistently with the v2 core while
