@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Documentation
+
+- Clarify retained /v2 identity, SDK-owned response allocation, cooperative
+  deadlines, UUID syntax scope and explicit non-available lifecycle results
+  in GLUE-DEC-001.
+
 ## 2.0.1 - 2026-10-11
 
 ### Changed

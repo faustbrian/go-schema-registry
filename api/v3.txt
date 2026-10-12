@@ -1,7 +1,19 @@
 package schemaregistry // import "github.com/faustbrian/go-schema-registry/v3"
 
-Package schemaregistry defines provider-neutral contracts for explicit,
-versioned schema registration and resolution.
+Package schemaregistry provides explicit schema compilation, scoped provider
+clients, cache/bundle/graph resolution and codec/framer composition. Start with
+Compile and an explicit format canonicalizer, then NewClient/NewResolveCache
+or NewBundle as needed. Schema/Bundle values own copied data; clients/cache own
+synchronized local state but no background goroutines or collaborator shutdown.
+
+Portable identity is this package's SHA-256 profile, not a provider ID,
+authenticity proof or universal compatibility relation. Local-only
+canonicalizers/codecs are collaborator obligations, not an I/O sandbox.
+Context cannot forcibly interrupt callbacks, and per-owner limits do not bound
+total process memory, waiters or deployment demand. Root /v3 and Confluent
+/v3 types differ from Glue's retained /v2 cohort. Exact language/source
+versions and SCHEMA-REG-DEC-001..004 are in specification/README.md and
+spec/sources.lock.json.
 
 VARIABLES
 
@@ -87,7 +99,13 @@ func LoadBundle(
 	maxBundleBytes int,
 ) (Bundle, error)
     LoadBundle validates and recompiles a bounded artifact with caller-supplied
-    local canonicalizers. Canonicalizers must not perform network access.
+    local canonicalizers. Canonicalizers must not perform network access;
+    this is a collaborator obligation, not a sandbox. Encoded length precedes
+    JSON parsing, but schema-count/graph and canonical-output limits follow
+    materialization. Unknown fields/trailing values fail; duplicate JSON keys
+    follow encoding/json, not a duplicate-key rejection policy. Every claimed
+    hash is recomputed, not authenticated. Context does not interrupt arbitrary
+    canonicalizer work.
 
 func NewBundle(
 	root Schema,
@@ -95,7 +113,13 @@ func NewBundle(
 	limits GraphLimits,
 	provenance Provenance,
 ) (Bundle, error)
-    NewBundle validates a complete bounded graph rooted at root.
+    NewBundle checks supplied-count bounds, nonempty provenance,
+    portable identity collisions and the root-reachable dependency closure
+    (depth/edges/cycles). Extra unreachable schemas are retained but their
+    separate closures are not traversed. Identical portable schemas can replace
+    each other's provider/metadata coordinates because those fields are outside
+    identity. No origin authentication, cancellation or aggregate retained-byte
+    limit is added.
 
 func (bundle Bundle) MarshalBinary() ([]byte, error)
     MarshalBinary returns a deterministic, versioned offline artifact. Loading
@@ -111,9 +135,14 @@ func (bundle Bundle) Root() Schema
     Root returns the bundle root schema.
 
 type CacheResolution struct {
-	Result     ResolveResult
-	State      CacheState
-	Age        time.Duration
+	// Result is immutable schema plus provider metadata; zero on negative/errors.
+	Result ResolveResult
+	// State reports fresh/stale/loaded/negative; early errors may leave it empty.
+	State CacheState
+	// Age is nonnegative sampled cache age, not provider lifecycle age.
+	Age time.Duration
+	// StaleCause exposes the upstream outage on allowed stale success; explicit
+	// inspection may disclose retained collaborator diagnostics.
 	StaleCause error
 }
     CacheResolution returns stale causes explicitly instead of hiding outages.
@@ -132,25 +161,41 @@ const (
 	CacheNegative CacheState = "negative"
 )
 type Canonicalizer interface {
+	// Canonicalize must validate the selected language/profile without implicit
+	// remote retrieval and cooperate with ctx. Compile supplies an owned copy;
+	// direct Canonicalize callers retain input ownership. Compile copies admitted
+	// returned bytes. Calls can be concurrent
+	// when a canonicalizer is shared; implementations own that safety and bounds.
 	Canonicalize(context.Context, Definition) ([]byte, error)
 }
     Canonicalizer validates a definition and returns the canonical bytes used
     for portable identity. Implementations must not contact a registry.
 
 type Capabilities struct {
-	Provider           string
-	Formats            []Format
-	Lookups            []LookupKind
+	// Provider is the stable provider namespace captured at NewClient.
+	Provider string
+	// Formats advertises supported request formats, not arbitrary schema equivalence.
+	Formats []Format
+	// Lookups advertises supported selectors; latest semantics belong to the provider.
+	Lookups []LookupKind
+	// CompatibilityModes advertises provider interpretations, not local inference.
 	CompatibilityModes []CompatibilityMode
-	NumericVersions    bool
-	OpaqueVersions     bool
-	SchemaReferences   bool
-	BoundedListing     bool
+	// NumericVersions permits nonzero Number in versioned requests/results.
+	NumericVersions bool
+	// OpaqueVersions permits a nonempty Opaque token in versioned requests/results.
+	OpaqueVersions bool
+	// SchemaReferences reports provider support; Client does not independently
+	// traverse or reject all reference fields before dispatch.
+	SchemaReferences bool
+	// BoundedListing requires a matching ListingProvider implementation.
+	BoundedListing bool
 	// RegistrationCreationOutcome reports whether the provider can safely
 	// distinguish newly-created from concurrently-existing registration.
 	RegistrationCreationOutcome bool
-	SoftDelete                  bool
-	HardDelete                  bool
+	// SoftDelete requires a matching DeletingProvider and its confirmation contract.
+	SoftDelete bool
+	// HardDelete advertises irreversible deletion, not rollback or atomicity.
+	HardDelete bool
 }
     Capabilities describes semantic support without claiming providers are
     interchangeable.
@@ -158,14 +203,20 @@ type Capabilities struct {
 type Client struct {
 	// Has unexported fields.
 }
-    Client validates portable requests against provider capabilities and caller
-    bounds before any provider I/O.
+    Client validates portable requests against provider capabilities and
+    caller bounds before provider I/O. Methods are safe concurrently only
+    if the supplied provider is; there are no owned background goroutines or
+    Close operation. Slot waits are context-aware, but arbitrary callbacks
+    are not preempted or panic-contained. Zero/nil clients are not usable;
+    use NewClient.
 
 func NewClient(provider Provider, limits Limits) (*Client, error)
-    NewClient constructs a bounded client over one provider.
+    NewClient rejects typed-nil providers/nonpositive limits, captures a copied
+    capability snapshot and borrows the provider for the client's lifetime.
+    It invokes Capabilities synchronously and does not own transport shutdown.
 
 func (client *Client) Capabilities() Capabilities
-    Capabilities returns an immutable snapshot of provider semantics.
+    Capabilities returns a defensive copy of the snapshot captured at NewClient.
 
 func (client *Client) CheckCompatibility(
 	ctx context.Context,
@@ -175,27 +226,48 @@ func (client *Client) CheckCompatibility(
     I/O when the requested semantics are unavailable.
 
 func (client *Client) Delete(ctx context.Context, request DeleteRequest) (DeleteResult, error)
-    Delete requires an exact portable fingerprint guard for both soft and hard
-    deletion, then delegates only to an advertised provider capability.
+    Delete requires an exact portable fingerprint guard for both soft and
+    hard deletion, then delegates only to an advertised provider capability.
+    The provider owns comparison and service atomicity; Client does not resolve
+    the target itself. Transitional results and partial evidence on error are
+    allowed.
 
 func (client *Client) List(ctx context.Context, request ListRequest) (ListPage, error)
     List delegates only when the provider advertises bounded listing and the
     request fits caller limits.
 
 func (client *Client) Register(ctx context.Context, request RegisterRequest) (RegisterResult, error)
-    Register validates bounds and format support before provider I/O.
+    Register validates raw-content bounds/format before provider I/O and
+    coalesces overlapping requests by Subject/Fingerprint. The leader runs
+    synchronously under its context; waiters may cancel without canceling it.
+    A full new-leader budget fails with ErrLimitExceeded before dispatch.
+    This is not persistent or cross-process idempotency. Provider callbacks must
+    not panic: registration owner/slot cleanup assumes normal return, so panic
+    can leave admission occupied. Provider errors/results and uncertain effects
+    may be returned together; nil error can still accompany RegistrationUnknown.
 
 func (client *Client) Resolve(ctx context.Context, lookup Lookup) (ResolveResult, error)
-    Resolve rejects selectors the provider cannot define safely.
+    Resolve rejects unsupported/invalid selectors, then validates
+    nonzero compiled fingerprint, ID namespace, declared lifecycle and
+    selector agreement. It does not independently enforce all response
+    size/format/version-capability fields. Partial provider results can
+    accompany an error; fixed default error text retains deliberate cause
+    inspection. Nil error does not require available lifecycle.
 
-type Clock interface{ Now() time.Time }
+type Clock interface {
+	// Now returns cache-policy time; calls can be concurrent and are not preempted.
+	Now() time.Time
+}
     Clock supplies deterministic cache time.
 
 type CodecIntegration struct {
 	// Has unexported fields.
 }
-    CodecIntegration composes a business codec and provider framer without a
-    registry dependency or hidden I/O.
+    CodecIntegration composes a business codec and provider framer without
+    a built-in registry dependency. Borrowed collaborators must uphold the
+    no-hidden registry contract; no sandbox, panic recovery or callback
+    preemption is added. Concurrent reuse depends on codec/framer safety.
+    It owns no Close lifecycle.
 
 func NewCodecIntegration(
 	codec ValueCodec,
@@ -211,7 +283,11 @@ func (integration *CodecIntegration) Decode(
 	target any,
 ) error
     Decode applies an already-resolved schema to one parsed payload. Registry
-    access cannot occur through this API.
+    discovery is not supplied by this wrapper and is prohibited by the codec
+    contract, not mechanically prevented. Decode does not bind message.ID to
+    schema.Fingerprint; the caller must resolve and match that identity first.
+    It copies payload but borrows target, whose partial mutation on error is
+    codec-defined.
 
 func (integration *CodecIntegration) Encode(
 	ctx context.Context,
@@ -230,8 +306,12 @@ func (integration *CodecIntegration) Parse(
     provider framer. It never resolves the returned ID.
 
 type CodecLimits struct {
+	// MaxPayloadBytes is positive; encoding checks it after codec allocation,
+	// decoding checks it before passing a copied payload to the codec.
 	MaxPayloadBytes int
-	MaxFrameBytes   int
+	// MaxFrameBytes must be at least MaxPayloadBytes; parsed input is checked
+	// before Unframe, encoded output after framing allocation.
+	MaxFrameBytes int
 }
     CodecLimits bound both business payloads and complete framed messages.
 
@@ -259,56 +339,85 @@ const (
 	CompatibilityProviderSpecific CompatibilityMode = "provider-specific"
 )
 type CompatibilityRequest struct {
-	Subject      Subject
-	Candidate    Schema
-	Mode         CompatibilityMode
+	// Subject is the explicit provider history target.
+	Subject Subject
+	// Candidate is an already-compiled schema within request bounds.
+	Candidate Schema
+	// Mode must be advertised; portable names retain provider-defined semantics.
+	Mode CompatibilityMode
+	// ProviderMode is nonempty only with CompatibilityProviderSpecific.
 	ProviderMode string
 }
     CompatibilityRequest asks the provider to compare a candidate against an
     explicit subject history according to one advertised mode.
 
 type CompatibilityResult struct {
-	Supported   bool
-	Compatible  bool
+	// Supported must be checked before treating Compatible as meaningful.
+	Supported bool
+	// Compatible is provider evidence, not locally inferred schema equivalence.
+	Compatible bool
+	// Diagnostics is provider-owned structured content, not universally copied or
+	// redacted by Client; applications must apply a privacy/logging policy.
 	Diagnostics []Diagnostic
 }
     CompatibilityResult never treats unsupported or indeterminate checks as
     compatible.
 
 type CompileLimits struct {
-	MaxSchemaBytes    int
+	// MaxSchemaBytes caps content and, independently, total reference text and
+	// metadata text before copying; it is not a combined allocation budget.
+	MaxSchemaBytes int
+	// MaxCanonicalBytes caps returned canonical bytes after collaborator work.
 	MaxCanonicalBytes int
-	MaxReferences     int
-	MaxMetadata       int
+	// MaxReferences caps named reference count; each fingerprint must be nonzero.
+	MaxReferences int
+	// MaxMetadata caps entry count; all limits must be positive, not zero-defaulted.
+	MaxMetadata int
 }
     CompileLimits bound hostile schema definitions before and after format
     canonicalization.
 
 func DefaultCompileLimits() CompileLimits
     DefaultCompileLimits returns conservative portable bounds. Provider adapters
-    may impose stricter service limits.
+    may impose stricter service limits. Content/canonical bytes and each
+    reference/ metadata text aggregate default to 1MiB; reference and metadata
+    counts to 256.
 
 type Definition struct {
-	Format     Format
-	Content    []byte
+	// Format selects an explicitly supplied supported canonicalizer.
+	Format Format
+	// Content is raw nonempty schema text, copied during Compile.
+	Content []byte
+	// References is copied and sorted by Name for hashing; caller storage must
+	// remain stable while copied. Format adapters may require separate local resources.
 	References []Reference
-	Metadata   map[string]string
+	// Metadata is copied but excluded from portable identity, not redacted or
+	// authenticated. Keys/values can retain immutable string backing storage.
+	Metadata map[string]string
 }
     Definition is caller-owned schema input. Compile copies all mutable fields.
 
 type DeleteRequest struct {
+	// Subject selects the exact destructive target.
 	Subject Subject
+	// Version must be valid and advertised, not latest.
 	Version Version
-	Policy  DeletionPolicy
+	// Policy supplies mode and portable confirmation, not rollback authorization.
+	Policy DeletionPolicy
 }
     DeleteRequest targets one exact subject version.
 
 type DeleteResult struct {
+	// Lifecycle is a declared provider state; transition/pending results need
+	// application reconciliation, not assumed deletion completion.
 	Lifecycle LifecycleState
 }
     DeleteResult reports the provider-observed terminal or transitional state.
 
 type DeletingProvider interface {
+	// Delete must verify ExpectedFingerprint at the provider boundary and preserve
+	// soft/hard distinctions, transitional outcomes and uncertainty; atomicity is
+	// provider-specific and not supplied by Client.
 	Delete(context.Context, DeleteRequest) (DeleteResult, error)
 }
     DeletingProvider is an optional destructive administrative capability.
@@ -317,24 +426,31 @@ type DeletionMode string
     DeletionMode preserves soft and hard deletion differences.
 
 const (
-	// DeleteSoft requests recoverable provider deletion when advertised.
+	// DeleteSoft requests advertised soft deletion; recoverability is provider-specific.
 	DeleteSoft DeletionMode = "soft"
 	// DeleteHard requests permanent provider deletion when advertised.
 	DeleteHard DeletionMode = "hard"
 )
 type DeletionPolicy struct {
-	Mode                DeletionMode
+	// Mode explicitly selects soft or hard deletion as advertised.
+	Mode DeletionMode
+	// ExpectedFingerprint is a required nonzero confirmation guard. The provider
+	// must check it; core dispatch does not implement atomic compare-and-delete.
 	ExpectedFingerprint Fingerprint
 }
     DeletionPolicy makes destructive intent exact and collision-resistant.
 
 type Diagnostic struct {
-	Code    string
+	// Code identifies the provider/category diagnostic.
+	Code string
+	// Message is untrusted provider text and may contain sensitive content;
+	// Client does not sanitize it.
 	Message string
-	Path    string
+	// Path is provider diagnostic metadata, not a filesystem path to follow.
+	Path string
 }
-    Diagnostic is safe structured context; adapters must not place full schema
-    contents or credentials in these fields.
+    Diagnostic carries provider structured context, not guaranteed sanitized log
+    text. Applications must bound/redact deliberately exposed provider data.
 
 type Fingerprint struct {
 	// Has unexported fields.
@@ -343,7 +459,9 @@ type Fingerprint struct {
     schema. It is never interchangeable with a provider-issued identifier.
 
 func ParseFingerprint(value string) (Fingerprint, error)
-    ParseFingerprint parses the stable algorithm-qualified portable identity.
+    ParseFingerprint accepts the exact sha256: prefix and 64 hexadecimal digits,
+    including uppercase digits; String normalizes them to lowercase. It checks
+    syntax only and does not authenticate content or reject the all-zero digest.
 
 func (fingerprint Fingerprint) String() string
     String returns the algorithm-qualified lowercase hexadecimal fingerprint.
@@ -361,15 +479,22 @@ const (
 	FormatProtobuf Format = "protobuf"
 )
 type Framer interface {
+	// Frame must preserve the selected version/scoped identity and payload;
+	// cooperate with ctx and make returned-byte ownership explicit.
 	Frame(context.Context, ProviderID, []byte) ([]byte, error)
+	// Unframe must validate the declared wire version and scoped ID; it may
+	// return borrowed payload bytes because Parse copies admitted results.
 	Unframe(context.Context, []byte) (ProviderID, []byte, error)
 }
     Framer owns one explicitly versioned provider wire format. It receives and
     returns opaque provider IDs, never portable fingerprints.
 
 type GraphLimits struct {
-	MaxSchemas    int
-	MaxDepth      int
+	// MaxSchemas bounds admitted nodes/supplied schemas; all limits are positive.
+	MaxSchemas int
+	// MaxDepth counts root as 1; traversal depth checks precede reuse/cycle checks.
+	MaxDepth int
+	// MaxReferences bounds traversed edges, not borrowed document text/bytes.
 	MaxReferences int
 }
     GraphLimits bound local and provider reference traversal.
@@ -392,7 +517,10 @@ const (
 	LifecycleUnknown LifecycleState = "unknown"
 )
 type Limits struct {
+	// MaxSchemaBytes caps registration/compatibility content after Schema.Definition
+	// copies; it is not a response or whole-client retained-byte cap.
 	MaxSchemaBytes int
+	// MaxListResults caps requested/returned descriptor count, not text bytes.
 	MaxListResults int
 	// MaxConcurrent bounds executing provider calls and retained registration
 	// leaders. Same-key registration waiters share an existing leader.
@@ -401,19 +529,28 @@ type Limits struct {
     Limits are caller-selected operation bounds.
 
 type ListPage struct {
-	Schemas       []SchemaDescriptor
+	// Schemas is copied on successful Client.List; each field remains provider
+	// metadata and is not independently validated like a Resolve result.
+	Schemas []SchemaDescriptor
+	// NextPageToken is provider continuation state; no durable snapshot guarantee.
 	NextPageToken string
 }
     ListPage is one bounded provider page.
 
 type ListRequest struct {
+	// SubjectPrefix is provider filtering text, not a portable pattern language.
 	SubjectPrefix string
-	Limit         int
-	PageToken     string
+	// Limit is a positive descriptor count within Client.MaxListResults.
+	Limit int
+	// PageToken is opaque to core; Confluent uses a nonnegative decimal offset.
+	PageToken string
 }
-    ListRequest is always bounded. PageToken is provider-opaque.
+    ListRequest supplies a requested count bound validated by Client/adapters.
+    PageToken is provider-opaque; field text has no general core byte cap.
 
 type ListingProvider interface {
+	// List must honor positive count bounds and opaque continuation semantics.
+	// Client copies successful descriptors, but does not sanitize their fields.
 	List(context.Context, ListRequest) (ListPage, error)
 }
     ListingProvider is an optional bounded administrative capability.
@@ -468,50 +605,77 @@ const (
 	LookupLatest LookupKind = "latest"
 )
 type Provenance struct {
-	Source   string
+	// Source is required caller-declared origin metadata, not verified ownership.
+	Source string
+	// Revision is required declared revision; no signature or digest is checked.
 	Revision string
 }
     Provenance records the immutable source and revision of an offline bundle.
 
 type Provider interface {
+	// Capabilities must return stable advertised semantics and copied slices or
+	// caller-safe snapshots. NewClient captures a defensive copy once.
 	Capabilities() Capabilities
+	// Register must preserve scoped identity and creation/outcome uncertainty;
+	// cooperate with context, and make retries/idempotency policy explicit.
 	Register(context.Context, RegisterRequest) (RegisterResult, error)
+	// Resolve must return selector-consistent compiled schema/ID/lifecycle;
+	// partial results on error are permitted but not automatically trusted.
 	Resolve(context.Context, Lookup) (ResolveResult, error)
+	// CheckCompatibility must distinguish unsupported/indeterminate from compatible
+	// and keep diagnostics distinct from default errors. Returned slices remain
+	// implementation-owned; caller logging/privacy policy still applies.
 	CheckCompatibility(context.Context, CompatibilityRequest) (CompatibilityResult, error)
 }
     Provider is the narrow remote-provider boundary used by Client.
 
 type ProviderID struct {
+	// Provider names the adapter namespace, not an authenticated principal.
 	Provider string
-	Scope    string
-	Value    string
+	// Scope is caller/provider-defined isolation metadata; not a portable identity.
+	Scope string
+	// Value is opaque provider text; validation depends on the selected adapter.
+	Value string
 }
     ProviderID is an opaque provider-issued identity scoped to one provider and
     provider-defined namespace. It is not a portable schema fingerprint.
 
 type ProviderReference struct {
-	Name   string
+	// Name is nonempty edge metadata; graph traversal does not reject duplicate
+	// edge names as Compile does for portable reference bindings.
+	Name string
+	// Target is an exact provider coordinate, not a fingerprint.
 	Target ReferenceCoordinate
 }
     ProviderReference is a named edge in a provider-coordinate graph.
 
 type Reference struct {
-	Name        string
-	Subject     string
-	Version     uint64
+	// Name is a nonempty unique binding included in portable identity.
+	Name string
+	// Subject is a provider coordinate, excluded from the portable hash.
+	Subject string
+	// Version is a numeric provider coordinate, excluded from the portable hash.
+	Version uint64
+	// Fingerprint is the nonzero portable dependency identity; Compile does not
+	// resolve the dependency or verify that it matches Subject/Version.
 	Fingerprint Fingerprint
 }
     Reference identifies another versioned schema used by a definition.
 
 type ReferenceCoordinate struct {
+	// Subject identifies the provider target and must have a nonempty Name.
 	Subject Subject
+	// Version is exactly one positive numeric or nonempty opaque representation.
 	Version Version
 }
     ReferenceCoordinate identifies a provider subject version. It is not a
     portable schema identity.
 
 type ReferenceDocument struct {
+	// Coordinate must exactly equal the requested node.
 	Coordinate ReferenceCoordinate
+	// References is copied after resolver work; edge count is checked while
+	// traversing, not before collaborator allocation or the defensive copy.
 	References []ProviderReference
 }
     ReferenceDocument is one provider-coordinate graph node.
@@ -527,12 +691,21 @@ func BuildReferenceGraph(
 	resolver ReferenceResolver,
 	limits GraphLimits,
 ) (ReferenceGraph, error)
-    BuildReferenceGraph resolves and validates a bounded graph synchronously.
+    BuildReferenceGraph visits roots/edges in input order, copies each
+    first-visit document and rejects mismatched nodes, cycles, missing
+    references and limits. Counts/depth are graph admission, not a cap on
+    root input/callback allocations. Context is checked before visits and
+    passed through, not forcibly enforced inside the resolver; failure returns
+    no partial graph. No goroutines or close ownership are introduced. See
+    reference_graph_test.go for DAG/cycle boundaries.
 
 func (graph ReferenceGraph) Documents() []ReferenceDocument
     Documents returns a deep copy in deterministic first-visit order.
 
 type ReferenceResolver interface {
+	// ResolveReference must honor ctx, return the exact requested coordinate and
+	// safe immutable/copyable edge storage. It owns I/O and allocation policy;
+	// graph limits do not force arbitrary resolver work to terminate.
 	ResolveReference(context.Context, ReferenceCoordinate) (ReferenceDocument, error)
 }
     ReferenceResolver explicitly retrieves graph nodes. Implementations may use
@@ -540,14 +713,19 @@ type ReferenceResolver interface {
     it implicitly.
 
 type RegisterRequest struct {
+	// Subject selects an explicit provider target.
 	Subject Subject
-	Schema  Schema
+	// Schema is an already-compiled immutable value; no implicit format compilation.
+	Schema Schema
 }
     RegisterRequest registers one compiled schema under an explicit subject.
 
 type RegisterResult struct {
+	// Outcome may remain unknown on nil error when creation cannot be proved.
 	Outcome RegistrationOutcome
-	ID      ProviderID
+	// ID is scoped provider evidence; failures can also return partial provider fields.
+	ID ProviderID
+	// Version may be absent on successful registration, otherwise capabilities apply.
 	Version Version
 }
     RegisterResult reports the provider's explicit registration outcome.
@@ -577,61 +755,103 @@ type ResolveCache struct {
 }
     ResolveCache is a bounded positive and negative cache. A single caller owns
     each synchronous upstream load; waiters may cancel independently. It starts
-    no goroutines.
+    no goroutines. Methods synchronize internal state, not injected resolver,
+    Clock or Observer. Use NewResolveCache; zero/nil caches are unusable. It
+    borrows dependencies, owns no Close/transport cleanup, and does not recover
+    load panics. A resolver panic can leave a retained flight unfinished even
+    after its slot is released; require panic-free collaborators to preserve
+    admission/cleanup.
 
 func NewResolveCache(resolver Resolver, config ResolveCacheConfig) (*ResolveCache, error)
     NewResolveCache validates and constructs a cache.
 
 func (cache *ResolveCache) Invalidate(lookup Lookup) error
-    Invalidate removes both positive and negative state for one selector.
+    Invalidate removes cached state and detaches the current flight generation.
+    It does not cancel the old leader or prevent its existing waiters receiving
+    that result; completion cannot repopulate this selector. Detached leaders
+    still consume MaxConcurrent admission until they finish. Removal is logical,
+    not secure erasure of copied schemas retained by callers or older flights.
 
 func (cache *ResolveCache) Prime(lookup Lookup, result ResolveResult) error
-    Prime adds one explicitly preloaded positive result without provider I/O.
-    It is fresh for the configured freshness interval and remains eligible for
-    the configured stale interval.
+    Prime adds one explicitly preloaded positive result without provider I/O. It
+    is fresh for the configured freshness interval and remains eligible for the
+    configured stale interval. It validates selector/result agreement and fences
+    older storage writes without canceling their callers. The result Schema is
+    immutable, but no new content-byte admission or provenance authentication is
+    added.
 
 func (cache *ResolveCache) Resolve(
 	ctx context.Context,
 	lookup Lookup,
 	policy AvailabilityPolicy,
 ) (resolution CacheResolution, err error)
-    Resolve applies one explicit availability policy.
+    Resolve applies one explicit availability policy. Fresh/negative/cache-only
+    paths avoid upstream I/O; only ErrUnavailable permits AllowStale fallback.
+    Each caller samples its own entry/time before joining or starting a
+    synchronous flight, so stale eligibility/age is not remeasured after a long
+    load. Waiters can cancel independently; the leader's context controls shared
+    upstream work. Invalidating/priming fences storage, not results already
+    awaited by old callers. Observer calls follow even canceled/failed paths and
+    may delay return.
 
 type ResolveCacheConfig struct {
+	// MaxEntries bounds retained entry count, not schema bytes or waiter count.
 	MaxEntries int
 	// MaxConcurrent bounds upstream calls and retained load leaders, including
 	// leaders detached by Invalidate or Prime. Same-key waiters share a leader.
 	MaxConcurrent int
-	FreshFor      time.Duration
-	StaleFor      time.Duration
-	NegativeFor   time.Duration
-	Clock         Clock
-	Observer      ResolveCacheObserver
+	// FreshFor is positive freshness after store/prime.
+	FreshFor time.Duration
+	// StaleFor is nonnegative extra eligibility after freshness; caller must keep
+	// FreshFor+StaleFor representable as a duration.
+	StaleFor time.Duration
+	// NegativeFor is positive authoritative-absence retention.
+	NegativeFor time.Duration
+	// Clock is required and borrowed; Now must be concurrent-safe/prompt and
+	// returns caller-defined cache time with no monotonic/timeout guarantee.
+	Clock Clock
+	// Observer is optional and borrowed; callbacks run synchronously after every
+	// Resolve path, outside locks. Panics are recovered, blocking is not canceled.
+	Observer ResolveCacheObserver
 }
     ResolveCacheConfig makes cache bounds and freshness policy explicit.
 
 type ResolveCacheEvent struct {
-	State   CacheState
+	// State is the sampled cache outcome and can be empty on early failure.
+	State CacheState
+	// Outcome is success or error; it carries no selector or payload.
 	Outcome string
 }
     ResolveCacheEvent excludes schema contents, subjects, IDs, and credentials.
 
 type ResolveCacheObserver interface {
+	// ObserveResolveCache receives only bounded state/category fields. It must
+	// return promptly and be concurrent-safe; no goroutine/deadline is added.
 	ObserveResolveCache(context.Context, ResolveCacheEvent)
 }
     ResolveCacheObserver receives bounded metadata after each lookup. It must
     not assume calls are serialized and must not retain request contexts.
 
 type ResolveResult struct {
-	Schema    Schema
-	ID        ProviderID
-	Subject   Subject
-	Version   Version
+	// Schema is the immutable compiled value; a nonzero fingerprint is required.
+	Schema Schema
+	// ID is a nonempty scoped provider identifier, not a portable fingerprint.
+	ID ProviderID
+	// Subject is returned coordinate metadata; selector requirements vary.
+	Subject Subject
+	// Version must match an exact selector or be valid for latest; identity-only
+	// resolution does not universally validate every version capability.
+	Version Version
+	// Lifecycle is any declared state, including pending/failed/unknown; nil error
+	// does not necessarily mean available for use.
 	Lifecycle LifecycleState
 }
     ResolveResult identifies both portable schema content and provider identity.
 
 type Resolver interface {
+	// Resolve must cooperate with ctx and return selector-consistent immutable
+	// schema metadata or classified absence/unavailability. Shared resolvers must
+	// be safe concurrently; errors may retain trusted-inspection-only diagnostics.
 	Resolve(context.Context, Lookup) (ResolveResult, error)
 }
     Resolver is the minimal schema resolution boundary wrapped by ResolveCache.
@@ -646,7 +866,9 @@ func Compile(
 	definition Definition,
 	canonicalizer Canonicalizer,
 ) (Schema, error)
-    Compile validates and canonicalizes one schema without network access.
+    Compile applies DefaultCompileLimits and delegates to the supplied
+    canonicalizer. No registry is contacted by this wrapper; local-only behavior
+    is the canonicalizer's obligation, not enforced isolation.
 
 func CompileWithLimits(
 	ctx context.Context,
@@ -655,7 +877,14 @@ func CompileWithLimits(
 	limits CompileLimits,
 ) (Schema, error)
     CompileWithLimits validates and canonicalizes one schema within explicit
-    caller-selected resource bounds and without network access.
+    caller-selected input/result bounds. It copies caller mutable data, sorts
+    named references and hashes the domain separator, format, canonical bytes
+    and each Name/Fingerprint pair. Subject/version coordinates and metadata are
+    excluded. The canonicalizer receives a second copy; output caps follow its
+    allocation, and no final cancellation check, panic containment or callback
+    timeout is added. Errors expose classified sentinels with fixed text;
+    explicit causes can retain collaborator diagnostics. See SCHEMA-REG-DEC-004
+    and portable corpus tests.
 
 func (schema Schema) Canonical() []byte
     Canonical returns a copy of the validated canonical representation.
@@ -667,37 +896,57 @@ func (schema Schema) Fingerprint() Fingerprint
     Fingerprint returns the portable schema identity.
 
 type SchemaDescriptor struct {
-	ID          ProviderID
-	Subject     Subject
-	Version     Version
-	Format      Format
+	// ID can be unset when the listing API exposes only subjects.
+	ID ProviderID
+	// Subject identifies the descriptor target.
+	Subject Subject
+	// Version can be unset in provider subject-only pages.
+	Version Version
+	// Format can be unset when not returned by the provider.
+	Format Format
+	// Fingerprint can be unset; listing does not implicitly resolve schemas.
 	Fingerprint Fingerprint
-	Lifecycle   LifecycleState
+	// Lifecycle is provider evidence; Confluent subject pages report unknown.
+	Lifecycle LifecycleState
 }
-    SchemaDescriptor is bounded metadata returned by administrative listing.
+    SchemaDescriptor is provider administrative metadata, with optional fields.
+    A bounded descriptor count is not a bound on every field's text bytes.
 
 type Subject struct {
+	// Registry is optional in core; Confluent forbids it and Glue requires it.
 	Registry string
-	Name     string
+	// Name is the nonempty provider subject/schema name; no general text-size cap.
+	Name string
 }
     Subject is a provider subject or schema name within an optional registry.
 
 type ValueCodec interface {
+	// Encode must apply the resolved schema without hidden registry discovery;
+	// return bytes or error and honor ctx. Arbitrary business values/callbacks
+	// may allocate or mutate externally; bounds/cooperation belong to the codec.
 	Encode(context.Context, Schema, any) ([]byte, error)
+	// Decode must apply schema semantics to payload and write the caller target;
+	// target may be partially mutated on error. No automatic rollback is promised.
 	Decode(context.Context, Schema, []byte, any) error
 }
     ValueCodec performs business serialization against an already-resolved
     schema. Implementations must not access a registry.
 
 type Version struct {
+	// Number is a positive numeric version when Opaque is empty.
 	Number uint64
+	// Opaque is a nonempty version token when Number is zero; both set or both
+	// empty is invalid where a version is required.
 	Opaque string
 }
     Version keeps provider version numbers separate from opaque version tokens.
     A provider capability documents which field it uses.
 
 type WireMessage struct {
-	ID      ProviderID
+	// ID is opaque framing evidence; Decode does not verify its relation to Schema.
+	ID ProviderID
+	// Payload is mutable owned bytes after Parse; direct callers must keep it
+	// stable while Decode makes its defensive copy.
 	Payload []byte
 }
     WireMessage is parsed framing metadata plus an owned payload copy. Callers
@@ -705,7 +954,12 @@ type WireMessage struct {
 
 package avro // import "github.com/faustbrian/go-schema-registry/v3/formats/avro"
 
-Package avro provides Apache Avro parsing canonical form through goavro.
+Package avro validates standalone Avro and returns parsing canonical form
+using goavro/v2 v2.15.0 against the pinned Avro 1.12.0 profile. New supplies
+an immutable size policy; no registry, remote named-schema loader or value
+codec is owned. Inline external definitions explicitly before Canonicalize.
+See SCHEMA-REG-DEC-001 and spec/sources.lock.json; this is not authentication or
+a claim of arbitrary provider compatibility.
 
 TYPES
 
@@ -717,17 +971,32 @@ type Canonicalizer struct {
 func New(maxSchemaBytes int) *Canonicalizer
     New constructs an Avro canonicalizer. External named-schema references must
     be resolved and inlined explicitly before this focused adapter is called.
+    Construction does not validate maxSchemaBytes: nonpositive values,
+    zero-value or nil canonicalizers fail when Canonicalize is invoked.
+    No resources need Close.
 
 func (canonicalizer *Canonicalizer) Canonicalize(
 	ctx context.Context,
 	definition schemaregistry.Definition,
 ) ([]byte, error)
-    Canonicalize returns Avro parsing canonical form.
+    Canonicalize rejects wrong format, oversized text and nesting above 256
+    before invoking goavro. It reads borrowed Content synchronously and ignores
+    provider coordinates/metadata; reference bodies must already be inline.
+    Context is checked between JSON tokens and after codec construction,
+    not inside goavro. Returned bytes are owned; parsing canonical form omits
+    properties such as docs and defaults, so equal identities are not identical
+    source text/application policy. Error() is categorical; explicit cause
+    inspection can expose parser diagnostics.
 
 package jsonschema // import "github.com/faustbrian/go-schema-registry/v3/formats/jsonschema"
 
-Package jsonschema integrates the provider-neutral registry contracts with
-golib's bounded JSON Schema compiler and validator.
+Package jsonschema composes the registry /v3 contract with owned JSON Schema
+/v2 v2.0.0 for local validation and RFC 8785 JCS identity. New copies explicit
+resources; missing refs do not trigger remote discovery. Draft 2020-12 is the
+default, with explicit exported dialect choices. Adapter also supplies JSON
+business Encode/Decode; no registry, transport or shutdown lifecycle is owned.
+See SCHEMA-REG-DEC-002 and docs/migration-v3.md; schema validity/portable hashes
+are not authenticity, provider compatibility or every application policy.
 
 CONSTANTS
 
@@ -762,14 +1031,23 @@ type Adapter struct {
     resource loading.
 
 func New(config Config) (*Adapter, error)
-    New constructs an isolated adapter using Draft 2020-12 and no remote loader.
+    New constructs an adapter using Draft 2020-12 by default and no remote
+    loader. It validates positive limits and copies resource bytes, while
+    borrowing no application endpoint or registry. Shared reuse follows the
+    owned compiler's concurrency contract. Use New; nil/zero-value adapters are
+    not usable.
 
 func (adapter *Adapter) Canonicalize(
 	ctx context.Context,
 	definition schemaregistry.Definition,
 ) ([]byte, error)
     Canonicalize validates with golib/json-schema and applies RFC 8785 JCS.
-    JCS deliberately restricts portable fingerprints to I-JSON number semantics.
+    JCS deliberately restricts portable fingerprints to I-JSON number
+    semantics. It reads borrowed Content and returns owned canonical bytes;
+    format/reference validation uses only configured resources, not provider
+    reference coordinates. JCS follows successful compiler validation and is
+    synchronous without ctx; core Compile is responsible for canonical-output
+    admission afterward.
 
 func (adapter *Adapter) Decode(
 	ctx context.Context,
@@ -777,18 +1055,35 @@ func (adapter *Adapter) Decode(
 	payload []byte,
 	target any,
 ) error
-    Decode validates before unmarshaling into caller-owned target.
+    Decode caps and validates borrowed payload before json.Unmarshal into
+    target. On validation failure target is untouched by this adapter; custom
+    unmarshal callbacks or conversion errors can partially mutate it afterward.
+    Those calls are not context-preempted or panic-contained. Retained causes
+    are trusted inspection data, not safe log text; no secure erasure is
+    supplied.
 
 func (adapter *Adapter) Encode(ctx context.Context, schema schemaregistry.Schema, value any) ([]byte, error)
-    Encode marshals and validates one bounded JSON payload.
+    Encode marshals the caller value, then caps/validates resulting JSON against
+    the supplied schema. json.Marshaler callbacks may allocate/block/panic
+    before the byte check and are not preempted. The target schema is recompiled
+    locally; there is no provider lookup or promise of a total allocation bound.
 
 type Config struct {
-	Dialect             Dialect
-	Resources           map[string][]byte
-	MaxSchemaBytes      int
+	// Dialect is zero for Draft202012, otherwise an explicit exported dialect.
+	Dialect Dialect
+	// Resources is an explicit URI-to-document map, cloned and byte-copied.
+	// Only these local documents are returned by the resource loader.
+	Resources map[string][]byte
+	// MaxSchemaBytes is positive and caps root/resource text, not all parser memory.
+	MaxSchemaBytes int
+	// MaxTotalSchemaBytes bounds copied resource sum and compiler total schema
+	// bytes; caller must use finite supported limits, not unchecked machine maxima.
 	MaxTotalSchemaBytes int
-	MaxPayloadBytes     int
-	MaxResources        int
+	// MaxPayloadBytes is positive; Encode checks it after json.Marshal allocation.
+	MaxPayloadBytes int
+	// MaxResources is positive and caps explicit resource entries; compiler
+	// admission adds one for the root. Other compiler limits retain owned defaults.
+	MaxResources int
 }
     Config bounds schema compilation and payload validation.
 
@@ -797,8 +1092,12 @@ type Dialect = jsonschema.Dialect
 
 package protobuf // import "github.com/faustbrian/go-schema-registry/v3/formats/protobuf"
 
-Package protobuf validates and canonicalizes Protocol Buffers source using Buf's
-maintained native Go compiler.
+Package protobuf compiles one explicit local Protocol Buffers root with
+protocompile v0.14.1 and deterministically marshals its descriptor-set profile
+with protobuf runtime v1.36.12. New copies configured imports; there is no
+filesystem/network discovery or registry/value-codec lifecycle. The pinned
+language authority is v33.4; SCHEMA-REG-DEC-003 and the saved prior-runtime
+identities distinguish package identity from provider equivalence.
 
 TYPES
 
@@ -815,12 +1114,24 @@ func (canonicalizer *Canonicalizer) Canonicalize(
 	definition schemaregistry.Definition,
 ) ([]byte, error)
     Canonicalize compiles the root and explicit imports, then deterministically
-    marshals the linked file descriptor set.
+    marshals the returned root descriptors; linked import text is supplied
+    only through the copied local map, not fetched from provider Reference
+    coordinates. Callers must bind portable dependency fingerprints consistently
+    themselves. It borrows Content during compilation, returns owned bytes,
+    and uses one compiler worker. Use New; nil/zero-value receivers are not
+    supported. No postmarshal output cap is applied here; core Compile adds its
+    own result cap.
 
 type Config struct {
-	Filename       string
-	Imports        map[string]string
+	// Filename is a required logical root path, not an automatically opened file.
+	Filename string
+	// Imports maps logical filenames to source text; copied at New and used
+	// only by the map-backed resolver. Root filename may not appear here.
+	Imports map[string]string
+	// MaxSchemaBytes caps root text and independently aggregate import names/text.
+	// The import map is cloned before aggregate text admission, not a total heap cap.
 	MaxSchemaBytes int
-	MaxImports     int
+	// MaxImports is a positive configured import count limit.
+	MaxImports int
 }
     Config provides an explicit root filename and immutable local import set.

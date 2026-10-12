@@ -9,6 +9,8 @@ import (
 	"github.com/twmb/franz-go/pkg/sr"
 )
 
+// BenchmarkClassicFrame measures allocation/framing of a fixed 1024-byte
+// payload and scoped ID, excluding setup, business serialization and network.
 func BenchmarkClassicFrame(b *testing.B) {
 	framer, err := confluent.NewClassicFramer("bench", 4096)
 	if err != nil {
@@ -24,6 +26,8 @@ func BenchmarkClassicFrame(b *testing.B) {
 	}
 }
 
+// BenchmarkFranzGoClassicFrame measures the same fixed payload/header with
+// franz-go sr1.8.0; compare identical corpus/toolchain and allocation boundaries.
 func BenchmarkFranzGoClassicFrame(b *testing.B) {
 	payload := make([]byte, 1024)
 	var header sr.ConfluentHeader
@@ -40,6 +44,8 @@ func BenchmarkFranzGoClassicFrame(b *testing.B) {
 	}
 }
 
+// BenchmarkProtobufFrame measures fixed 1024-byte payload framing with [0]
+// indexes, excluding setup and descriptor/business-codec/provider work.
 func BenchmarkProtobufFrame(b *testing.B) {
 	payload := make([]byte, 1024)
 	framer, err := confluent.NewProtobufFramer("bench", len(payload), 1)
@@ -55,6 +61,8 @@ func BenchmarkProtobufFrame(b *testing.B) {
 	}
 }
 
+// BenchmarkFranzGoProtobufFrame measures the equivalent [0]-path header and
+// fixed payload with the selected peer; it is not registry latency evidence.
 func BenchmarkFranzGoProtobufFrame(b *testing.B) {
 	payload := make([]byte, 1024)
 	var header sr.ConfluentHeader

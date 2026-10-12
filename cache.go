@@ -25,6 +25,9 @@ var (
 
 // Resolver is the minimal schema resolution boundary wrapped by ResolveCache.
 type Resolver interface {
+	// Resolve must cooperate with ctx and return selector-consistent immutable
+	// schema metadata or classified absence/unavailability. Shared resolvers must
+	// be safe concurrently; errors may retain trusted-inspection-only diagnostics.
 	Resolve(context.Context, Lookup) (ResolveResult, error)
 }
 
@@ -58,38 +61,59 @@ const (
 
 // CacheResolution returns stale causes explicitly instead of hiding outages.
 type CacheResolution struct {
-	Result     ResolveResult
-	State      CacheState
-	Age        time.Duration
+	// Result is immutable schema plus provider metadata; zero on negative/errors.
+	Result ResolveResult
+	// State reports fresh/stale/loaded/negative; early errors may leave it empty.
+	State CacheState
+	// Age is nonnegative sampled cache age, not provider lifecycle age.
+	Age time.Duration
+	// StaleCause exposes the upstream outage on allowed stale success; explicit
+	// inspection may disclose retained collaborator diagnostics.
 	StaleCause error
 }
 
 // Clock supplies deterministic cache time.
-type Clock interface{ Now() time.Time }
+type Clock interface {
+	// Now returns cache-policy time; calls can be concurrent and are not preempted.
+	Now() time.Time
+}
 
 // ResolveCacheObserver receives bounded metadata after each lookup. It must not
 // assume calls are serialized and must not retain request contexts.
 type ResolveCacheObserver interface {
+	// ObserveResolveCache receives only bounded state/category fields. It must
+	// return promptly and be concurrent-safe; no goroutine/deadline is added.
 	ObserveResolveCache(context.Context, ResolveCacheEvent)
 }
 
 // ResolveCacheEvent excludes schema contents, subjects, IDs, and credentials.
 type ResolveCacheEvent struct {
-	State   CacheState
+	// State is the sampled cache outcome and can be empty on early failure.
+	State CacheState
+	// Outcome is success or error; it carries no selector or payload.
 	Outcome string
 }
 
 // ResolveCacheConfig makes cache bounds and freshness policy explicit.
 type ResolveCacheConfig struct {
+	// MaxEntries bounds retained entry count, not schema bytes or waiter count.
 	MaxEntries int
 	// MaxConcurrent bounds upstream calls and retained load leaders, including
 	// leaders detached by Invalidate or Prime. Same-key waiters share a leader.
 	MaxConcurrent int
-	FreshFor      time.Duration
-	StaleFor      time.Duration
-	NegativeFor   time.Duration
-	Clock         Clock
-	Observer      ResolveCacheObserver
+	// FreshFor is positive freshness after store/prime.
+	FreshFor time.Duration
+	// StaleFor is nonnegative extra eligibility after freshness; caller must keep
+	// FreshFor+StaleFor representable as a duration.
+	StaleFor time.Duration
+	// NegativeFor is positive authoritative-absence retention.
+	NegativeFor time.Duration
+	// Clock is required and borrowed; Now must be concurrent-safe/prompt and
+	// returns caller-defined cache time with no monotonic/timeout guarantee.
+	Clock Clock
+	// Observer is optional and borrowed; callbacks run synchronously after every
+	// Resolve path, outside locks. Panics are recovered, blocking is not canceled.
+	Observer ResolveCacheObserver
 }
 
 type resolveCacheEntry struct {
@@ -108,11 +132,18 @@ type resolveFlight struct {
 	err        error
 }
 
+// A nonzero-sized token gives each invalidation a distinct pointer identity;
+// zero-sized allocation addresses need not differ. Generation equality fences
+// storage while older active owners remain counted until completion.
 type resolveGeneration [1]byte
 
 // ResolveCache is a bounded positive and negative cache. A single caller owns
 // each synchronous upstream load; waiters may cancel independently. It starts
-// no goroutines.
+// no goroutines. Methods synchronize internal state, not injected resolver,
+// Clock or Observer. Use NewResolveCache; zero/nil caches are unusable. It borrows
+// dependencies, owns no Close/transport cleanup, and does not recover load panics.
+// A resolver panic can leave a retained flight unfinished even after its slot is
+// released; require panic-free collaborators to preserve admission/cleanup.
 type ResolveCache struct {
 	resolver Resolver
 	config   ResolveCacheConfig
@@ -147,7 +178,13 @@ func NewResolveCache(resolver Resolver, config ResolveCacheConfig) (*ResolveCach
 	}, nil
 }
 
-// Resolve applies one explicit availability policy.
+// Resolve applies one explicit availability policy. Fresh/negative/cache-only
+// paths avoid upstream I/O; only ErrUnavailable permits AllowStale fallback.
+// Each caller samples its own entry/time before joining or starting a synchronous
+// flight, so stale eligibility/age is not remeasured after a long load. Waiters
+// can cancel independently; the leader's context controls shared upstream work.
+// Invalidating/priming fences storage, not results already awaited by old callers.
+// Observer calls follow even canceled/failed paths and may delay return.
 func (cache *ResolveCache) Resolve(
 	ctx context.Context,
 	lookup Lookup,
@@ -167,6 +204,8 @@ func (cache *ResolveCache) Resolve(
 		return CacheResolution{}, ErrUnavailable
 	}
 
+	// Use caller clock wall time: Round(0) strips monotonic state. A backward
+	// clock can prolong eligibility; only reported negative age is clamped.
 	now := cache.config.Clock.Now().Round(0)
 	entry, found := cache.entry(lookup, now)
 	if found && entry.negative {
@@ -200,7 +239,11 @@ func (cache *ResolveCache) Resolve(
 	return applyStalePolicy(resolution, err, policy, found, entry, now)
 }
 
-// Invalidate removes both positive and negative state for one selector.
+// Invalidate removes cached state and detaches the current flight generation.
+// It does not cancel the old leader or prevent its existing waiters receiving
+// that result; completion cannot repopulate this selector. Detached leaders still
+// consume MaxConcurrent admission until they finish. Removal is logical, not
+// secure erasure of copied schemas retained by callers or older flights.
 func (cache *ResolveCache) Invalidate(lookup Lookup) error {
 	if lookup.kind == "" {
 		return fmt.Errorf("%w: empty lookup", ErrInvalidRequest)
@@ -218,7 +261,9 @@ func (cache *ResolveCache) Invalidate(lookup Lookup) error {
 
 // Prime adds one explicitly preloaded positive result without provider I/O.
 // It is fresh for the configured freshness interval and remains eligible for
-// the configured stale interval.
+// the configured stale interval. It validates selector/result agreement and
+// fences older storage writes without canceling their callers. The result Schema
+// is immutable, but no new content-byte admission or provenance authentication is added.
 func (cache *ResolveCache) Prime(lookup Lookup, result ResolveResult) error {
 	if err := lookup.validate(lookup.providerID.Provider); err != nil {
 		return err
@@ -409,8 +454,8 @@ func (cache *ResolveCache) observe(ctx context.Context, resolution CacheResoluti
 	if interfaceIsNil(cache.config.Observer) {
 		return
 	}
-	// Metrics must never change registry behavior. An observer is deliberately
-	// best-effort and receives no sensitive data.
+	// Contain observer panics after resolution; callbacks still execute inline
+	// and can delay return. No schema/selector content is supplied to them.
 	defer func() { _ = recover() }()
 	outcome := "success"
 	if err != nil {

@@ -54,9 +54,14 @@ endpoint-scoped credentials, total deadlines, bounded retries/concurrency/body
 sizes, compile and graph limits, local-only canonicalizers, selector/result
 identity validation, negative-cache expiry, explicit stale policy, immutable
 bundle verification, and exact fingerprint confirmation before deletion.
-Successful remote responses are accepted only when schema content, provider ID,
-lifecycle, selector identity, version representation, and advertised provider
-capabilities agree; malformed successes are never cached.
+Core resolution checks nonzero compiled fingerprint, nonempty ID, declared
+lifecycle and selector agreement; Client additionally checks the provider name.
+These checks are not universal response-format/byte/version-capability validation.
+Pending, failed and unknown lifecycle states can be returned on nil error.
+Provider adapters add their own checks. Confluent caps each HTTP body, not total
+reference-graph bytes. Glue caps returned schema-definition text after SDK
+materialization, not whole response memory. Configured callbacks/SDK transport
+must enforce their own resource and context obligations.
 
 Treat subjects, schema names, definitions, diagnostics, and payloads as
 potentially sensitive. Observability should use low-cardinality provider,

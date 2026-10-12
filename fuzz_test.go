@@ -7,6 +7,8 @@ import (
 	schemaregistry "github.com/faustbrian/go-schema-registry/v3"
 )
 
+// FuzzCompileDefinitions probes bounded core admission with an identity
+// canonicalizer; language syntax/semantic validation belongs to separate targets.
 func FuzzCompileDefinitions(f *testing.F) {
 	f.Add(uint8(0), []byte(`{"type":"string"}`))
 	f.Add(uint8(1), []byte(`"string"`))
@@ -29,6 +31,8 @@ func FuzzCompileDefinitions(f *testing.F) {
 	})
 }
 
+// FuzzReferenceGraphs probes bounded provider-coordinate cycles/closure with
+// a local one-edge-per-node resolver, not remote-provider behavior.
 func FuzzReferenceGraphs(f *testing.F) {
 	f.Add([]byte{1, 2, 0})
 	f.Add([]byte{0})
@@ -62,6 +66,8 @@ func FuzzReferenceGraphs(f *testing.F) {
 	})
 }
 
+// FuzzBundleLoading probes bounded artifact parsing/recompilation using
+// identity canonicalizers, not format conformance or artifact authentication.
 func FuzzBundleLoading(f *testing.F) {
 	f.Add([]byte(`{"version":1}`))
 	f.Add([]byte(`not-json`))

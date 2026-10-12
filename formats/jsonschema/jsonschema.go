@@ -1,5 +1,10 @@
-// Package jsonschema integrates the provider-neutral registry contracts with
-// golib's bounded JSON Schema compiler and validator.
+// Package jsonschema composes the registry /v3 contract with owned JSON Schema
+// /v2 v2.0.0 for local validation and RFC 8785 JCS identity. New copies explicit
+// resources; missing refs do not trigger remote discovery. Draft 2020-12 is the
+// default, with explicit exported dialect choices. Adapter also supplies JSON
+// business Encode/Decode; no registry, transport or shutdown lifecycle is owned.
+// See SCHEMA-REG-DEC-002 and docs/migration-v3.md; schema validity/portable hashes
+// are not authenticity, provider compatibility or every application policy.
 package jsonschema
 
 import (
@@ -22,7 +27,11 @@ type diagnosticError struct {
 	cause   error
 }
 
+// Error returns fixed category/operation text, not collaborator diagnostics.
 func (err diagnosticError) Error() string { return err.message }
+
+// Unwrap deliberately exposes retained causes for trusted inspection; those
+// causes may contain sensitive text and are not safe diagnostic rendering.
 func (err diagnosticError) Unwrap() error { return err.cause }
 
 // Dialect is the explicit JSON Schema dialect selected for compilation.
@@ -45,12 +54,21 @@ const (
 
 // Config bounds schema compilation and payload validation.
 type Config struct {
-	Dialect             Dialect
-	Resources           map[string][]byte
-	MaxSchemaBytes      int
+	// Dialect is zero for Draft202012, otherwise an explicit exported dialect.
+	Dialect Dialect
+	// Resources is an explicit URI-to-document map, cloned and byte-copied.
+	// Only these local documents are returned by the resource loader.
+	Resources map[string][]byte
+	// MaxSchemaBytes is positive and caps root/resource text, not all parser memory.
+	MaxSchemaBytes int
+	// MaxTotalSchemaBytes bounds copied resource sum and compiler total schema
+	// bytes; caller must use finite supported limits, not unchecked machine maxima.
 	MaxTotalSchemaBytes int
-	MaxPayloadBytes     int
-	MaxResources        int
+	// MaxPayloadBytes is positive; Encode checks it after json.Marshal allocation.
+	MaxPayloadBytes int
+	// MaxResources is positive and caps explicit resource entries; compiler
+	// admission adds one for the root. Other compiler limits retain owned defaults.
+	MaxResources int
 }
 
 // Adapter validates JSON Schema documents and JSON payloads without implicit
@@ -61,7 +79,10 @@ type Adapter struct {
 	maxPayloadBytes int
 }
 
-// New constructs an isolated adapter using Draft 2020-12 and no remote loader.
+// New constructs an adapter using Draft 2020-12 by default and no remote loader.
+// It validates positive limits and copies resource bytes, while borrowing no
+// application endpoint or registry. Shared reuse follows the owned compiler's
+// concurrency contract. Use New; nil/zero-value adapters are not usable.
 func New(config Config) (*Adapter, error) {
 	if config.Dialect == "" {
 		config.Dialect = Draft202012
@@ -114,6 +135,10 @@ func New(config Config) (*Adapter, error) {
 
 // Canonicalize validates with golib/json-schema and applies RFC 8785 JCS. JCS
 // deliberately restricts portable fingerprints to I-JSON number semantics.
+// It reads borrowed Content and returns owned canonical bytes; format/reference
+// validation uses only configured resources, not provider reference coordinates.
+// JCS follows successful compiler validation and is synchronous without ctx;
+// core Compile is responsible for canonical-output admission afterward.
 func (adapter *Adapter) Canonicalize(
 	ctx context.Context,
 	definition schemaregistry.Definition,
@@ -137,7 +162,10 @@ func (adapter *Adapter) Canonicalize(
 	return canonical, nil
 }
 
-// Encode marshals and validates one bounded JSON payload.
+// Encode marshals the caller value, then caps/validates resulting JSON against
+// the supplied schema. json.Marshaler callbacks may allocate/block/panic before
+// the byte check and are not preempted. The target schema is recompiled locally;
+// there is no provider lookup or promise of a total allocation bound.
 func (adapter *Adapter) Encode(ctx context.Context, schema schemaregistry.Schema, value any) ([]byte, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
@@ -155,7 +183,11 @@ func (adapter *Adapter) Encode(ctx context.Context, schema schemaregistry.Schema
 	return payload, nil
 }
 
-// Decode validates before unmarshaling into caller-owned target.
+// Decode caps and validates borrowed payload before json.Unmarshal into target.
+// On validation failure target is untouched by this adapter; custom unmarshal
+// callbacks or conversion errors can partially mutate it afterward. Those calls
+// are not context-preempted or panic-contained. Retained causes are trusted
+// inspection data, not safe log text; no secure erasure is supplied.
 func (adapter *Adapter) Decode(
 	ctx context.Context,
 	schema schemaregistry.Schema,

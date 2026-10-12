@@ -54,8 +54,10 @@ source; it is additional evidence, not a prerequisite for local conformance.
 
 ## Performance evidence
 
-The root `BenchmarkCompilePortableIdentity` benchmark measures canonicalization
-and portable fingerprint construction. The provider modules own
+The root `BenchmarkCompilePortableIdentity` measures bounded copies/admission
+and portable fingerprint construction using an identity canonicalizer over one
+small fixed definition, not actual language parsing/canonicalization. The
+provider modules own
 `BenchmarkClassicFrame`, `BenchmarkProtobufFrame`, and `BenchmarkFrame` for
 their exact wire identities. Run the relevant module benchmark with a fixed Go
 toolchain, corpus, duration, and sample count, record the CPU and operating

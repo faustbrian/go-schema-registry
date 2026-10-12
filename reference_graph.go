@@ -9,19 +9,27 @@ import (
 // ReferenceCoordinate identifies a provider subject version. It is not a
 // portable schema identity.
 type ReferenceCoordinate struct {
+	// Subject identifies the provider target and must have a nonempty Name.
 	Subject Subject
+	// Version is exactly one positive numeric or nonempty opaque representation.
 	Version Version
 }
 
 // ProviderReference is a named edge in a provider-coordinate graph.
 type ProviderReference struct {
-	Name   string
+	// Name is nonempty edge metadata; graph traversal does not reject duplicate
+	// edge names as Compile does for portable reference bindings.
+	Name string
+	// Target is an exact provider coordinate, not a fingerprint.
 	Target ReferenceCoordinate
 }
 
 // ReferenceDocument is one provider-coordinate graph node.
 type ReferenceDocument struct {
+	// Coordinate must exactly equal the requested node.
 	Coordinate ReferenceCoordinate
+	// References is copied after resolver work; edge count is checked while
+	// traversing, not before collaborator allocation or the defensive copy.
 	References []ProviderReference
 }
 
@@ -29,6 +37,9 @@ type ReferenceDocument struct {
 // I/O only during BuildReferenceGraph; compiled schemas and bundles never call
 // it implicitly.
 type ReferenceResolver interface {
+	// ResolveReference must honor ctx, return the exact requested coordinate and
+	// safe immutable/copyable edge storage. It owns I/O and allocation policy;
+	// graph limits do not force arbitrary resolver work to terminate.
 	ResolveReference(context.Context, ReferenceCoordinate) (ReferenceDocument, error)
 }
 
@@ -37,7 +48,12 @@ type ReferenceGraph struct {
 	documents []ReferenceDocument
 }
 
-// BuildReferenceGraph resolves and validates a bounded graph synchronously.
+// BuildReferenceGraph visits roots/edges in input order, copies each first-visit
+// document and rejects mismatched nodes, cycles, missing references and limits.
+// Counts/depth are graph admission, not a cap on root input/callback allocations.
+// Context is checked before visits and passed through, not forcibly enforced
+// inside the resolver; failure returns no partial graph. No goroutines or close
+// ownership are introduced. See reference_graph_test.go for DAG/cycle boundaries.
 func BuildReferenceGraph(
 	ctx context.Context,
 	roots []ReferenceCoordinate,

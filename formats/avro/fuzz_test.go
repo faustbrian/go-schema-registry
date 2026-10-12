@@ -8,6 +8,8 @@ import (
 	registryavro "github.com/faustbrian/go-schema-registry/v3/formats/avro"
 )
 
+// FuzzAvroSchemas probes at most 4096 bytes through actual Avro depth/parsing
+// and core identity; failures are normal rejection, not provider qualification.
 func FuzzAvroSchemas(f *testing.F) {
 	f.Add([]byte(`"string"`))
 	f.Add([]byte(`{"type":"record","name":"M","fields":[]}`))

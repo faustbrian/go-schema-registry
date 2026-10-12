@@ -15,12 +15,17 @@ each waiter applies its own policy:
 `Prime` is the explicit preload path. Results are verified against their lookup
 before storage to prevent cache poisoning. `Prime` and `Invalidate` fence any
 older in-flight load for that selector, so stale completion cannot overwrite a
-preload or repopulate an invalidated entry. Observers receive only state and
-outcome, never schemas, subjects, IDs, payloads, or credentials.
+preload or repopulate an invalidated entry. This does not cancel old owners or
+retract the result received by their existing waiters. Stale eligibility/age uses
+each caller's time sampled before upstream work, not a universal expiry recheck
+after a long load. Observers receive only state and outcome, never schema/selector
+content; they run synchronously after every path, outside locks. Panics are
+contained but a blocking observer can delay return.
 
 `Bundle.MarshalBinary` creates a deterministic versioned local artifact with
 provenance. `LoadBundle` applies byte and graph bounds, recompiles every schema
 with local canonicalizers, verifies every claimed fingerprint, and rejects
-missing dependencies. Loading and resolution never fetch remote resources.
+missing dependencies in the root closure. Bundle accessors never fetch remote
+resources; supplied load canonicalizers must honor the local-only obligation.
 Distribute bundles as immutable release artifacts and verify their outer digest
 or signature in the deployment system.

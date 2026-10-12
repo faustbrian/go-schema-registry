@@ -24,14 +24,19 @@ var (
 
 // GraphLimits bound local and provider reference traversal.
 type GraphLimits struct {
-	MaxSchemas    int
-	MaxDepth      int
+	// MaxSchemas bounds admitted nodes/supplied schemas; all limits are positive.
+	MaxSchemas int
+	// MaxDepth counts root as 1; traversal depth checks precede reuse/cycle checks.
+	MaxDepth int
+	// MaxReferences bounds traversed edges, not borrowed document text/bytes.
 	MaxReferences int
 }
 
 // Provenance records the immutable source and revision of an offline bundle.
 type Provenance struct {
-	Source   string
+	// Source is required caller-declared origin metadata, not verified ownership.
+	Source string
+	// Revision is required declared revision; no signature or digest is checked.
 	Revision string
 }
 
@@ -65,7 +70,12 @@ type bundleReferenceWire struct {
 	Fingerprint string `json:"fingerprint"`
 }
 
-// NewBundle validates a complete bounded graph rooted at root.
+// NewBundle checks supplied-count bounds, nonempty provenance, portable identity
+// collisions and the root-reachable dependency closure (depth/edges/cycles).
+// Extra unreachable schemas are retained but their separate closures are not
+// traversed. Identical portable schemas can replace each other's provider/metadata
+// coordinates because those fields are outside identity. No origin authentication,
+// cancellation or aggregate retained-byte limit is added.
 func NewBundle(
 	root Schema,
 	dependencies []Schema,
@@ -181,7 +191,12 @@ func compareBundleSchemaFingerprints(left, right bundleSchemaWire) int {
 }
 
 // LoadBundle validates and recompiles a bounded artifact with caller-supplied
-// local canonicalizers. Canonicalizers must not perform network access.
+// local canonicalizers. Canonicalizers must not perform network access; this is
+// a collaborator obligation, not a sandbox. Encoded length precedes JSON parsing,
+// but schema-count/graph and canonical-output limits follow materialization.
+// Unknown fields/trailing values fail; duplicate JSON keys follow encoding/json,
+// not a duplicate-key rejection policy. Every claimed hash is recomputed, not
+// authenticated. Context does not interrupt arbitrary canonicalizer work.
 func LoadBundle(
 	ctx context.Context,
 	encoded []byte,

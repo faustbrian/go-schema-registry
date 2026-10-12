@@ -19,6 +19,9 @@ var (
 
 // UncompressedFramer implements AWS Glue header version 3 with compression byte
 // 0 and a 16-byte schema-version UUID. ZLIB byte 5 is rejected explicitly.
+// Frame/Unframe perform no SDK calls, copy output bytes and validate grammar,
+// not UUID variant/version or payload authenticity. Scope is caller metadata.
+// Use NewUncompressedFramer; nil/zero-value receivers are not supported.
 type UncompressedFramer struct {
 	scope      string
 	maxPayload int

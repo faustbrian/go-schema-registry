@@ -7,10 +7,12 @@ own remote identity, endpoint, authentication, retry, lifecycle, compatibility,
 and deletion semantics. Wire framers are separate from both business codecs and
 registry access.
 
-No package uses global registration or service location. A compiled schema,
-bundle, and parsed frame perform no network I/O. The only network-capable
-interfaces are explicit provider and reference resolver calls receiving a
-`context.Context`.
+No package uses global registration or service location. Compiled schema/bundle
+accessors and built-in wire framers perform no network I/O. Providers and reference
+resolvers explicitly accept context. Local-only canonicalizer/value-codec behavior
+is an implementation obligation, not an I/O sandbox: arbitrary injected codecs,
+canonicalizers, observers, clocks, credentials, SDK clients and transports remain
+trusted callbacks and may block, panic or perform external work.
 
 Locks protect only local maps and flight state. They are not held across
 provider I/O or observer callbacks. Synchronous flight leaders avoid orphaned

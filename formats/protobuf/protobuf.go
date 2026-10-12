@@ -1,5 +1,9 @@
-// Package protobuf validates and canonicalizes Protocol Buffers source using
-// Buf's maintained native Go compiler.
+// Package protobuf compiles one explicit local Protocol Buffers root with
+// protocompile v0.14.1 and deterministically marshals its descriptor-set profile
+// with protobuf runtime v1.36.12. New copies configured imports; there is no
+// filesystem/network discovery or registry/value-codec lifecycle. The pinned
+// language authority is v33.4; SCHEMA-REG-DEC-003 and the saved prior-runtime
+// identities distinguish package identity from provider equivalence.
 package protobuf
 
 import (
@@ -17,10 +21,16 @@ import (
 
 // Config provides an explicit root filename and immutable local import set.
 type Config struct {
-	Filename       string
-	Imports        map[string]string
+	// Filename is a required logical root path, not an automatically opened file.
+	Filename string
+	// Imports maps logical filenames to source text; copied at New and used
+	// only by the map-backed resolver. Root filename may not appear here.
+	Imports map[string]string
+	// MaxSchemaBytes caps root text and independently aggregate import names/text.
+	// The import map is cloned before aggregate text admission, not a total heap cap.
 	MaxSchemaBytes int
-	MaxImports     int
+	// MaxImports is a positive configured import count limit.
+	MaxImports int
 }
 
 type diagnosticError struct {
@@ -28,7 +38,11 @@ type diagnosticError struct {
 	cause   error
 }
 
+// Error returns fixed category/operation text, not collaborator diagnostics.
 func (err diagnosticError) Error() string { return err.message }
+
+// Unwrap deliberately exposes retained causes for trusted inspection; those
+// causes may contain sensitive text and are not safe diagnostic rendering.
 func (err diagnosticError) Unwrap() error { return err.cause }
 
 // Canonicalizer owns a copied local source set and performs no network access.
@@ -76,7 +90,12 @@ func boundedTextBytes(current uint64, additional, limit int) (uint64, bool) {
 }
 
 // Canonicalize compiles the root and explicit imports, then deterministically
-// marshals the linked file descriptor set.
+// marshals the returned root descriptors; linked import text is supplied only
+// through the copied local map, not fetched from provider Reference coordinates.
+// Callers must bind portable dependency fingerprints consistently themselves.
+// It borrows Content during compilation, returns owned bytes, and uses one
+// compiler worker. Use New; nil/zero-value receivers are not supported.
+// No postmarshal output cap is applied here; core Compile adds its own result cap.
 func (canonicalizer *Canonicalizer) Canonicalize(
 	ctx context.Context,
 	definition schemaregistry.Definition,

@@ -7,8 +7,11 @@ Do not retry registration from every producer instance: use the client's
 subject/fingerprint single-flight locally and deployment coordination across
 instances.
 
-Provider adapters apply one total deadline, bounded concurrency, bounded
-responses, and bounded retries. Confluent retries transport failures,
+Provider adapters pass one total context deadline and use bounded concurrency.
+This is cooperative cancellation, not callback preemption. Confluent bounds each
+HTTP response and exchange retry count; Glue checks schema-definition text after
+SDK allocation and borrows the configured SDK response/resource policy.
+Confluent retries transport failures,
 throttling, and server errors within the same deadline. Glue delegates retry
 policy to the configured AWS SDK client and does not multiply it.
 

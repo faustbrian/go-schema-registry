@@ -1,5 +1,8 @@
 //go:build ignore
 
+// Command main emits classic and [0]-path Protobuf version-0 bytes for the
+// trusted fixtures in scripts/check-wire-reference.sh. It is hand-maintained
+// comparison input, not generated production code or a hostile CLI parser.
 package main
 
 import (

@@ -1,3 +1,6 @@
+// Command main emits uncompressed header-version-3 bytes for trusted fixtures
+// in scripts/check-wire-reference.sh. It is hand-maintained wire comparison
+// input, not generated production code, an SDK client or a hostile CLI parser.
 package main
 
 import (

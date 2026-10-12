@@ -7,6 +7,8 @@ import (
 	"github.com/faustbrian/go-schema-registry/providers/confluent/v3"
 )
 
+// FuzzWireFrames probes at most 8192 frame bytes through both bounded version-0
+// parsers; it does not validate descriptors, payload semantics or service behavior.
 func FuzzWireFrames(f *testing.F) {
 	f.Add([]byte{0, 0, 0, 0, 1, 0})
 	f.Add([]byte{1})

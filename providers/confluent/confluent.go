@@ -1,5 +1,12 @@
-// Package confluent implements the Confluent Schema Registry REST semantics
-// without treating its global integer IDs as portable schema identity.
+// Package confluent adapts the pinned Confluent Schema Registry 8.3.1 REST and
+// version-0 wire profiles behind the root /v3 contract. New requires an explicit
+// endpoint, transport, policy and canonicalizers; ClassicFramer/ProtobufFramer
+// handle wire bytes separately from schema resolution and business serialization.
+// Provider owns local slots/retry timers, not transport/credential shutdown or
+// service infrastructure. Concurrent reuse requires concurrent-safe dependencies;
+// callbacks must honor context and are not forcibly interrupted or panic-contained.
+// Scoped integer IDs are not portable fingerprints/authentication; compatible
+// products and GUID wire version 1 need separate evidence (CONFLUENT-DEC-001..003).
 package confluent
 
 import (
@@ -34,30 +41,60 @@ type diagnosticError struct {
 	cause   error
 }
 
+// Error returns fixed category/operation text, not collaborator diagnostics.
 func (err diagnosticError) Error() string { return err.message }
+
+// Unwrap deliberately exposes retained causes for trusted inspection; those
+// causes may contain sensitive text and are not safe diagnostic rendering.
 func (err diagnosticError) Unwrap() error { return err.cause }
 
 // CredentialProvider returns an Authorization header value for the configured
 // endpoint only. It must not include schema contents in errors.
 type CredentialProvider interface {
+	// Authorization supplies the endpoint-scoped value for one attempt and must
+	// honor ctx/concurrent calls. It must not render secrets in errors; the adapter
+	// hides Error() text but deliberately retains the cause for explicit inspection.
 	Authorization(context.Context) (string, error)
 }
 
 // Config defines endpoint policy, one total request budget, response bounds,
 // and explicit format implementations.
 type Config struct {
-	Endpoint            string
-	Scope               string
-	Transport           http.RoundTripper
-	Credentials         CredentialProvider
+	// Endpoint is an explicit HTTPS base URL without userinfo/query/fragment.
+	// Its host/path is trusted configuration, not discovered from message data.
+	Endpoint string
+	// Scope is a required caller-defined ID namespace, not authenticated tenancy.
+	Scope string
+	// Transport is required and borrowed; must honor request context and return
+	// valid responses/bodies. The adapter invokes RoundTrip directly, never closes
+	// caller transport resources or follows redirects itself.
+	Transport http.RoundTripper
+	// Credentials is optional and borrowed; authorization is obtained per attempt
+	// for the configured endpoint. Calls must be prompt/context-cooperative.
+	Credentials CredentialProvider
+	// AllowHTTPForTesting permits an explicit http endpoint; never inferred.
 	AllowHTTPForTesting bool
-	RequestTimeout      time.Duration
-	MaxResponseBytes    int
-	MaxAttempts         int
-	MaxConcurrent       int
-	RetryDelay          time.Duration
-	ReferenceLimits     schemaregistry.GraphLimits
-	Canonicalizers      map[schemaregistry.Format]schemaregistry.Canonicalizer
+	// RequestTimeout is positive and covers each outer operation and its nested
+	// requests, including slot waits/retries, for cooperative dependencies only.
+	RequestTimeout time.Duration
+	// MaxResponseBytes is a positive per-HTTP-body cap, read at cap+1 before JSON.
+	// Keep cap+1 representable; it is not a total graph/callback/transport allocation budget.
+	MaxResponseBytes int
+	// MaxAttempts is positive per doJSON exchange; a graph/operation may use
+	// multiple exchanges, all under its outer deadline.
+	MaxAttempts int
+	// MaxConcurrent bounds executing HTTP exchanges, including retry waits.
+	// It does not bound all callers/whole operations or their pre-request allocations.
+	MaxConcurrent int
+	// RetryDelay is a nonnegative fixed delay, not jitter or Retry-After handling.
+	RetryDelay time.Duration
+	// ReferenceLimits supplies positive depth/node-visit/edge bounds; shared DAG
+	// children can be fetched/compiled again and count again.
+	ReferenceLimits schemaregistry.GraphLimits
+	// Canonicalizers is map-copied but implementations are borrowed; each must
+	// validate locally and safely handle concurrent calls. No dependency body injection
+	// from provider references into their independent local source set is implied.
+	Canonicalizers map[schemaregistry.Format]schemaregistry.Canonicalizer
 }
 
 // Provider is safe for concurrent use when its supplied dependencies are.
@@ -76,7 +113,9 @@ type Provider struct {
 	capabilities    schemaregistry.Capabilities
 }
 
-// New validates endpoint and resource policy before any I/O.
+// New validates endpoint/resource policy without network access and copies the
+// canonicalizer map/capability slices. Borrowed implementations remain caller-owned.
+// It starts no goroutines and provides no Close; nonpositive policy is rejected.
 func New(config Config) (*Provider, error) {
 	endpoint, err := url.Parse(config.Endpoint)
 	if err != nil || endpoint.Host == "" || endpoint.User != nil || endpoint.RawQuery != "" || endpoint.Fragment != "" {
@@ -144,7 +183,7 @@ func New(config Config) (*Provider, error) {
 	}, nil
 }
 
-// Capabilities returns an immutable snapshot of Confluent semantics.
+// Capabilities returns a defensive copy of the configured Confluent profile.
 func (provider *Provider) Capabilities() schemaregistry.Capabilities {
 	capabilities := provider.capabilities
 	capabilities.Formats = append([]schemaregistry.Format(nil), capabilities.Formats...)
@@ -174,7 +213,12 @@ type registeredSchema struct {
 	References []schemaReference `json:"references"`
 }
 
-// Register performs exact-content lookup before idempotent registration.
+// Register performs exact-content lookup before registration, comparing returned
+// coordinates and the compiled fingerprint on existing success. A create response
+// supplies only an ID, so nil error may still mean RegistrationUnknown; a transport
+// outage after mutation cannot establish whether a version was created. Retries
+// are bounded per exchange, not an exactly-once transaction or cross-client flight.
+// Direct callers should bound schema/input before request construction.
 func (provider *Provider) Register(ctx context.Context, request schemaregistry.RegisterRequest) (schemaregistry.RegisterResult, error) {
 	ctx, cancel := provider.withBudget(ctx)
 	defer cancel()
@@ -310,7 +354,11 @@ func (provider *Provider) Resolve(ctx context.Context, lookup schemaregistry.Loo
 	return result, nil
 }
 
-// CheckCompatibility checks the candidate only when the configured subject mode matches the requested mode.
+// CheckCompatibility fetches subject/default configuration and tests the candidate
+// only if that mode matches the request; mismatch returns Supported:false with no
+// candidate POST. These are separate requests, not an atomic policy snapshot.
+// Service messages are returned as Diagnostics without redaction; treat them as
+// untrusted potentially sensitive content, not safe default error text.
 func (provider *Provider) CheckCompatibility(ctx context.Context, request schemaregistry.CompatibilityRequest) (schemaregistry.CompatibilityResult, error) {
 	ctx, cancel := provider.withBudget(ctx)
 	defer cancel()
@@ -358,7 +406,9 @@ func (provider *Provider) CheckCompatibility(ctx context.Context, request schema
 
 // List returns a bounded, deterministic page of subject descriptors. Confluent
 // does not expose portable fingerprints or schema versions in its subject-list
-// response, so those fields remain unset.
+// response, so those fields remain unset. Sorting is per returned page, not a
+// durable snapshot of concurrently changing subjects. Direct callers own the
+// request-limit/text policy; body limits still apply per exchange.
 func (provider *Provider) List(ctx context.Context, request schemaregistry.ListRequest) (schemaregistry.ListPage, error) {
 	ctx, cancel := provider.withBudget(ctx)
 	defer cancel()
@@ -417,7 +467,10 @@ func (provider *Provider) List(ctx context.Context, request schemaregistry.ListR
 }
 
 // Delete resolves the exact target first and refuses deletion unless its
-// portable fingerprint matches the caller's confirmation guard.
+// portable fingerprint matches the caller's confirmation guard. Resolution and
+// DELETE are separate service requests, not atomic compare-and-delete. Soft success
+// reports deleting, hard success deleted; failures may need caller reconciliation.
+// The adapter owns neither cache invalidation nor rollback of irreversible deletion.
 func (provider *Provider) Delete(ctx context.Context, request schemaregistry.DeleteRequest) (schemaregistry.DeleteResult, error) {
 	ctx, cancel := provider.withBudget(ctx)
 	defer cancel()
@@ -560,6 +613,11 @@ func (provider *Provider) requestForSchema(schema schemaregistry.Schema) ([]byte
 	return json.Marshal(schemaRequest{Schema: string(definition.Content), SchemaType: schemaType, References: references})
 }
 
+// One exchange retains its slot through attempts/body reads and retry delays.
+// HTTP status classification intentionally discards response error text; successful
+// compatibility diagnostics are a separate, unsanitized structured-data boundary.
+// Trusted transport/Body callbacks must honor ctx and close semantics; no goroutine
+// preemption or malformed-response panic recovery is added.
 func (provider *Provider) doJSON(ctx context.Context, method, requestPath string, body []byte, target any) error {
 	ctx, cancel := context.WithTimeout(ctx, provider.timeout)
 	defer cancel()

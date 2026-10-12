@@ -25,21 +25,29 @@ var (
 // ProviderID is an opaque provider-issued identity scoped to one provider and
 // provider-defined namespace. It is not a portable schema fingerprint.
 type ProviderID struct {
+	// Provider names the adapter namespace, not an authenticated principal.
 	Provider string
-	Scope    string
-	Value    string
+	// Scope is caller/provider-defined isolation metadata; not a portable identity.
+	Scope string
+	// Value is opaque provider text; validation depends on the selected adapter.
+	Value string
 }
 
 // Subject is a provider subject or schema name within an optional registry.
 type Subject struct {
+	// Registry is optional in core; Confluent forbids it and Glue requires it.
 	Registry string
-	Name     string
+	// Name is the nonempty provider subject/schema name; no general text-size cap.
+	Name string
 }
 
 // Version keeps provider version numbers separate from opaque version tokens.
 // A provider capability documents which field it uses.
 type Version struct {
+	// Number is a positive numeric version when Opaque is empty.
 	Number uint64
+	// Opaque is a nonempty version token when Number is zero; both set or both
+	// empty is invalid where a version is required.
 	Opaque string
 }
 
@@ -164,24 +172,38 @@ const (
 // Capabilities describes semantic support without claiming providers are
 // interchangeable.
 type Capabilities struct {
-	Provider           string
-	Formats            []Format
-	Lookups            []LookupKind
+	// Provider is the stable provider namespace captured at NewClient.
+	Provider string
+	// Formats advertises supported request formats, not arbitrary schema equivalence.
+	Formats []Format
+	// Lookups advertises supported selectors; latest semantics belong to the provider.
+	Lookups []LookupKind
+	// CompatibilityModes advertises provider interpretations, not local inference.
 	CompatibilityModes []CompatibilityMode
-	NumericVersions    bool
-	OpaqueVersions     bool
-	SchemaReferences   bool
-	BoundedListing     bool
+	// NumericVersions permits nonzero Number in versioned requests/results.
+	NumericVersions bool
+	// OpaqueVersions permits a nonempty Opaque token in versioned requests/results.
+	OpaqueVersions bool
+	// SchemaReferences reports provider support; Client does not independently
+	// traverse or reject all reference fields before dispatch.
+	SchemaReferences bool
+	// BoundedListing requires a matching ListingProvider implementation.
+	BoundedListing bool
 	// RegistrationCreationOutcome reports whether the provider can safely
 	// distinguish newly-created from concurrently-existing registration.
 	RegistrationCreationOutcome bool
-	SoftDelete                  bool
-	HardDelete                  bool
+	// SoftDelete requires a matching DeletingProvider and its confirmation contract.
+	SoftDelete bool
+	// HardDelete advertises irreversible deletion, not rollback or atomicity.
+	HardDelete bool
 }
 
 // Limits are caller-selected operation bounds.
 type Limits struct {
+	// MaxSchemaBytes caps registration/compatibility content after Schema.Definition
+	// copies; it is not a response or whole-client retained-byte cap.
 	MaxSchemaBytes int
+	// MaxListResults caps requested/returned descriptor count, not text bytes.
 	MaxListResults int
 	// MaxConcurrent bounds executing provider calls and retained registration
 	// leaders. Same-key registration waiters share an existing leader.
@@ -190,89 +212,141 @@ type Limits struct {
 
 // RegisterRequest registers one compiled schema under an explicit subject.
 type RegisterRequest struct {
+	// Subject selects an explicit provider target.
 	Subject Subject
-	Schema  Schema
+	// Schema is an already-compiled immutable value; no implicit format compilation.
+	Schema Schema
 }
 
 // RegisterResult reports the provider's explicit registration outcome.
 type RegisterResult struct {
+	// Outcome may remain unknown on nil error when creation cannot be proved.
 	Outcome RegistrationOutcome
-	ID      ProviderID
+	// ID is scoped provider evidence; failures can also return partial provider fields.
+	ID ProviderID
+	// Version may be absent on successful registration, otherwise capabilities apply.
 	Version Version
 }
 
 // ResolveResult identifies both portable schema content and provider identity.
 type ResolveResult struct {
-	Schema    Schema
-	ID        ProviderID
-	Subject   Subject
-	Version   Version
+	// Schema is the immutable compiled value; a nonzero fingerprint is required.
+	Schema Schema
+	// ID is a nonempty scoped provider identifier, not a portable fingerprint.
+	ID ProviderID
+	// Subject is returned coordinate metadata; selector requirements vary.
+	Subject Subject
+	// Version must match an exact selector or be valid for latest; identity-only
+	// resolution does not universally validate every version capability.
+	Version Version
+	// Lifecycle is any declared state, including pending/failed/unknown; nil error
+	// does not necessarily mean available for use.
 	Lifecycle LifecycleState
 }
 
 // CompatibilityRequest asks the provider to compare a candidate against an
 // explicit subject history according to one advertised mode.
 type CompatibilityRequest struct {
-	Subject      Subject
-	Candidate    Schema
-	Mode         CompatibilityMode
+	// Subject is the explicit provider history target.
+	Subject Subject
+	// Candidate is an already-compiled schema within request bounds.
+	Candidate Schema
+	// Mode must be advertised; portable names retain provider-defined semantics.
+	Mode CompatibilityMode
+	// ProviderMode is nonempty only with CompatibilityProviderSpecific.
 	ProviderMode string
 }
 
 // CompatibilityResult never treats unsupported or indeterminate checks as
 // compatible.
 type CompatibilityResult struct {
-	Supported   bool
-	Compatible  bool
+	// Supported must be checked before treating Compatible as meaningful.
+	Supported bool
+	// Compatible is provider evidence, not locally inferred schema equivalence.
+	Compatible bool
+	// Diagnostics is provider-owned structured content, not universally copied or
+	// redacted by Client; applications must apply a privacy/logging policy.
 	Diagnostics []Diagnostic
 }
 
-// Diagnostic is safe structured context; adapters must not place full schema
-// contents or credentials in these fields.
+// Diagnostic carries provider structured context, not guaranteed sanitized log
+// text. Applications must bound/redact deliberately exposed provider data.
 type Diagnostic struct {
-	Code    string
+	// Code identifies the provider/category diagnostic.
+	Code string
+	// Message is untrusted provider text and may contain sensitive content;
+	// Client does not sanitize it.
 	Message string
-	Path    string
+	// Path is provider diagnostic metadata, not a filesystem path to follow.
+	Path string
 }
 
 // Provider is the narrow remote-provider boundary used by Client.
 type Provider interface {
+	// Capabilities must return stable advertised semantics and copied slices or
+	// caller-safe snapshots. NewClient captures a defensive copy once.
 	Capabilities() Capabilities
+	// Register must preserve scoped identity and creation/outcome uncertainty;
+	// cooperate with context, and make retries/idempotency policy explicit.
 	Register(context.Context, RegisterRequest) (RegisterResult, error)
+	// Resolve must return selector-consistent compiled schema/ID/lifecycle;
+	// partial results on error are permitted but not automatically trusted.
 	Resolve(context.Context, Lookup) (ResolveResult, error)
+	// CheckCompatibility must distinguish unsupported/indeterminate from compatible
+	// and keep diagnostics distinct from default errors. Returned slices remain
+	// implementation-owned; caller logging/privacy policy still applies.
 	CheckCompatibility(context.Context, CompatibilityRequest) (CompatibilityResult, error)
 }
 
 // ListingProvider is an optional bounded administrative capability.
 type ListingProvider interface {
+	// List must honor positive count bounds and opaque continuation semantics.
+	// Client copies successful descriptors, but does not sanitize their fields.
 	List(context.Context, ListRequest) (ListPage, error)
 }
 
 // DeletingProvider is an optional destructive administrative capability.
 type DeletingProvider interface {
+	// Delete must verify ExpectedFingerprint at the provider boundary and preserve
+	// soft/hard distinctions, transitional outcomes and uncertainty; atomicity is
+	// provider-specific and not supplied by Client.
 	Delete(context.Context, DeleteRequest) (DeleteResult, error)
 }
 
-// ListRequest is always bounded. PageToken is provider-opaque.
+// ListRequest supplies a requested count bound validated by Client/adapters.
+// PageToken is provider-opaque; field text has no general core byte cap.
 type ListRequest struct {
+	// SubjectPrefix is provider filtering text, not a portable pattern language.
 	SubjectPrefix string
-	Limit         int
-	PageToken     string
+	// Limit is a positive descriptor count within Client.MaxListResults.
+	Limit int
+	// PageToken is opaque to core; Confluent uses a nonnegative decimal offset.
+	PageToken string
 }
 
-// SchemaDescriptor is bounded metadata returned by administrative listing.
+// SchemaDescriptor is provider administrative metadata, with optional fields.
+// A bounded descriptor count is not a bound on every field's text bytes.
 type SchemaDescriptor struct {
-	ID          ProviderID
-	Subject     Subject
-	Version     Version
-	Format      Format
+	// ID can be unset when the listing API exposes only subjects.
+	ID ProviderID
+	// Subject identifies the descriptor target.
+	Subject Subject
+	// Version can be unset in provider subject-only pages.
+	Version Version
+	// Format can be unset when not returned by the provider.
+	Format Format
+	// Fingerprint can be unset; listing does not implicitly resolve schemas.
 	Fingerprint Fingerprint
-	Lifecycle   LifecycleState
+	// Lifecycle is provider evidence; Confluent subject pages report unknown.
+	Lifecycle LifecycleState
 }
 
 // ListPage is one bounded provider page.
 type ListPage struct {
-	Schemas       []SchemaDescriptor
+	// Schemas is copied on successful Client.List; each field remains provider
+	// metadata and is not independently validated like a Resolve result.
+	Schemas []SchemaDescriptor
+	// NextPageToken is provider continuation state; no durable snapshot guarantee.
 	NextPageToken string
 }
 
@@ -280,7 +354,7 @@ type ListPage struct {
 type DeletionMode string
 
 const (
-	// DeleteSoft requests recoverable provider deletion when advertised.
+	// DeleteSoft requests advertised soft deletion; recoverability is provider-specific.
 	DeleteSoft DeletionMode = "soft"
 	// DeleteHard requests permanent provider deletion when advertised.
 	DeleteHard DeletionMode = "hard"
@@ -288,24 +362,35 @@ const (
 
 // DeletionPolicy makes destructive intent exact and collision-resistant.
 type DeletionPolicy struct {
-	Mode                DeletionMode
+	// Mode explicitly selects soft or hard deletion as advertised.
+	Mode DeletionMode
+	// ExpectedFingerprint is a required nonzero confirmation guard. The provider
+	// must check it; core dispatch does not implement atomic compare-and-delete.
 	ExpectedFingerprint Fingerprint
 }
 
 // DeleteRequest targets one exact subject version.
 type DeleteRequest struct {
+	// Subject selects the exact destructive target.
 	Subject Subject
+	// Version must be valid and advertised, not latest.
 	Version Version
-	Policy  DeletionPolicy
+	// Policy supplies mode and portable confirmation, not rollback authorization.
+	Policy DeletionPolicy
 }
 
 // DeleteResult reports the provider-observed terminal or transitional state.
 type DeleteResult struct {
+	// Lifecycle is a declared provider state; transition/pending results need
+	// application reconciliation, not assumed deletion completion.
 	Lifecycle LifecycleState
 }
 
 // Client validates portable requests against provider capabilities and caller
-// bounds before any provider I/O.
+// bounds before provider I/O. Methods are safe concurrently only if the supplied
+// provider is; there are no owned background goroutines or Close operation.
+// Slot waits are context-aware, but arbitrary callbacks are not preempted or
+// panic-contained. Zero/nil clients are not usable; use NewClient.
 type Client struct {
 	provider      Provider
 	capabilities  Capabilities
@@ -326,7 +411,9 @@ type registrationFlight struct {
 	err    error
 }
 
-// NewClient constructs a bounded client over one provider.
+// NewClient rejects typed-nil providers/nonpositive limits, captures a copied
+// capability snapshot and borrows the provider for the client's lifetime.
+// It invokes Capabilities synchronously and does not own transport shutdown.
 func NewClient(provider Provider, limits Limits) (*Client, error) {
 	if interfaceIsNil(provider) {
 		return nil, fmt.Errorf("%w: nil provider", ErrInvalidRequest)
@@ -345,12 +432,19 @@ func NewClient(provider Provider, limits Limits) (*Client, error) {
 	}, nil
 }
 
-// Capabilities returns an immutable snapshot of provider semantics.
+// Capabilities returns a defensive copy of the snapshot captured at NewClient.
 func (client *Client) Capabilities() Capabilities {
 	return cloneCapabilities(client.capabilities)
 }
 
-// Register validates bounds and format support before provider I/O.
+// Register validates raw-content bounds/format before provider I/O and coalesces
+// overlapping requests by Subject/Fingerprint. The leader runs synchronously
+// under its context; waiters may cancel without canceling it. A full new-leader
+// budget fails with ErrLimitExceeded before dispatch. This is not persistent or
+// cross-process idempotency. Provider callbacks must not panic: registration
+// owner/slot cleanup assumes normal return, so panic can leave admission occupied.
+// Provider errors/results and uncertain effects may be
+// returned together; nil error can still accompany RegistrationUnknown.
 func (client *Client) Register(ctx context.Context, request RegisterRequest) (RegisterResult, error) {
 	if err := ctx.Err(); err != nil {
 		return RegisterResult{}, err
@@ -410,7 +504,11 @@ func registrationOutcome(err error) RegistrationOutcome {
 	}
 }
 
-// Resolve rejects selectors the provider cannot define safely.
+// Resolve rejects unsupported/invalid selectors, then validates nonzero compiled
+// fingerprint, ID namespace, declared lifecycle and selector agreement. It does
+// not independently enforce all response size/format/version-capability fields.
+// Partial provider results can accompany an error; fixed default error text
+// retains deliberate cause inspection. Nil error does not require available lifecycle.
 func (client *Client) Resolve(ctx context.Context, lookup Lookup) (ResolveResult, error) {
 	if err := ctx.Err(); err != nil {
 		return ResolveResult{}, err
@@ -517,7 +615,9 @@ func (client *Client) List(ctx context.Context, request ListRequest) (ListPage, 
 }
 
 // Delete requires an exact portable fingerprint guard for both soft and hard
-// deletion, then delegates only to an advertised provider capability.
+// deletion, then delegates only to an advertised provider capability. The
+// provider owns comparison and service atomicity; Client does not resolve the
+// target itself. Transitional results and partial evidence on error are allowed.
 func (client *Client) Delete(ctx context.Context, request DeleteRequest) (DeleteResult, error) {
 	if err := ctx.Err(); err != nil {
 		return DeleteResult{}, err
@@ -581,6 +681,8 @@ func (client *Client) registration(key registrationKey) (*registrationFlight, bo
 	if len(client.registrations) >= client.limits.MaxConcurrent {
 		return nil, false
 	}
+	// Publish flight results before close(done): waiters use channel completion
+	// as their synchronization boundary. New leaders are bounded, not waiters.
 	flight := &registrationFlight{done: make(chan struct{})}
 	client.registrations[key] = flight
 	return flight, true

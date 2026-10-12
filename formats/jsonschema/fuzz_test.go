@@ -8,6 +8,8 @@ import (
 	registryjsonschema "github.com/faustbrian/go-schema-registry/v3/formats/jsonschema"
 )
 
+// FuzzJSONSchemas probes at most 4096 bytes under explicit local dialect/limits
+// and JCS identity; no remote resource loader or value codec is exercised.
 func FuzzJSONSchemas(f *testing.F) {
 	f.Add([]byte(`true`))
 	f.Add([]byte(`{"type":"string"}`))

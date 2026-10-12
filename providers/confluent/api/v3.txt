@@ -1,7 +1,15 @@
 package confluent // import "github.com/faustbrian/go-schema-registry/providers/confluent/v3"
 
-Package confluent implements the Confluent Schema Registry REST semantics
-without treating its global integer IDs as portable schema identity.
+Package confluent adapts the pinned Confluent Schema Registry 8.3.1
+REST and version-0 wire profiles behind the root /v3 contract.
+New requires an explicit endpoint, transport, policy and canonicalizers;
+ClassicFramer/ProtobufFramer handle wire bytes separately from schema
+resolution and business serialization. Provider owns local slots/retry timers,
+not transport/credential shutdown or service infrastructure. Concurrent reuse
+requires concurrent-safe dependencies; callbacks must honor context and are not
+forcibly interrupted or panic-contained. Scoped integer IDs are not portable
+fingerprints/authentication; compatible products and GUID wire version 1 need
+separate evidence (CONFLUENT-DEC-001..003).
 
 CONSTANTS
 
@@ -27,8 +35,11 @@ type ClassicFramer struct {
 	// Has unexported fields.
 }
     ClassicFramer implements Confluent wire version 0 for Avro and JSON Schema:
-    one zero magic byte, one big-endian uint32 schema ID, then payload. Protobuf
-    message-index framing is intentionally a separate contract.
+    one zero magic byte, one big-endian uint32 schema ID, then payload.
+    Protobuf message-index framing is intentionally a separate contract.
+    Frame/Unframe copy output bytes and perform no I/O/schema lookup; payload
+    validity and authentication belong to the caller. Use NewClassicFramer;
+    zero/nil receivers are not supported.
 
 func NewClassicFramer(scope string, maxPayloadBytes int) (*ClassicFramer, error)
     NewClassicFramer constructs a bounded Confluent Avro or JSON Schema framer.
@@ -40,23 +51,49 @@ func (framer *ClassicFramer) Unframe(ctx context.Context, framed []byte) (schema
     Unframe parses a bounded version-0 frame and returns an owned payload copy.
 
 type Config struct {
-	Endpoint            string
-	Scope               string
-	Transport           http.RoundTripper
-	Credentials         CredentialProvider
+	// Endpoint is an explicit HTTPS base URL without userinfo/query/fragment.
+	// Its host/path is trusted configuration, not discovered from message data.
+	Endpoint string
+	// Scope is a required caller-defined ID namespace, not authenticated tenancy.
+	Scope string
+	// Transport is required and borrowed; must honor request context and return
+	// valid responses/bodies. The adapter invokes RoundTrip directly, never closes
+	// caller transport resources or follows redirects itself.
+	Transport http.RoundTripper
+	// Credentials is optional and borrowed; authorization is obtained per attempt
+	// for the configured endpoint. Calls must be prompt/context-cooperative.
+	Credentials CredentialProvider
+	// AllowHTTPForTesting permits an explicit http endpoint; never inferred.
 	AllowHTTPForTesting bool
-	RequestTimeout      time.Duration
-	MaxResponseBytes    int
-	MaxAttempts         int
-	MaxConcurrent       int
-	RetryDelay          time.Duration
-	ReferenceLimits     schemaregistry.GraphLimits
-	Canonicalizers      map[schemaregistry.Format]schemaregistry.Canonicalizer
+	// RequestTimeout is positive and covers each outer operation and its nested
+	// requests, including slot waits/retries, for cooperative dependencies only.
+	RequestTimeout time.Duration
+	// MaxResponseBytes is a positive per-HTTP-body cap, read at cap+1 before JSON.
+	// Keep cap+1 representable; it is not a total graph/callback/transport allocation budget.
+	MaxResponseBytes int
+	// MaxAttempts is positive per doJSON exchange; a graph/operation may use
+	// multiple exchanges, all under its outer deadline.
+	MaxAttempts int
+	// MaxConcurrent bounds executing HTTP exchanges, including retry waits.
+	// It does not bound all callers/whole operations or their pre-request allocations.
+	MaxConcurrent int
+	// RetryDelay is a nonnegative fixed delay, not jitter or Retry-After handling.
+	RetryDelay time.Duration
+	// ReferenceLimits supplies positive depth/node-visit/edge bounds; shared DAG
+	// children can be fetched/compiled again and count again.
+	ReferenceLimits schemaregistry.GraphLimits
+	// Canonicalizers is map-copied but implementations are borrowed; each must
+	// validate locally and safely handle concurrent calls. No dependency body injection
+	// from provider references into their independent local source set is implied.
+	Canonicalizers map[schemaregistry.Format]schemaregistry.Canonicalizer
 }
     Config defines endpoint policy, one total request budget, response bounds,
     and explicit format implementations.
 
 type CredentialProvider interface {
+	// Authorization supplies the endpoint-scoped value for one attempt and must
+	// honor ctx/concurrent calls. It must not render secrets in errors; the adapter
+	// hides Error() text but deliberately retains the cause for explicit inspection.
 	Authorization(context.Context) (string, error)
 }
     CredentialProvider returns an Authorization header value for the configured
@@ -67,7 +104,10 @@ type ProtobufFramer struct {
 }
     ProtobufFramer implements Confluent wire version 0 including the Protobuf
     message-index vector. Message indexes select one nested descriptor and are
-    deliberately exposed rather than hidden in the value codec.
+    deliberately exposed rather than hidden in the value codec. Index paths
+    are caller-supplied nonnegative machine integers, not verified descriptor
+    existence. Methods own output slices and no registry/codec lifecycle;
+    use NewProtobufFramer.
 
 func NewProtobufFramer(scope string, maxPayloadBytes, maxMessageIndexes int) (*ProtobufFramer, error)
     NewProtobufFramer constructs a bounded Confluent Protobuf framer.
@@ -84,7 +124,11 @@ func (framer *ProtobufFramer) UnframeMessage(
 	ctx context.Context,
 	framed []byte,
 ) (schemaregistry.ProviderID, []int, []byte, error)
-    UnframeMessage parses one bounded Confluent Protobuf frame.
+    UnframeMessage parses version 0, bounded count/nonnegative decoded
+    machine-int indexes and payload, returning new index/payload slices. A zero
+    vector byte means the common [0] path, not an empty path. No descriptor or
+    payload validation, provider resolution, GUID version-1 parsing or content
+    authentication occurs.
 
 type Provider struct {
 	// Has unexported fields.
@@ -92,26 +136,45 @@ type Provider struct {
     Provider is safe for concurrent use when its supplied dependencies are.
 
 func New(config Config) (*Provider, error)
-    New validates endpoint and resource policy before any I/O.
+    New validates endpoint/resource policy without network access and copies
+    the canonicalizer map/capability slices. Borrowed implementations remain
+    caller-owned. It starts no goroutines and provides no Close; nonpositive
+    policy is rejected.
 
 func (provider *Provider) Capabilities() schemaregistry.Capabilities
-    Capabilities returns an immutable snapshot of Confluent semantics.
+    Capabilities returns a defensive copy of the configured Confluent profile.
 
 func (provider *Provider) CheckCompatibility(ctx context.Context, request schemaregistry.CompatibilityRequest) (schemaregistry.CompatibilityResult, error)
-    CheckCompatibility checks the candidate only when the configured subject
-    mode matches the requested mode.
+    CheckCompatibility fetches subject/default configuration and tests
+    the candidate only if that mode matches the request; mismatch returns
+    Supported:false with no candidate POST. These are separate requests,
+    not an atomic policy snapshot. Service messages are returned as Diagnostics
+    without redaction; treat them as untrusted potentially sensitive content,
+    not safe default error text.
 
 func (provider *Provider) Delete(ctx context.Context, request schemaregistry.DeleteRequest) (schemaregistry.DeleteResult, error)
     Delete resolves the exact target first and refuses deletion unless its
-    portable fingerprint matches the caller's confirmation guard.
+    portable fingerprint matches the caller's confirmation guard. Resolution and
+    DELETE are separate service requests, not atomic compare-and-delete. Soft
+    success reports deleting, hard success deleted; failures may need caller
+    reconciliation. The adapter owns neither cache invalidation nor rollback of
+    irreversible deletion.
 
 func (provider *Provider) List(ctx context.Context, request schemaregistry.ListRequest) (schemaregistry.ListPage, error)
     List returns a bounded, deterministic page of subject descriptors. Confluent
     does not expose portable fingerprints or schema versions in its subject-list
-    response, so those fields remain unset.
+    response, so those fields remain unset. Sorting is per returned page,
+    not a durable snapshot of concurrently changing subjects. Direct callers own
+    the request-limit/text policy; body limits still apply per exchange.
 
 func (provider *Provider) Register(ctx context.Context, request schemaregistry.RegisterRequest) (schemaregistry.RegisterResult, error)
-    Register performs exact-content lookup before idempotent registration.
+    Register performs exact-content lookup before registration, comparing
+    returned coordinates and the compiled fingerprint on existing success.
+    A create response supplies only an ID, so nil error may still mean
+    RegistrationUnknown; a transport outage after mutation cannot establish
+    whether a version was created. Retries are bounded per exchange, not an
+    exactly-once transaction or cross-client flight. Direct callers should bound
+    schema/input before request construction.
 
 func (provider *Provider) Resolve(ctx context.Context, lookup schemaregistry.Lookup) (schemaregistry.ResolveResult, error)
     Resolve loads one schema by an advertised Confluent selector and resolves

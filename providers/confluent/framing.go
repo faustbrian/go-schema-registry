@@ -15,7 +15,9 @@ var ErrInvalidFrame = errors.New("confluent schema registry: invalid frame")
 
 // ClassicFramer implements Confluent wire version 0 for Avro and JSON Schema:
 // one zero magic byte, one big-endian uint32 schema ID, then payload. Protobuf
-// message-index framing is intentionally a separate contract.
+// message-index framing is intentionally a separate contract. Frame/Unframe copy
+// output bytes and perform no I/O/schema lookup; payload validity and authentication
+// belong to the caller. Use NewClassicFramer; zero/nil receivers are not supported.
 type ClassicFramer struct {
 	scope      string
 	maxPayload int
@@ -23,7 +25,9 @@ type ClassicFramer struct {
 
 // ProtobufFramer implements Confluent wire version 0 including the Protobuf
 // message-index vector. Message indexes select one nested descriptor and are
-// deliberately exposed rather than hidden in the value codec.
+// deliberately exposed rather than hidden in the value codec. Index paths are
+// caller-supplied nonnegative machine integers, not verified descriptor existence.
+// Methods own output slices and no registry/codec lifecycle; use NewProtobufFramer.
 type ProtobufFramer struct {
 	scope      string
 	maxPayload int
@@ -123,7 +127,10 @@ func (framer *ProtobufFramer) FrameMessage(
 	return append(framed, payload...), nil
 }
 
-// UnframeMessage parses one bounded Confluent Protobuf frame.
+// UnframeMessage parses version 0, bounded count/nonnegative decoded machine-int
+// indexes and payload, returning new index/payload slices. A zero vector byte means
+// the common [0] path, not an empty path. No descriptor or payload validation,
+// provider resolution, GUID version-1 parsing or content authentication occurs.
 func (framer *ProtobufFramer) UnframeMessage(
 	ctx context.Context,
 	framed []byte,
@@ -168,6 +175,8 @@ func (framer *ProtobufFramer) UnframeMessage(
 	}, indexes, append([]byte(nil), payload...), nil
 }
 
+// Preserve the documented zig-zag vector profile and special [0] encoding;
+// classic payload offsets are not valid for Protobuf framing.
 func appendSignedVarint(destination []byte, value int) []byte {
 	var encoded [binary.MaxVarintLen64]byte
 	// #nosec G115 -- FrameMessage supplies a positive slice length or an index already checked nonnegative.
@@ -175,6 +184,9 @@ func appendSignedVarint(destination []byte, value int) []byte {
 	return append(destination, encoded[:count]...)
 }
 
+// readSignedVarint checks the varint grammar, then converts signed64 to native
+// int without a separate range check. Callers must use descriptor indexes that
+// fit the target platform; grammar acceptance is not cross-platform range proof.
 func readSignedVarint(source []byte) (int, int, bool) {
 	encoded, count := binary.Uvarint(source)
 	if count <= 0 {

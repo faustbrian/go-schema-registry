@@ -8,6 +8,8 @@ import (
 	schemaregistry "github.com/faustbrian/go-schema-registry/v2"
 )
 
+// BenchmarkFrame measures one fixed 1024-byte uncompressed frame and UUID,
+// excluding construction, SDK calls, serialization and transport/credential work.
 func BenchmarkFrame(b *testing.B) {
 	framer, err := registryglue.NewUncompressedFramer("bench", 4096)
 	if err != nil {

@@ -1,5 +1,11 @@
-// Package glue adapts AWS Glue Schema Registry without erasing its registry,
-// schema-name, UUID-version-ID, lifecycle, or compatibility semantics.
+// Package glue adapts AWS Glue Schema Registry through an explicitly configured
+// SDK v2 API, preserving registry/schema names, scoped UUIDs and lifecycle state.
+// New/UncompressedFramer compose service and header-version-3 wire work separately;
+// no credentials, endpoints, SDK client, retry loop or shutdown is discovered/owned.
+// This module retains root /v2 types, distinct from root/Confluent /v3. The source
+// authority pins SDK API1.152.0 and Java SerDe1.1.27; actual dependencies are in
+// go.mod. References/listing/deletion/candidate dry-run and ZLIB are unsupported.
+// See GLUE-DEC-001..003; faithful SDK/wire evidence is not live AWS qualification.
 package glue
 
 import (
@@ -26,18 +32,34 @@ const (
 // endpoint, region, and credentials explicitly when constructing its client;
 // Provider adds one total context timeout and does not add a second retry loop.
 type API interface {
+	// GetSchemaByDefinition must preserve the configured target and definition
+	// lookup semantics, return owned/copyable response fields and honor ctx.
 	GetSchemaByDefinition(context.Context, *awsglue.GetSchemaByDefinitionInput, ...func(*awsglue.Options)) (*awsglue.GetSchemaByDefinitionOutput, error)
+	// RegisterSchemaVersion must preserve SDK mutation/uncertainty semantics;
+	// idempotent duplicates do not prove which concurrent request created a version.
 	RegisterSchemaVersion(context.Context, *awsglue.RegisterSchemaVersionInput, ...func(*awsglue.Options)) (*awsglue.RegisterSchemaVersionOutput, error)
+	// GetSchemaVersion must honor exact UUID or registry/name/version selectors
+	// and ctx; SDK/transport owns HTTP response allocation and cleanup.
 	GetSchemaVersion(context.Context, *awsglue.GetSchemaVersionInput, ...func(*awsglue.Options)) (*awsglue.GetSchemaVersionOutput, error)
 }
 
 // Config binds one AWS region/account/registry scope to explicit schema format
 // implementations.
 type Config struct {
-	API            API
-	Scope          string
+	// API is required and borrowed, already configured for credentials, endpoint,
+	// region, retries and transport cleanup. It must honor ctx and be concurrent-safe.
+	API API
+	// Scope is a required caller-defined region/account/registry namespace; the
+	// adapter does not authenticate it against returned UUIDs.
+	Scope string
+	// RequestTimeout is positive and includes slot waits/API work for cooperative
+	// SDK callbacks; arbitrary injected API calls cannot be forcibly stopped.
 	RequestTimeout time.Duration
-	MaxConcurrent  int
+	// MaxConcurrent is a positive per-provider call budget, not a whole-process
+	// waiter/byte bound. No extra SDK retry loop is introduced.
+	MaxConcurrent int
+	// Canonicalizers is copied as a map, but implementations are borrowed and
+	// must be local-only and safe concurrently; references are not fetched/injected.
 	Canonicalizers map[schemaregistry.Format]schemaregistry.Canonicalizer
 }
 
@@ -52,7 +74,9 @@ type Provider struct {
 	capabilities   schemaregistry.Capabilities
 }
 
-// New validates all policy before AWS I/O.
+// New validates supplied policy and copies the canonicalizer map/capability
+// snapshot without constructing an SDK client or performing AWS I/O. Collaborators
+// remain borrowed; no owned background goroutine or Close operation is supplied.
 func New(config Config) (*Provider, error) {
 	if interfaceIsNil(config.API) || config.Scope == "" || config.RequestTimeout <= 0 || config.MaxConcurrent <= 0 || len(config.Canonicalizers) == 0 {
 		return nil, fmt.Errorf("invalid AWS Glue provider config")
@@ -90,7 +114,7 @@ func New(config Config) (*Provider, error) {
 	}, nil
 }
 
-// Capabilities returns an immutable snapshot of AWS Glue semantics.
+// Capabilities returns a defensive copy of the configured AWS Glue profile.
 func (provider *Provider) Capabilities() schemaregistry.Capabilities {
 	capabilities := provider.capabilities
 	capabilities.Formats = append([]schemaregistry.Format(nil), capabilities.Formats...)
@@ -98,7 +122,12 @@ func (provider *Provider) Capabilities() schemaregistry.Capabilities {
 	return capabilities
 }
 
-// Register performs exact-definition lookup before idempotent version registration.
+// Register rejects missing registry/name, empty or oversized schema text and
+// references, then performs exact-definition lookup before registration. A UUID
+// returned by a new call may be an existing concurrent version, so nil error can
+// accompany RegistrationUnknown; unavailable mutation outcomes remain uncertain.
+// The 170000-byte definition check follows Schema.Definition's defensive copy,
+// not all SDK/transport allocations or service mutation atomicity.
 func (provider *Provider) Register(ctx context.Context, request schemaregistry.RegisterRequest) (schemaregistry.RegisterResult, error) {
 	if request.Subject.Registry == "" || request.Subject.Name == "" {
 		return schemaregistry.RegisterResult{}, fmt.Errorf("%w: AWS Glue registry and schema name", schemaregistry.ErrInvalidRequest)
@@ -163,7 +192,12 @@ func (provider *Provider) Register(ctx context.Context, request schemaregistry.R
 	return result, nil
 }
 
-// Resolve loads one schema version by an advertised AWS Glue selector.
+// Resolve loads one version by scoped UUID, registry/name numeric version or
+// latest. It checks UUID grammar/expected version and caps returned definition
+// text at 170000 bytes after SDK materialization, not the whole HTTP response.
+// Available, pending, deleting, failed and unknown lifecycle remain explicit;
+// nil error does not imply availability. UUID grammar does not enforce variant,
+// UUID version or authenticated account/registry membership.
 func (provider *Provider) Resolve(ctx context.Context, lookup schemaregistry.Lookup) (schemaregistry.ResolveResult, error) {
 	input := &awsglue.GetSchemaVersionInput{}
 	result := schemaregistry.ResolveResult{}
@@ -323,10 +357,13 @@ type classifiedError struct {
 	cause    error
 }
 
+// Error returns fixed category/operation text, not collaborator diagnostics.
 func (err classifiedError) Error() string {
 	return err.category.Error() + ": AWS Glue API"
 }
 
+// Unwrap deliberately exposes retained causes for trusted inspection; those
+// causes may contain sensitive text and are not safe diagnostic rendering.
 func (err classifiedError) Unwrap() []error {
 	return []error{err.category, err.cause}
 }
@@ -335,16 +372,26 @@ func (err classifiedError) Unwrap() []error {
 // than adding the category/cause pair used for SDK classification.
 type privateContextDiagnostic struct{ original error }
 
-func (err privateContextDiagnostic) Error() string        { return "AWS Glue operation canceled or timed out" }
+// Error returns fixed category/operation text, not collaborator diagnostics.
+func (err privateContextDiagnostic) Error() string { return "AWS Glue operation canceled or timed out" }
+
+// Is delegates classification to the original collaborator without rendering it.
 func (err privateContextDiagnostic) Is(target error) bool { return errors.Is(err.original, target) }
-func (err privateContextDiagnostic) As(target any) bool   { return errors.As(err.original, target) }
+
+// As delegates typed inspection to the original collaborator; returned data
+// can contain sensitive input and belongs to trusted application handling.
+func (err privateContextDiagnostic) As(target any) bool { return errors.As(err.original, target) }
 
 type singleContextDiagnostic struct{ privateContextDiagnostic }
 
+// Unwrap deliberately exposes retained causes for trusted inspection; those
+// causes may contain sensitive text and are not safe diagnostic rendering.
 func (err singleContextDiagnostic) Unwrap() error { return errors.Unwrap(err.original) }
 
 type multiContextDiagnostic struct{ privateContextDiagnostic }
 
+// Unwrap deliberately exposes retained causes for trusted inspection; those
+// causes may contain sensitive text and are not safe diagnostic rendering.
 func (err multiContextDiagnostic) Unwrap() []error {
 	return err.original.(interface{ Unwrap() []error }).Unwrap()
 }

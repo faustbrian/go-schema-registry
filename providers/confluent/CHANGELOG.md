@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Documentation
+
+- Clarify /v3 source identity, borrowed callbacks, per-exchange resource limits,
+  unsanitized structured diagnostics and non-atomic fingerprint-confirmed deletion
+  in CONFLUENT-DEC-001.
+
 ### Breaking changes
 
 - Move provider imports to

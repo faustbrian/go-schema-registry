@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Documentation
+
+- Clarify schema/reference identity, copied ownership, actual cache/callback and
+  codec admission limits; reconcile SCHEMA-REG-DEC-002/003/004 prose.
+
 ### Breaking changes
 
 - Move the root and format imports to `github.com/faustbrian/go-schema-registry/v3`

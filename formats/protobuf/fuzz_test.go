@@ -8,6 +8,8 @@ import (
 	registryprotobuf "github.com/faustbrian/go-schema-registry/v3/formats/protobuf"
 )
 
+// FuzzProtobufSchemas probes at most 4096 root bytes with a fixed filename
+// and no imports; it is not exhaustive imported-language/provider conformance.
 func FuzzProtobufSchemas(f *testing.F) {
 	f.Add([]byte(`syntax = "proto3"; message M {}`))
 	f.Add([]byte(`syntax = "proto2"; message M { optional string v = 1; }`))

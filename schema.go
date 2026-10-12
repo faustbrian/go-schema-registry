@@ -1,5 +1,16 @@
-// Package schemaregistry defines provider-neutral contracts for explicit,
-// versioned schema registration and resolution.
+// Package schemaregistry provides explicit schema compilation, scoped provider
+// clients, cache/bundle/graph resolution and codec/framer composition. Start with
+// Compile and an explicit format canonicalizer, then NewClient/NewResolveCache or
+// NewBundle as needed. Schema/Bundle values own copied data; clients/cache own
+// synchronized local state but no background goroutines or collaborator shutdown.
+//
+// Portable identity is this package's SHA-256 profile, not a provider ID,
+// authenticity proof or universal compatibility relation. Local-only
+// canonicalizers/codecs are collaborator obligations, not an I/O sandbox. Context
+// cannot forcibly interrupt callbacks, and per-owner limits do not bound total
+// process memory, waiters or deployment demand. Root /v3 and Confluent /v3 types
+// differ from Glue's retained /v2 cohort. Exact language/source versions and
+// SCHEMA-REG-DEC-001..004 are in specification/README.md and spec/sources.lock.json.
 package schemaregistry
 
 import (
@@ -23,14 +34,20 @@ var (
 // CompileLimits bound hostile schema definitions before and after format
 // canonicalization.
 type CompileLimits struct {
-	MaxSchemaBytes    int
+	// MaxSchemaBytes caps content and, independently, total reference text and
+	// metadata text before copying; it is not a combined allocation budget.
+	MaxSchemaBytes int
+	// MaxCanonicalBytes caps returned canonical bytes after collaborator work.
 	MaxCanonicalBytes int
-	MaxReferences     int
-	MaxMetadata       int
+	// MaxReferences caps named reference count; each fingerprint must be nonzero.
+	MaxReferences int
+	// MaxMetadata caps entry count; all limits must be positive, not zero-defaulted.
+	MaxMetadata int
 }
 
 // DefaultCompileLimits returns conservative portable bounds. Provider adapters
-// may impose stricter service limits.
+// may impose stricter service limits. Content/canonical bytes and each reference/
+// metadata text aggregate default to 1MiB; reference and metadata counts to 256.
 func DefaultCompileLimits() CompileLimits {
 	return CompileLimits{
 		MaxSchemaBytes:    1 << 20,
@@ -55,23 +72,39 @@ const (
 
 // Reference identifies another versioned schema used by a definition.
 type Reference struct {
-	Name        string
-	Subject     string
-	Version     uint64
+	// Name is a nonempty unique binding included in portable identity.
+	Name string
+	// Subject is a provider coordinate, excluded from the portable hash.
+	Subject string
+	// Version is a numeric provider coordinate, excluded from the portable hash.
+	Version uint64
+	// Fingerprint is the nonzero portable dependency identity; Compile does not
+	// resolve the dependency or verify that it matches Subject/Version.
 	Fingerprint Fingerprint
 }
 
 // Definition is caller-owned schema input. Compile copies all mutable fields.
 type Definition struct {
-	Format     Format
-	Content    []byte
+	// Format selects an explicitly supplied supported canonicalizer.
+	Format Format
+	// Content is raw nonempty schema text, copied during Compile.
+	Content []byte
+	// References is copied and sorted by Name for hashing; caller storage must
+	// remain stable while copied. Format adapters may require separate local resources.
 	References []Reference
-	Metadata   map[string]string
+	// Metadata is copied but excluded from portable identity, not redacted or
+	// authenticated. Keys/values can retain immutable string backing storage.
+	Metadata map[string]string
 }
 
 // Canonicalizer validates a definition and returns the canonical bytes used
 // for portable identity. Implementations must not contact a registry.
 type Canonicalizer interface {
+	// Canonicalize must validate the selected language/profile without implicit
+	// remote retrieval and cooperate with ctx. Compile supplies an owned copy;
+	// direct Canonicalize callers retain input ownership. Compile copies admitted
+	// returned bytes. Calls can be concurrent
+	// when a canonicalizer is shared; implementations own that safety and bounds.
 	Canonicalize(context.Context, Definition) ([]byte, error)
 }
 
@@ -86,7 +119,9 @@ func (fingerprint Fingerprint) String() string {
 	return "sha256:" + hex.EncodeToString(fingerprint.sum[:])
 }
 
-// ParseFingerprint parses the stable algorithm-qualified portable identity.
+// ParseFingerprint accepts the exact sha256: prefix and 64 hexadecimal digits,
+// including uppercase digits; String normalizes them to lowercase. It checks
+// syntax only and does not authenticate content or reject the all-zero digest.
 func ParseFingerprint(value string) (Fingerprint, error) {
 	const prefix = "sha256:"
 	if len(value) != len(prefix)+sha256.Size*2 || value[:min(len(value), len(prefix))] != prefix {
@@ -108,7 +143,9 @@ type Schema struct {
 	fingerprint Fingerprint
 }
 
-// Compile validates and canonicalizes one schema without network access.
+// Compile applies DefaultCompileLimits and delegates to the supplied canonicalizer.
+// No registry is contacted by this wrapper; local-only behavior is the
+// canonicalizer's obligation, not enforced isolation.
 func Compile(
 	ctx context.Context,
 	definition Definition,
@@ -118,7 +155,13 @@ func Compile(
 }
 
 // CompileWithLimits validates and canonicalizes one schema within explicit
-// caller-selected resource bounds and without network access.
+// caller-selected input/result bounds. It copies caller mutable data, sorts named
+// references and hashes the domain separator, format, canonical bytes and each
+// Name/Fingerprint pair. Subject/version coordinates and metadata are excluded.
+// The canonicalizer receives a second copy; output caps follow its allocation,
+// and no final cancellation check, panic containment or callback timeout is added.
+// Errors expose classified sentinels with fixed text; explicit causes can retain
+// collaborator diagnostics. See SCHEMA-REG-DEC-004 and portable corpus tests.
 func CompileWithLimits(
 	ctx context.Context,
 	definition Definition,
@@ -194,6 +237,9 @@ func CompileWithLimits(
 		return Schema{}, fmt.Errorf("%w: canonical schema", ErrLimitExceeded)
 	}
 
+	// Reference names are sorted, but their fingerprints (not provider coordinates)
+	// bind portable dependencies. Keep this historical v1 domain separator stable:
+	// changing it changes every identity even though the module is now /v3.
 	hash := sha256.New()
 	_, _ = hash.Write([]byte("golib.schema-registry/v1\x00"))
 	_, _ = hash.Write([]byte(definition.Format))
