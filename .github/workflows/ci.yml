@@ -34,14 +34,53 @@ jobs:
       release_dry_run: ${{ inputs.release_dry_run || false }}
       release_module: ${{ inputs.release_module || '' }}
 
+  framing-386:
+    name: Protobuf machine-int admission (386)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: '1.27.2'
+          cache: false
+      - name: Execute target-width public parser regression
+        working-directory: providers/confluent
+        env:
+          GOARCH: '386'
+          GOWORK: 'off'
+          GOMAXPROCS: '2'
+          GOPROXY: https://proxy.golang.org
+          GOSUMDB: sum.golang.org
+        run: |
+          cache_root="$(mktemp -d "$RUNNER_TEMP/framing-386.XXXXXX")"
+          cleanup_cache() {
+            command_status=$?
+            trap - EXIT
+            if ! chmod -R u+w "$cache_root" || ! rm -rf "$cache_root"; then
+              printf '%s\n' 'Failed to remove owned Go caches' >&2
+              if [ "$command_status" -eq 0 ]; then command_status=1; fi
+            fi
+            exit "$command_status"
+          }
+          trap cleanup_cache EXIT
+          export GOCACHE="$cache_root/build" GOMODCACHE="$cache_root/mod" GOTMPDIR="$cache_root/tmp"
+          mkdir -p "$GOCACHE" "$GOMODCACHE" "$GOTMPDIR"
+          go test -p 1 . -run '^TestProtobufFrameMachineIntegerAdmission$' -count=1 -timeout=2m
+
   required:
     name: Required
     if: always()
-    needs: ci
+    needs: [ci, framing-386]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - name: Require shared workflow
         env:
           CI_RESULT: ${{ needs.ci.result }}
-        run: test "${CI_RESULT}" = success
+          FRAMING_RESULT: ${{ needs.framing-386.result }}
+        run: test "${CI_RESULT}" = success && test "${FRAMING_RESULT}" = success

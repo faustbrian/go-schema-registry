@@ -240,11 +240,12 @@ func (client *Client) Register(ctx context.Context, request RegisterRequest) (Re
     Register validates raw-content bounds/format before provider I/O and
     coalesces overlapping requests by Subject/Fingerprint. The leader runs
     synchronously under its context; waiters may cancel without canceling it.
-    A full new-leader budget fails with ErrLimitExceeded before dispatch.
-    This is not persistent or cross-process idempotency. Provider callbacks must
-    not panic: registration owner/slot cleanup assumes normal return, so panic
-    can leave admission occupied. Provider errors/results and uncertain effects
-    may be returned together; nil error can still accompany RegistrationUnknown.
+    A full new-leader budget fails with ErrLimitExceeded before dispatch. This
+    is not persistent or cross-process idempotency. Provider panics propagate
+    to the leader unchanged; owned admission is released and coalesced waiters
+    receive ErrUnavailable with RegistrationUnknown because the external effect
+    cannot be established. Provider errors/results and uncertain effects may be
+    returned together; nil error can still accompany RegistrationUnknown.
 
 func (client *Client) Resolve(ctx context.Context, lookup Lookup) (ResolveResult, error)
     Resolve rejects unsupported/invalid selectors, then validates
@@ -758,9 +759,9 @@ type ResolveCache struct {
     no goroutines. Methods synchronize internal state, not injected resolver,
     Clock or Observer. Use NewResolveCache; zero/nil caches are unusable. It
     borrows dependencies, owns no Close/transport cleanup, and does not recover
-    load panics. A resolver panic can leave a retained flight unfinished even
-    after its slot is released; require panic-free collaborators to preserve
-    admission/cleanup.
+    load panics. Resolver and Clock panics propagate unchanged to the leader.
+    Owned flight and admission state is released, and existing waiters receive
+    ErrUnavailable.
 
 func NewResolveCache(resolver Resolver, config ResolveCacheConfig) (*ResolveCache, error)
     NewResolveCache validates and constructs a cache.

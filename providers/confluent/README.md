@@ -138,6 +138,11 @@ descriptors with unknown lifecycle because the response does not distinguish
 active and soft-deleted state. Soft or permanent version deletion requires an
 exact fingerprint confirmation.
 
+Fingerprint-confirmed deletion first resolves the target, then sends a separate
+DELETE. A mismatch sends no DELETE, but a match does not atomically bind the
+service mutation to the observed fingerprint. Applications requiring atomicity
+must coordinate every writer externally or use an API with that guarantee.
+
 ## Errors and outcomes
 
 Classify shared failures with `errors.Is` against the provider-neutral

@@ -20,4 +20,10 @@ Locks protect only local maps and flight state. They are not held across
 provider I/O or observer callbacks. Synchronous flight leaders avoid orphaned
 background work; waiters can cancel independently.
 
+Trusted callback panics are not contained. Registration, listing and cache-load
+owners nevertheless release their admission during unwinding. Existing flight
+waiters receive `ErrUnavailable` without the panic value; registration waiters
+receive `RegistrationUnknown` because an external write may already have occurred.
+Cache waiters still apply their own availability policy to the raw load failure.
+
 Continue with [API and identity](api.md).

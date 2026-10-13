@@ -441,8 +441,9 @@ func (client *Client) Capabilities() Capabilities {
 // overlapping requests by Subject/Fingerprint. The leader runs synchronously
 // under its context; waiters may cancel without canceling it. A full new-leader
 // budget fails with ErrLimitExceeded before dispatch. This is not persistent or
-// cross-process idempotency. Provider callbacks must not panic: registration
-// owner/slot cleanup assumes normal return, so panic can leave admission occupied.
+// cross-process idempotency. Provider panics propagate to the leader unchanged;
+// owned admission is released and coalesced waiters receive ErrUnavailable with
+// RegistrationUnknown because the external effect cannot be established.
 // Provider errors/results and uncertain effects may be
 // returned together; nil error can still accompany RegistrationUnknown.
 func (client *Client) Register(ctx context.Context, request RegisterRequest) (RegisterResult, error) {
@@ -472,12 +473,16 @@ func (client *Client) Register(ctx context.Context, request RegisterRequest) (Re
 			return flight.result, flight.err
 		}
 	}
-	if err := client.acquire(ctx); err != nil {
-		client.finishRegistration(key, flight, RegisterResult{}, err)
-		return RegisterResult{}, err
+	result := RegisterResult{Outcome: RegistrationUnknown}
+	err := error(ErrUnavailable)
+	defer func() { client.finishRegistration(key, flight, result, err) }()
+	if acquireErr := client.acquire(ctx); acquireErr != nil {
+		result = RegisterResult{}
+		err = acquireErr
+		return result, err
 	}
-	result, err := client.provider.Register(ctx, request)
-	client.release()
+	defer client.release()
+	result, err = client.provider.Register(ctx, request)
 	if err != nil {
 		result.Outcome = registrationOutcome(err)
 		err = privatePassthroughDiagnostic("schema registry: provider registration failed", err)
@@ -485,7 +490,6 @@ func (client *Client) Register(ctx context.Context, request RegisterRequest) (Re
 	if err == nil {
 		err = client.validateRegistrationResult(result)
 	}
-	client.finishRegistration(key, flight, result, err)
 	return result, err
 }
 
@@ -602,8 +606,8 @@ func (client *Client) List(ctx context.Context, request ListRequest) (ListPage, 
 	if err := client.acquire(ctx); err != nil {
 		return ListPage{}, err
 	}
+	defer client.release()
 	page, err := provider.List(ctx, request)
-	client.release()
 	if err != nil {
 		return ListPage{}, privatePassthroughDiagnostic("schema registry: provider listing failed", err)
 	}

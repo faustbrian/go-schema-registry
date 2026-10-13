@@ -2,8 +2,17 @@
 
 ## Unreleased
 
+### Fixed
+
+- Reject Protobuf wire counts and indexes outside the target machine-int range
+  before conversion, preventing 32-bit aliases while preserving admitted 64-bit
+  indexes. Invalid wire data continues to return `ErrInvalidFrame`.
+
 ### Documentation
 
+- Preserve fingerprint confirmation as a separate Resolve/DELETE preflight, not
+  an atomic service compare-and-delete. Applications requiring atomicity need
+  coordination that covers every writer; no provider transaction is implied.
 - Clarify /v3 source identity, borrowed callbacks, per-exchange resource limits,
   unsanitized structured diagnostics and non-atomic fingerprint-confirmed deletion
   in CONFLUENT-DEC-001.

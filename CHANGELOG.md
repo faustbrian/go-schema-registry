@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Fixed
+
+- Release registration, listing and cache-flight admission when trusted provider,
+  resolver or Clock callbacks panic. The original panic still reaches its caller;
+  coalesced waiters receive `ErrUnavailable`, and an uncertain registration reports
+  `RegistrationUnknown`. No callback preemption or blanket recovery is added.
+
 ### Documentation
 
 - Clarify schema/reference identity, copied ownership, actual cache/callback and

@@ -142,8 +142,8 @@ type resolveGeneration [1]byte
 // no goroutines. Methods synchronize internal state, not injected resolver,
 // Clock or Observer. Use NewResolveCache; zero/nil caches are unusable. It borrows
 // dependencies, owns no Close/transport cleanup, and does not recover load panics.
-// A resolver panic can leave a retained flight unfinished even after its slot is
-// released; require panic-free collaborators to preserve admission/cleanup.
+// Resolver and Clock panics propagate unchanged to the leader. Owned flight and
+// admission state is released, and existing waiters receive ErrUnavailable.
 type ResolveCache struct {
 	resolver Resolver
 	config   ResolveCacheConfig
@@ -234,9 +234,14 @@ func (cache *ResolveCache) Resolve(
 		}
 	}
 
-	resolution, err = cache.load(ctx, lookup, flight.generation)
-	cache.finishFlight(lookup, flight, resolution, err)
-	return applyStalePolicy(resolution, err, policy, found, entry, now)
+	// Publish the raw load outcome, not the leader's caller-specific stale policy.
+	// Defaults let panic unwinding release owned flight state without recovering
+	// or exposing the collaborator's panic value to another caller.
+	var loaded CacheResolution
+	loadErr := error(ErrUnavailable)
+	defer func() { cache.finishFlight(lookup, flight, loaded, loadErr) }()
+	loaded, loadErr = cache.load(ctx, lookup, flight.generation)
+	return applyStalePolicy(loaded, loadErr, policy, found, entry, now)
 }
 
 // Invalidate removes cached state and detaches the current flight generation.

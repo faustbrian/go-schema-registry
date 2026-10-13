@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"math"
 	"strconv"
 
 	schemaregistry "github.com/faustbrian/go-schema-registry/v3"
@@ -184,14 +185,16 @@ func appendSignedVarint(destination []byte, value int) []byte {
 	return append(destination, encoded[:count]...)
 }
 
-// readSignedVarint checks the varint grammar, then converts signed64 to native
-// int without a separate range check. Callers must use descriptor indexes that
-// fit the target platform; grammar acceptance is not cross-platform range proof.
+// readSignedVarint rejects values outside native int before conversion so
+// untrusted counts and indexes cannot alias smaller values on 32-bit platforms.
 func readSignedVarint(source []byte) (int, int, bool) {
 	encoded, count := binary.Uvarint(source)
 	if count <= 0 {
 		return 0, 0, false
 	}
 	decoded := int64(encoded>>1) ^ -int64(encoded&1)
+	if strconv.IntSize == 32 && (decoded < math.MinInt32 || decoded > math.MaxInt32) {
+		return 0, 0, false
+	}
 	return int(decoded), count, true
 }

@@ -29,6 +29,9 @@ validate every response byte, format or version capability.
 Deletion confirmation is a provider obligation, not atomic comparison in Client.
 Confluent resolves the fingerprint and then sends a separate DELETE; callers own
 uncertain mutation reconciliation, cache invalidation and irreversible effects.
+A matching preflight is not an atomic guard on the later DELETE. If an application
+requires atomic compare-and-delete, it must coordinate every writer externally
+or select a service/API with that explicit guarantee; Client cannot supply it.
 
 `CompatibilityResult.Supported` must be checked before `Compatible`.
 Provider-specific semantics use an explicit mode and diagnostic rather than a
