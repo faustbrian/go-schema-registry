@@ -18,6 +18,10 @@ mutation:
     - module: providers/glue
       archive: .verification/mutation/bootstrap/providers-glue.zip
       ledger: .verification/mutation/migration-ledger.json
+coverage:
+  modules:
+    - module: providers/confluent
+      mode: evidence
 api:
   baselines:
     - module: .
@@ -95,6 +99,13 @@ operations:
         packages: [./...]
         benchmark: .
         budget: 100ms
+        timeout: 20m
+  - module: providers/confluent
+    gate: test
+    steps:
+      - type: make
+        makefile: verification/package.mk
+        target: confluent-coverage-guard
         timeout: 20m
   - module: providers/confluent
     gate: conformance

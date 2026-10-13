@@ -1,0 +1,40 @@
+{
+  "package": "github.com/faustbrian/go-schema-registry/providers/confluent/v3",
+  "coordinate": "github.com/faustbrian/go-schema-registry/providers/confluent/v3/framing.go:197.3,198.1",
+  "statements": 1,
+  "go_version": "go1.27.2",
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "proof": "strconv.IntSize is a compile-time 64 on these targets, so the 32-bit representability refusal is unreachable for every input; it remains material and required-tested on 386.",
+  "reviewer": "remaining_inventory",
+  "reviewed_source": "72d63885308d909076a2f51b088349c4974b46df",
+  "reviewed_date": "2026-10-13",
+  "expiry": "Any material provider source/dependency/test/compiler/tool/architecture/checker/policy change; prose or commit identity alone does not expire it.",
+  "inputs": {
+    "confluent-inventory": "sha256:2e357df699a0dc2a75d27886a978f0a8282b9692734f73271bf110d912f097a1",
+    "native-confluent-policy": "sha256:43019931bf7c78dd7974dc332ae0e0b0e082885d743cdf32d707197e2615d9a5",
+    "providers/confluent/benchmark_test.go": "sha256:bf072ce1fcdbdb69770f4af50093844129d7868040f86f68355db33f69b4510d",
+    "providers/confluent/concurrency_test.go": "sha256:22657bfd7a5dce5c22bc57edb1c182b8c54e2c39ec5d3aa030d32361fdf0a78d",
+    "providers/confluent/confluent.go": "sha256:8ff346f2e9735cb31f427a62baafafb11eca1f73de85557b07053943ba691935",
+    "providers/confluent/confluent_test.go": "sha256:56b8e87bbc84ba2355e5e155a1c73d806a8c744b39163dcb4f436c3f3dd9ef4c",
+    "providers/confluent/coverage_internal_test.go": "sha256:3d9ac8f947f27e3023ffbce548091e222aefb020c233c10f8c539ba195f9b773",
+    "providers/confluent/deletion_preflight_test.go": "sha256:35462dc1166fca2287a275afd6a4c637a077a119427cf5e4c743c946ce3b7299",
+    "providers/confluent/example_test.go": "sha256:41a610330e94b79756c1de42c1a30529f47bce29e52edc3e62ec0058585a054b",
+    "providers/confluent/framing.go": "sha256:50af523cf989455b753e184a03af523b55e828f3a35e20573f1dc9a79cfef258",
+    "providers/confluent/fuzz_test.go": "sha256:812252d13f94ddaca30f174fa1a5cec2241693507f6f25eb3d6245312a83a40a",
+    "providers/confluent/go.mod": "sha256:d5efe7fd50e92d2609e7220a9a0f658580e0121821aaed42474dcc41734a9e20",
+    "providers/confluent/go.sum": "sha256:a7ae199bbc5c82e8fc09c1dea1ca092961eba37658c8dbd9dac73689dec10d20",
+    "providers/confluent/integration_test.go": "sha256:6f88906aeabd987e2a7ec79a35eb68418437718da31f0ccbfab529ada3cb5694",
+    "providers/confluent/leak_test.go": "sha256:5faaff2b3d1ba9547798d4d7a1ab4e15eff8903d1ad0ba7894ca6766cd39d873",
+    "providers/confluent/machine_int_test.go": "sha256:163422e0585cb4709fca09dbd341f8bd15a52aac8bbdafe87c6e9906e52c30c0",
+    "providers/confluent/privacy_test.go": "sha256:51415447a1ed5413a94b55f6b02c108b2bc672387b0c914f04a429545f3d5247",
+    "providers/confluent/scripts/check-coverage-exception.go": "sha256:ba6b8fa729b4208841e8f234997e7f9021f950228d65658242f4362449399078",
+    "providers/confluent/scripts/check-coverage-exception.sh": "sha256:cc7b040a38800b91952393ec192a2871c1cf44f12d8437be7465e67e9082e02a",
+    "providers/confluent/scripts/check-coverage-exception_test.go": "sha256:a33bba2672f3967cef01d5b57632caffff1a157db6ffbbcfeae0071b2b398d19",
+    "providers/confluent/testdata/reference/go_frame.go": "sha256:12ad01ad0603d86ee97cc9387fb567e0a539e4ac76dc22cea325ec18e98c8e0c",
+    "providers/confluent/verification/package.mk": "sha256:b2d366809ed01757573a2a9690f2451436c9aa7c8ef14a1b80f032b7169e6a2b",
+    "required-386-policy": "sha256:f9cc5cf4621382571d5c800940b5236ce471708bc15ad7b6e2ad175a9a2edccc"
+  }
+}
