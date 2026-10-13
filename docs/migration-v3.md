@@ -11,8 +11,10 @@ Migrate root and format imports together. Reconstruct schemas,
 canonicalizers, clients, caches and codecs with the same major's types and
 error sentinels. The JSON Schema adapter's `Dialect` alias and `Config.Dialect`
 now have JSON Schema v2 type identity; v1 dialect values are not interchangeable.
-Root v3.0.0 is published. Confluent source now targets its own `/v3` identity
-and the public root v3.0.0 types; verify its provider tag before adopting it.
+Root v3.0.0 and Confluent v3.0.0 are published. Candidate v3.0.1 patches
+retain their `/v3` identities. Once both patches are published, select root
+v3.0.1 and Confluent v3.0.1 explicitly: the provider retains its root v3.0.0
+minimum, which does not alone select the root lifecycle repair.
 Glue retains its published `/v2` identity and root v2.0.0 dependency and cannot
 be supplied to a v3 client.
 

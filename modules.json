@@ -65,7 +65,7 @@
       "family_label": "Protocols And Descriptions",
       "family_description": "Standards, envelopes, schemas, descriptions, signatures, and wire interoperability.",
       "family_order": 3,
-      "version": "3.0.0",
+      "version": "3.0.1",
       "tag_prefix": "v",
       "owned_dependencies": [
         "github.com/faustbrian/go-json-schema/v2"
@@ -223,7 +223,7 @@
       "family_label": "Protocols And Descriptions",
       "family_description": "Standards, envelopes, schemas, descriptions, signatures, and wire interoperability.",
       "family_order": 3,
-      "version": "3.0.0",
+      "version": "3.0.1",
       "tag_prefix": "providers/confluent/v",
       "owned_dependencies": [
         "github.com/faustbrian/go-json-schema/v2",

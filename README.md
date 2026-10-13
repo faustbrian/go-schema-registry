@@ -27,10 +27,11 @@ repository's immutable tags and releases. See the [v3 migration guide](docs/migr
 
 ## Install
 
-Install the published root v3 release:
+Candidate patch: v3.0.1. Once its tag and release are published, install it
+explicitly to obtain panic-safe registration and cache-flight cleanup:
 
 ```sh
-go get github.com/faustbrian/go-schema-registry/v3@v3
+go get github.com/faustbrian/go-schema-registry/v3@v3.0.1
 ```
 
 Import the canonical provider-neutral package directly:

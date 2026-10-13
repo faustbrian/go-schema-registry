@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 3.0.1 - 2026-10-13
+
 ### Fixed
 
 - Release registration, listing and cache-flight admission when trusted provider,
@@ -13,6 +15,41 @@
 
 - Clarify schema/reference identity, copied ownership, actual cache/callback and
   codec admission limits; reconcile SCHEMA-REG-DEC-002/003/004 prose.
+
+### Adoption
+
+- Once both patches are published, select root v3.0.1 and Confluent v3.0.1
+  explicitly. The provider retains its root v3.0.0 minimum; selecting only
+  the provider patch does not guarantee the root lifecycle repair. Glue v2
+  remains a separate root-v2 cohort.
+
+### Source
+
+- Root lifecycle repair and source-contract documentation (other-module
+  portions of mixed commits retain their independent release scope):
+  [bf563c8fa9](https://github.com/faustbrian/go-schema-registry/commit/bf563c8fa93953c03ff5fa9b25879e35840d88dc),
+  [94d4b04fc0](https://github.com/faustbrian/go-schema-registry/commit/94d4b04fc0900cbfa2b17bee4948cb876dad93f2),
+  [f61a870d60](https://github.com/faustbrian/go-schema-registry/commit/f61a870d608283b193511cc39c369d7acbce502a),
+  [0e75f51f42](https://github.com/faustbrian/go-schema-registry/commit/0e75f51f42d2d5ea8634fff5f2f61dd0c74dc2a1).
+- Tooling, documentation enforcement, development policy and bounded
+  verification; these are not additional root runtime fixes:
+  [8319199b55](https://github.com/faustbrian/go-schema-registry/commit/8319199b5516711d364c324dc0614900bec5a814),
+  [0488b1b0dc](https://github.com/faustbrian/go-schema-registry/commit/0488b1b0dc830d1ff91b9f6788bcc2ed37f82522),
+  [2aadf27cd0](https://github.com/faustbrian/go-schema-registry/commit/2aadf27cd048c5956c7f38d2cd06462a17f83d73),
+  [54cfdd57d5](https://github.com/faustbrian/go-schema-registry/commit/54cfdd57d5f3a8df042feb4c66e5008e348c0eca),
+  [84f4d3ed2d](https://github.com/faustbrian/go-schema-registry/commit/84f4d3ed2dcd8513929eef78c21926a310620ea3).
+- Already-published Glue v2.0.1 preparation, AWS dependency repair and
+  validated-cast explanation; recorded as repository history, not a new Glue
+  release or root patch runtime change:
+  [516ea3363e](https://github.com/faustbrian/go-schema-registry/commit/516ea3363e8e27c04ff83dae0d7cffc34dbb2268),
+  [7d96cac7ec](https://github.com/faustbrian/go-schema-registry/commit/7d96cac7ec2d6fae573b41023f842c6f41736080),
+  [14abb8a364](https://github.com/faustbrian/go-schema-registry/commit/14abb8a364e236c2e92c1d9f9ce864d20a1c5a6b).
+- Already-published Confluent v3.0.0 adoption and subsequent provider framing
+  documentation; these remain provider-scoped, not root runtime fixes:
+  [dcc12f1fb9](https://github.com/faustbrian/go-schema-registry/commit/dcc12f1fb90e8352c379d2167d2809b3606b1ca8),
+  [b90870929c](https://github.com/faustbrian/go-schema-registry/commit/b90870929ce89397b32815f4944da1b132d1fee9).
+
+## 3.0.0 - 2026-10-08
 
 ### Breaking changes
 

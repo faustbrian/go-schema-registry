@@ -30,16 +30,18 @@ the exact service, compatibility, and wire policies.
 
 ## Install and import
 
-The source targets provider v3 and the published root v3.0.0 contract.
-The following installation requires the provider v3 tag and release to be
-published; source preparation alone does not establish provider availability.
-Existing v1 and v2 installations retain their published type identity and behavior.
-
-Install this independently versioned provider module directly:
+The provider v3.0.0 and root v3.0.0 releases are published. Candidate patches
+v3.0.1 retain those module identities and Go 1.27.0. Once both patch tags and
+releases are published, select both independently versioned modules explicitly:
 
 ```sh
-go get github.com/faustbrian/go-schema-registry/providers/confluent/v3@v3.0.0
+go get github.com/faustbrian/go-schema-registry/providers/confluent/v3@v3.0.1 github.com/faustbrian/go-schema-registry/v3@v3.0.1
 ```
+
+The provider patch fixes machine-int framing admission. The root patch adds
+panic-safe registration and cache-flight cleanup; the provider's unchanged
+root v3.0.0 minimum does not guarantee that repair. Existing v1 and v2
+installations retain their published type identity and behavior.
 
 The canonical import paths and package identifiers are:
 

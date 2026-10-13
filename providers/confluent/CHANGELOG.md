@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 3.0.1 - 2026-10-13
+
 ### Fixed
 
 - Reject Protobuf wire counts and indexes outside the target machine-int range
@@ -16,6 +18,23 @@
 - Clarify /v3 source identity, borrowed callbacks, per-exchange resource limits,
   unsanitized structured diagnostics and non-atomic fingerprint-confirmed deletion
   in CONFLUENT-DEC-001.
+
+### Adoption
+
+- Once published, select this provider v3.0.1 and root v3.0.1 explicitly
+  to obtain both framing admission and root lifecycle repairs. The root
+  dependency minimum remains v3.0.0; existing wire and service contracts
+  and fingerprint-confirmation limits are unchanged.
+
+### Source
+
+- Patch changes:
+  [bf563c8fa9](https://github.com/faustbrian/go-schema-registry/commit/bf563c8fa93953c03ff5fa9b25879e35840d88dc),
+  [94d4b04fc0](https://github.com/faustbrian/go-schema-registry/commit/94d4b04fc0900cbfa2b17bee4948cb876dad93f2),
+  [f61a870d60](https://github.com/faustbrian/go-schema-registry/commit/f61a870d608283b193511cc39c369d7acbce502a),
+  [b90870929c](https://github.com/faustbrian/go-schema-registry/commit/b90870929ce89397b32815f4944da1b132d1fee9).
+
+## 3.0.0 - 2026-10-08
 
 ### Breaking changes
 
