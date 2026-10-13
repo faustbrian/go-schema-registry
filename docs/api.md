@@ -1,5 +1,7 @@
 # API and identity
 
+[Documentation index](README.md)
+
 `Definition` is mutable caller input. `Compile` copies it and returns an
 immutable `Schema`. A portable fingerprint is SHA-256 over a domain separator,
 the explicit format, canonical bytes, and reference name/fingerprint pairs in

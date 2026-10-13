@@ -1,5 +1,7 @@
 # AWS Glue Specification Decisions
 
+[Documentation index](README.md)
+
 This register is scoped to the independently releasable Glue adapter. Pins and
 update feeds are in [`spec/sources.lock.json`](../spec/sources.lock.json), and
 conformance is mapped in [`specification/README.md`](../specification/README.md).

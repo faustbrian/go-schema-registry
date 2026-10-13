@@ -1,5 +1,7 @@
 # Outages and incident operation
 
+[Documentation index](README.md)
+
 Choose outage behavior per lookup; there is no automatic fail-open. For normal
 production decode, use fail-closed or a documented stale window. For startup or
 incident isolation, load a release-bound bundle and use cache-only resolution.
@@ -19,3 +21,5 @@ During an incident record provider scope, operation, safe error class, cache
 state, freshness age, and bundle provenance. Never record schema bodies or
 credentials. Unknown registration outcome requires resolution by exact content
 or provider identity before retrying.
+
+Continue with [API and identity](api.md).

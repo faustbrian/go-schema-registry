@@ -1,5 +1,7 @@
 # Migrations
 
+[Documentation index](README.md)
+
 When adopting from embedded registry clients:
 
 1. Inventory each stored wire framing version, provider scope, subject strategy,
@@ -43,3 +45,5 @@ sequence with distinct provider scopes, an ambiguous target registration, a
 verified cutover, explicit outage failover, cross-provider ID rejection, and
 rollback. Disaster recovery uses the same rule: restore the registry export or
 bundle first, verify fingerprints, then restore provider-specific routing.
+
+Continue with [API and identity](api.md).

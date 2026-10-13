@@ -1,5 +1,7 @@
 # Root v3 migration
 
+[Documentation index](README.md)
+
 The maintained root and format source targets
 `github.com/faustbrian/go-schema-registry/v3`, with Go 1.27.0 and JSON Schema
 `github.com/faustbrian/go-json-schema/v2` v2.0.0. Publication is a separate step:

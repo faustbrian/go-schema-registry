@@ -1,5 +1,7 @@
 # Security
 
+[Documentation index](README.md)
+
 ## Source applicability and diagnostic boundary
 
 This model covers the maintained root, format packages, and Confluent and Glue

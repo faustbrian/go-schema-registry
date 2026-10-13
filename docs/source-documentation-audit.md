@@ -1,5 +1,7 @@
 # Source documentation audit
 
+[Documentation index](README.md)
+
 ## Scope, acceptance and smallest checks
 
 Base 8319199b5516711d364c324dc0614900bec5a814. Tier A source-only pass;
@@ -246,3 +248,5 @@ routes. Ordinary shared CI selects strict source-documentation checking and
 requires its result. Native prerequisites, operation budgets, security and
 release controls are retained. Hosted exact-head evidence is recorded by the
 coordination ledger; configuration alone does not establish green delivery.
+
+Continue with [API and identity](api.md).

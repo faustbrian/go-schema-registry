@@ -1,5 +1,7 @@
 # Verification provenance
 
+[Documentation index](README.md)
+
 Provider evidence is pinned independently of provider identity:
 
 | Input | Version | Immutable identity |
@@ -42,3 +44,5 @@ and also retains the franz-go comparison. Java reports the arithmetic mean over
 100,000 operations after 10,000 warmups; Go uses the standard `testing.B`
 calibrator for one second and reports allocations. Every comparison uses the
 same 1,024-byte payload and provider identity.
+
+Continue with [API and identity](api.md).

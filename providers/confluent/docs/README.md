@@ -1,5 +1,7 @@
 # Documentation
 
+[Package README](../README.md) · [Parent documentation](../../../docs/README.md)
+
 The [specification decision register](specification-decisions.md) and
 [conformance matrix](../specification/README.md) record the exact supported
 Confluent service and wire boundaries.
@@ -26,3 +28,12 @@ is isolated behind the separately invoked `confluentintegration` test tag.
 ## Related packages
 
 - [Parent package documentation](../../../docs/README.md)
+
+## Ecosystem navigation
+
+See the [versioned Golib ecosystem index](https://github.com/faustbrian/go-library-tools/blob/v1.8.4/docs/ecosystem/README.md) for package
+selection, explicit ownership, and compatibility guidance.
+
+## Additional guides and reference
+
+- [Confluent compatibility policy](compatibility.md)

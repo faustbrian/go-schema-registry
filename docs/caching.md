@@ -1,5 +1,7 @@
 # Caching and offline bundles
 
+[Documentation index](README.md)
+
 `ResolveCache` bounds entries, concurrent loads, positive freshness, stale
 eligibility, and negative freshness. A selector has one upstream flight, but
 each waiter applies its own policy:
@@ -29,3 +31,5 @@ missing dependencies in the root closure. Bundle accessors never fetch remote
 resources; supplied load canonicalizers must honor the local-only obligation.
 Distribute bundles as immutable release artifacts and verify their outer digest
 or signature in the deployment system.
+
+Continue with [API and identity](api.md).

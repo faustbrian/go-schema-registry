@@ -1,5 +1,7 @@
 # Documentation
 
+[Package README](../README.md) · [Parent documentation](../../../docs/README.md)
+
 The [specification decision register](specification-decisions.md) and
 [conformance matrix](../specification/README.md) record the exact AWS service,
 live-evidence, and wire boundaries.
@@ -26,3 +28,12 @@ the optional read-only AWS suite uses `liveintegration`.
 ## Related packages
 
 - [Parent package documentation](../../../docs/README.md)
+
+## Ecosystem navigation
+
+See the [versioned Golib ecosystem index](https://github.com/faustbrian/go-library-tools/blob/v1.8.4/docs/ecosystem/README.md) for package
+selection, explicit ownership, and compatibility guidance.
+
+## Additional guides and reference
+
+- [AWS Glue compatibility policy](compatibility.md)

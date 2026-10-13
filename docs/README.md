@@ -1,5 +1,7 @@
 # Documentation
 
+[Package README](../README.md)
+
 ## Getting started
 
 - [API](api.md)
@@ -40,4 +42,9 @@
 - [Private security reporting](../SECURITY.md)
 - [Release history](../CHANGELOG.md)
 - [License](../LICENSE)
-- [Protocols and descriptions family](https://github.com/faustbrian/go-library-tools/blob/v1.4.0/docs/ecosystem/design-language.md#package-families-and-selection)
+- [Protocols and descriptions family](https://github.com/faustbrian/go-library-tools/blob/v1.8.4/docs/ecosystem/design-language.md#package-families-and-selection)
+
+## Additional guides and reference
+
+- [Root v2 migration](migration-v2.md)
+- [Source documentation audit](source-documentation-audit.md)

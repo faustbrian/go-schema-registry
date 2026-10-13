@@ -1,5 +1,7 @@
 # Evolution and compatibility
 
+[Documentation index](README.md)
+
 Applications own evolution policy. Before registering, select a mode advertised
 by the provider and call `CheckCompatibility`. Unsupported is not compatible.
 Confluent checks use the subject's configured mode and reject a caller-requested
@@ -18,3 +20,5 @@ not proof of identical evolution behavior.
 Use immutable fixtures and independent clients to verify intended changes.
 Never downgrade compatibility automatically after a rejection. Coordinate
 producer and consumer rollout before deleting any version.
+
+Continue with [API and identity](api.md).

@@ -1,5 +1,7 @@
 # Conformance and hardening matrix
 
+[Documentation index](README.md)
+
 The [specification decision register](specification-decisions.md) and its
 [machine conformance matrix](../specification/README.md) define the exact
 claims behind this summary.

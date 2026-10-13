@@ -1,5 +1,7 @@
 # AWS Glue compatibility policy
 
+[Documentation index](README.md)
+
 Provider v2 uses the published root v2.0.0 contract. Migrate the provider,
 root and format imports together; v1 values and sentinels cannot substitute
 for v2 values. The major changes nominal Go identity, not wire identity.

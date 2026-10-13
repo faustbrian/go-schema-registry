@@ -1,5 +1,7 @@
 # FAQ
 
+[Documentation index](README.md)
+
 ## Why are provider IDs and fingerprints separate?
 
 Provider IDs are meaningful only inside one provider scope. The fingerprint is
@@ -32,3 +34,5 @@ Production packages and default tests require no build tag. Glue's required
 credential-free faithful service suite uses `integration`. The optional
 Confluent real-service and read-only AWS suites are invoked separately with
 `confluentintegration` and `liveintegration`, respectively.
+
+Continue with [API and identity](api.md).

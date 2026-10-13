@@ -1,5 +1,7 @@
 # Provider matrix
 
+[Documentation index](README.md)
+
 Provider and specification facts in this document were refreshed on
 2026-08-10. The executable service baseline is Confluent Platform 8.3.1;
 Confluent-compatible products remain separate compatibility targets.
@@ -49,3 +51,5 @@ guide](https://docs.aws.amazon.com/glue/latest/dg/schema-registry.html) and API.
 Provider modules document their endpoint, credentials, quotas, retries, and wire
 scope independently. Compatibility with one Confluent-compatible product does
 not imply identical extensions, limits, or deletion behavior in another.
+
+Continue with [API and identity](api.md).

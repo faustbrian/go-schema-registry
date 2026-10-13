@@ -1,5 +1,7 @@
 # Architecture
 
+[Documentation index](README.md)
+
 The core owns values, policy validation, bounded concurrency, registration
 single-flight, caching, bundles, reference-graph validation, and codec/framer
 composition. Format packages own parsing and canonicalization. Provider modules
@@ -17,3 +19,5 @@ trusted callbacks and may block, panic or perform external work.
 Locks protect only local maps and flight state. They are not held across
 provider I/O or observer callbacks. Synchronous flight leaders avoid orphaned
 background work; waiters can cancel independently.
+
+Continue with [API and identity](api.md).

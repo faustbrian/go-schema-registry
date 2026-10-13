@@ -22,8 +22,8 @@ AWS Glue Schema Registry Java SerDe 1.1.27.
 
 For shared package families, selection guidance, ownership, and lifecycle
 vocabulary, see the versioned [v1.4.0 Golib ecosystem
-index](https://github.com/faustbrian/go-library-tools/blob/v1.4.0/docs/ecosystem/README.md)
-and its [Protocols and descriptions family](https://github.com/faustbrian/go-library-tools/blob/v1.4.0/docs/ecosystem/design-language.md#package-families-and-selection).
+index](https://github.com/faustbrian/go-library-tools/blob/v1.8.4/docs/ecosystem/README.md)
+and its [Protocols and descriptions family](https://github.com/faustbrian/go-library-tools/blob/v1.8.4/docs/ecosystem/design-language.md#package-families-and-selection).
 
 See the [specification decision register](docs/specification-decisions.md) for
 the exact API, lifecycle, unsupported-capability, and wire policies.
@@ -229,5 +229,7 @@ and the payload bound; compression byte 5 requires a different implementation.
 
 See the [root package documentation](../../README.md) for the provider-neutral
 contract and explicit format packages. For ecosystem-wide package selection,
-use the immutable [v1.4.0 ecosystem index](https://github.com/faustbrian/go-library-tools/blob/v1.4.0/docs/ecosystem/README.md)
-and [Protocols and descriptions guidance](https://github.com/faustbrian/go-library-tools/blob/v1.4.0/docs/ecosystem/design-language.md#package-families-and-selection).
+use the immutable [v1.8.4 ecosystem index](https://github.com/faustbrian/go-library-tools/blob/v1.8.4/docs/ecosystem/README.md)
+and [Protocols and descriptions guidance](https://github.com/faustbrian/go-library-tools/blob/v1.8.4/docs/ecosystem/design-language.md#package-families-and-selection).
+
+Continue with the [documentation index](docs/README.md).

@@ -1,5 +1,7 @@
 # Integration examples
 
+[Documentation index](README.md)
+
 For directly executable provider construction, see the
 [Confluent `ExampleNew`](../providers/confluent/example_test.go) and
 [AWS Glue `ExampleNew`](../providers/glue/example_test.go). The snippets below
@@ -29,3 +31,5 @@ Persist the framed payload or a tuple containing wire version, provider ID,
 portable fingerprint, and payload. Preload the worker with an immutable bundle
 covering all replayable history. Workflow replay must use cache-only resolution;
 it must not contact a mutable registry.
+
+Continue with [API and identity](api.md).

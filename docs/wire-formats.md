@@ -1,5 +1,7 @@
 # Wire formats
 
+[Documentation index](README.md)
+
 Wire framing is versioned independently from schema content and codecs.
 
 Confluent classic Avro and JSON frames are magic byte `0`, a four-byte
@@ -26,3 +28,5 @@ and Protobuf format adapters canonicalize schemas but deliberately do not own
 business-value codecs; callers compose an explicitly selected codec through
 `CodecIntegration`. Framing or canonicalization evidence does not imply an
 Avro or Protobuf payload-codec claim.
+
+Continue with [API and identity](api.md).

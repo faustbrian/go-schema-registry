@@ -1,5 +1,7 @@
 # Confluent compatibility policy
 
+[Documentation index](README.md)
+
 Current source targets provider /v3 and published root v3.0.0 types. Existing
 provider /v2 releases retain their immutable root /v2 contract; source preparation
 does not publish a new provider. Migrate provider, root and format imports together

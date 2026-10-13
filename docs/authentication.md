@@ -1,5 +1,7 @@
 # Authentication and endpoints
 
+[Documentation index](README.md)
+
 The Confluent adapter requires HTTPS except for an explicit test-only option,
 rejects URL userinfo, query strings, and fragments, and uses an injected
 `RoundTripper` without following redirects. Its credential provider supplies an
@@ -14,3 +16,5 @@ endpoint policy explicitly trusts them.
 
 Never include credential values or complete schemas in errors, metrics, traces,
 or diagnostics.
+
+Continue with [API and identity](api.md).

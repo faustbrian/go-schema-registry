@@ -1,5 +1,7 @@
 # Root v2 migration
 
+[Documentation index](README.md)
+
 The root source uses `github.com/faustbrian/go-schema-registry/v2` and
 Go 1.27.0. Release availability is determined by immutable repository tags and
 releases, not this source guide. No version-specific source directory is needed.
