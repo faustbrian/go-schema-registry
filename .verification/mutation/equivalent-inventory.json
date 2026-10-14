@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "packages": [
+    {
+      "module_directory": "providers/confluent",
+      "package_directory": ".",
+      "source_digest": "826e378eeeb73f00402a1516c03450717b3326642aa29d1319c4f2ec36e3ca5e",
+      "gremlins_version": "v0.6.0",
+      "gremlins_verifier_sha256": "390cf4085a0063fe5dcaa29ce942ea4cb8c7876347da90376b65dc8c5c811104",
+      "mutations": [
+        {
+          "file_name": "framing.go",
+          "type": "INVERT_LOGICAL",
+          "line": 196,
+          "column": 55,
+          "contract_domain": "Go 1.27.2 amd64 and arm64 native 64-bit int signed-varint admission and both public Protobuf framing call sites; identical decoding, return values, failures and ownership",
+          "reason": "Owner faustbrian; independent reviewer /root/schema_repair; date 2026-10-14; expiry 2026-11-14 or earlier affected source, verifier, operator, location, architecture, int-width, outer short-circuit guard or compiler-semantics change. Pinned Gremlins v0.6.0 changes only this inner operand: the inner disjunction becomes conjunction. On the two explicitly admitted architectures the unchanged outer strconv.IntSize == 32 conjunction has a constant false left operand, so neither original nor mutated inner expression is evaluated for any decoded int64. Both return the same native int, consumed count and success value, with identical public outcomes and private-helper behavior. This proof excludes 386 and all other architectures; outer equality/conjunction, zig-zag arithmetic, varint/count admission, int conversion, public nonnegative/count/index limits and payload guards are not exempted. Original native run 38529812437 remains failed with 321 killed and 5 LIVED; no raw status or counter is relabelled. Affected native qualification with enforced architecture scope remains required.",
+          "goarchs": [
+            "amd64",
+            "arm64"
+          ]
+        },
+        {
+          "file_name": "framing.go",
+          "type": "CONDITIONALS_BOUNDARY",
+          "line": 196,
+          "column": 39,
+          "contract_domain": "Go 1.27.2 amd64 and arm64 native 64-bit int signed-varint admission and both public Protobuf framing call sites; identical decoding, return values, failures and ownership",
+          "reason": "Owner faustbrian; independent reviewer /root/schema_repair; date 2026-10-14; expiry 2026-11-14 or earlier affected source, verifier, operator, location, architecture, int-width, outer short-circuit guard or compiler-semantics change. Pinned Gremlins v0.6.0 changes only this inner operand: the inner lower comparison changes from less-than to less-than-or-equal. On the two explicitly admitted architectures the unchanged outer strconv.IntSize == 32 conjunction has a constant false left operand, so neither original nor mutated inner expression is evaluated for any decoded int64. Both return the same native int, consumed count and success value, with identical public outcomes and private-helper behavior. This proof excludes 386 and all other architectures; outer equality/conjunction, zig-zag arithmetic, varint/count admission, int conversion, public nonnegative/count/index limits and payload guards are not exempted. Original native run 38529812437 remains failed with 321 killed and 5 LIVED; no raw status or counter is relabelled. Affected native qualification with enforced architecture scope remains required.",
+          "goarchs": [
+            "amd64",
+            "arm64"
+          ]
+        },
+        {
+          "file_name": "framing.go",
+          "type": "CONDITIONALS_NEGATION",
+          "line": 196,
+          "column": 39,
+          "contract_domain": "Go 1.27.2 amd64 and arm64 native 64-bit int signed-varint admission and both public Protobuf framing call sites; identical decoding, return values, failures and ownership",
+          "reason": "Owner faustbrian; independent reviewer /root/schema_repair; date 2026-10-14; expiry 2026-11-14 or earlier affected source, verifier, operator, location, architecture, int-width, outer short-circuit guard or compiler-semantics change. Pinned Gremlins v0.6.0 changes only this inner operand: the inner lower comparison changes from less-than to greater-than-or-equal. On the two explicitly admitted architectures the unchanged outer strconv.IntSize == 32 conjunction has a constant false left operand, so neither original nor mutated inner expression is evaluated for any decoded int64. Both return the same native int, consumed count and success value, with identical public outcomes and private-helper behavior. This proof excludes 386 and all other architectures; outer equality/conjunction, zig-zag arithmetic, varint/count admission, int conversion, public nonnegative/count/index limits and payload guards are not exempted. Original native run 38529812437 remains failed with 321 killed and 5 LIVED; no raw status or counter is relabelled. Affected native qualification with enforced architecture scope remains required.",
+          "goarchs": [
+            "amd64",
+            "arm64"
+          ]
+        },
+        {
+          "file_name": "framing.go",
+          "type": "CONDITIONALS_BOUNDARY",
+          "line": 196,
+          "column": 66,
+          "contract_domain": "Go 1.27.2 amd64 and arm64 native 64-bit int signed-varint admission and both public Protobuf framing call sites; identical decoding, return values, failures and ownership",
+          "reason": "Owner faustbrian; independent reviewer /root/schema_repair; date 2026-10-14; expiry 2026-11-14 or earlier affected source, verifier, operator, location, architecture, int-width, outer short-circuit guard or compiler-semantics change. Pinned Gremlins v0.6.0 changes only this inner operand: the inner upper comparison changes from greater-than to greater-than-or-equal. On the two explicitly admitted architectures the unchanged outer strconv.IntSize == 32 conjunction has a constant false left operand, so neither original nor mutated inner expression is evaluated for any decoded int64. Both return the same native int, consumed count and success value, with identical public outcomes and private-helper behavior. This proof excludes 386 and all other architectures; outer equality/conjunction, zig-zag arithmetic, varint/count admission, int conversion, public nonnegative/count/index limits and payload guards are not exempted. Original native run 38529812437 remains failed with 321 killed and 5 LIVED; no raw status or counter is relabelled. Affected native qualification with enforced architecture scope remains required.",
+          "goarchs": [
+            "amd64",
+            "arm64"
+          ]
+        },
+        {
+          "file_name": "framing.go",
+          "type": "CONDITIONALS_NEGATION",
+          "line": 196,
+          "column": 66,
+          "contract_domain": "Go 1.27.2 amd64 and arm64 native 64-bit int signed-varint admission and both public Protobuf framing call sites; identical decoding, return values, failures and ownership",
+          "reason": "Owner faustbrian; independent reviewer /root/schema_repair; date 2026-10-14; expiry 2026-11-14 or earlier affected source, verifier, operator, location, architecture, int-width, outer short-circuit guard or compiler-semantics change. Pinned Gremlins v0.6.0 changes only this inner operand: the inner upper comparison changes from greater-than to less-than-or-equal. On the two explicitly admitted architectures the unchanged outer strconv.IntSize == 32 conjunction has a constant false left operand, so neither original nor mutated inner expression is evaluated for any decoded int64. Both return the same native int, consumed count and success value, with identical public outcomes and private-helper behavior. This proof excludes 386 and all other architectures; outer equality/conjunction, zig-zag arithmetic, varint/count admission, int conversion, public nonnegative/count/index limits and payload guards are not exempted. Original native run 38529812437 remains failed with 321 killed and 5 LIVED; no raw status or counter is relabelled. Affected native qualification with enforced architecture scope remains required.",
+          "goarchs": [
+            "amd64",
+            "arm64"
+          ]
+        }
+      ]
+    }
+  ]
+}
