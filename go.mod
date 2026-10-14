@@ -4,7 +4,7 @@ go 1.27.0
 
 require (
 	github.com/bufbuild/protocompile v0.14.1
-	github.com/deszhou/jcs v1.0.0
+	github.com/deszhou/jcs v1.1.0
 	github.com/faustbrian/go-json-schema/v2 v2.0.0
 	github.com/linkedin/goavro/v2 v2.15.0
 	go.uber.org/goleak v1.3.0
