@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## 3.0.2 - 2026-10-22
+
+### Changed
+
+- Publish the current source and documentation with a fresh immutable tag.
+- Publish independently versioned modules from the same source snapshot:
+  - `providers/confluent/v3.0.2`.
+  - `providers/glue/v2.1.0`.
+
 ## 3.0.1 - 2026-10-13
 
 ### Fixed
