@@ -23,6 +23,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sso v1.38.4 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.43.4 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.51.4 // indirect
+	github.com/deszhou/jcs v1.1.0 // indirect
 	github.com/dlclark/regexp2/v2 v2.8.2 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/linkedin/goavro/v2 v2.15.0 // indirect
